@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoftTouch.Spirv.Experiments
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoftTouch.Spirv.Generators", "src\SoftTouch.Spirv.Generators\SoftTouch.Spirv.Generators.csproj", "{53C1830C-313F-4A28-A59C-600C002316C9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoftTouch.Spirv.Internals", "src\SoftTouch.Spirv.Internals\SoftTouch.Spirv.Internals.csproj", "{DF068CDC-4A4E-4147-92E8-5DE39EB2EBC5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -32,10 +34,15 @@ Global
 		{53C1830C-313F-4A28-A59C-600C002316C9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{53C1830C-313F-4A28-A59C-600C002316C9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{53C1830C-313F-4A28-A59C-600C002316C9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DF068CDC-4A4E-4147-92E8-5DE39EB2EBC5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DF068CDC-4A4E-4147-92E8-5DE39EB2EBC5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DF068CDC-4A4E-4147-92E8-5DE39EB2EBC5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DF068CDC-4A4E-4147-92E8-5DE39EB2EBC5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{4ACB02BD-A300-4487-924A-9A94EA48C82A} = {BC72A7CA-D41E-417D-B6DA-8E3828583759}
 		{B2FE06FB-00BB-45CA-ABF0-5AD22883F729} = {BC72A7CA-D41E-417D-B6DA-8E3828583759}
 		{53C1830C-313F-4A28-A59C-600C002316C9} = {BC72A7CA-D41E-417D-B6DA-8E3828583759}
+		{DF068CDC-4A4E-4147-92E8-5DE39EB2EBC5} = {BC72A7CA-D41E-417D-B6DA-8E3828583759}
 	EndGlobalSection
 EndGlobal
