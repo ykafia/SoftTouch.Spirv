@@ -36,11 +36,10 @@ public sealed partial class OperandArray : IDisposable
         }
     }
 
-    public OperandArray(int capacity = 4)
+    public OperandArray(int capacity)
     {
         data = MemoryOwner<int>.Allocate(capacity);
     }
-
 
     public void Clear()
     {

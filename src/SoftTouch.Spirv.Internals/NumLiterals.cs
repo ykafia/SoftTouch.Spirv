@@ -4,20 +4,14 @@ using CommunityToolkit.HighPerformance.Buffers;
 namespace SoftTouch.Spirv.Internals;
 
 
-public interface ILiteral<T> : IDisposable
-    where T : unmanaged, INumber<T>
-{
-    public T Value { get; }
-    public MemoryOwner<int> Words { get; }
-}
 
-public readonly struct LiteralInteger : ILiteral<int>
+public readonly struct LiteralInteger : INumLiteral<int>
 {
     public int Value { get; private init; }
 
     public MemoryOwner<int> Words { get; private init; }
 
-    public LiteralInteger(int value)
+    internal LiteralInteger(int value)
     {
         Value = value;
         Words = MemoryOwner<int>.Allocate(1);
@@ -30,13 +24,13 @@ public readonly struct LiteralInteger : ILiteral<int>
     }
 }
 
-public readonly struct LiteralLong : ILiteral<long>
+public readonly struct LiteralLong : INumLiteral<long>
 {
     public long Value { get; private init; }
 
     public MemoryOwner<int> Words { get; private init; }
 
-    public LiteralLong(long value)
+    internal LiteralLong(long value)
     {
         Value = value;
         Words = MemoryOwner<int>.Allocate(2);
@@ -50,13 +44,13 @@ public readonly struct LiteralLong : ILiteral<long>
     }
 }
 
-public readonly struct LiteralFloat : ILiteral<float>
+public readonly struct LiteralFloat : INumLiteral<float>
 {
     public float Value { get; private init; }
 
     public MemoryOwner<int> Words { get; private init; }
 
-    public LiteralFloat(float value)
+    internal LiteralFloat(float value)
     {
         Value = value;
         Words = MemoryOwner<int>.Allocate(1);
@@ -69,13 +63,13 @@ public readonly struct LiteralFloat : ILiteral<float>
     }
 }
 
-public readonly struct LiteralDouble : ILiteral<double>
+public readonly struct LiteralDouble : INumLiteral<double>
 {
     public double Value { get; private init; }
 
     public MemoryOwner<int> Words { get; private init; }
 
-    public LiteralDouble(double value)
+    internal LiteralDouble(double value)
     {
         Value = value;
         Words = MemoryOwner<int>.Allocate(2);
