@@ -8,6 +8,8 @@ public sealed partial class OperandArray : IDisposable
     public int Length {get; private set;} = 0;
     MemoryOwner<int> data;
 
+    public Span<int> Span => data.Span;
+
     public Span<int> this[Range range] 
     {
         get

@@ -2,30 +2,12 @@ using System.Collections;
 
 namespace SoftTouch.Spirv.Internals;
 
-
-public class InstructionList
-{
-    public bool TryCast<T>(out InstructionList<T> list)
-        where T : IInstruction
-    {
-        if(this is InstructionList<T> result)
-        {
-            list = result;
-            return true;
-        }
-        list = null!;
-        return false;
-    }
-}
-
-
-public class InstructionList<T> : InstructionList, IList<T>
-    where T : IInstruction
+public class InstructionList : IList<Instruction>
 {
 
-    List<T> data = new();
+    List<Instruction> data = new();
 
-    public T this[int index] 
+    public Instruction this[int index] 
     { 
         get => data[index]; 
         set 
@@ -40,7 +22,7 @@ public class InstructionList<T> : InstructionList, IList<T>
 
     public bool IsReadOnly => false;
 
-    public void Add(T item)
+    public void Add(Instruction item)
     {
         data.Add(item);
     }
@@ -50,32 +32,32 @@ public class InstructionList<T> : InstructionList, IList<T>
         data.Clear();
     }
 
-    public bool Contains(T item)
+    public bool Contains(Instruction item)
     {
         return data.Contains(item);
     }
 
-    public void CopyTo(T[] array, int arrayIndex)
+    public void CopyTo(Instruction[] array, int arrayIndex)
     {
         data.CopyTo(array, arrayIndex);
     }
 
-    public IEnumerator<T> GetEnumerator()
+    public IEnumerator<Instruction> GetEnumerator()
     {
         return data.GetEnumerator();
     }
 
-    public int IndexOf(T item)
+    public int IndexOf(Instruction item)
     {
         return data.IndexOf(item);
     }
 
-    public void Insert(int index, T item)
+    public void Insert(int index, Instruction item)
     {
         data.Insert(index,item);
     }
 
-    public bool Remove(T item)
+    public bool Remove(Instruction item)
     {
         item.Dispose();
         return data.Remove(item);

@@ -3,67 +3,67 @@ using CommunityToolkit.HighPerformance.Buffers;
 namespace SoftTouch.Spirv.Internals;
 
 
-public readonly struct LiteralString : ILiteral<string>
+public struct LiteralString : ISpirvElement
 {
-    public string Value {get;}
+    // internal static Dictionary<string, LiteralString> Cache { get;} = new();
 
-    public MemoryOwner<int> Words {get;}
-
+    public string Value { get; init; }
     internal LiteralString(string value)
     {
         Value = value;
-        var wordLength = value.Length / 4;
-        var rest = value.Length % 4;
-        if(rest > 0)
+    }
+    public static implicit operator LiteralString(string s) => new LiteralString(s);
+
+    public void Write(ref SpirvWriter writer)
+    {
+        var wordLength = Value.Length / 4;
+        var rest = Value.Length % 4;
+        if (rest > 0)
             wordLength += 1;
         var byteLength = wordLength * 4;
-        Words = MemoryOwner<int>.Allocate(wordLength);
-        var span = value.AsSpan();
-        for(int i = 0; i < wordLength; i++)
+        var span = Value.AsSpan();
+        for (int i = 0; i < wordLength; i++)
         {
-            if(rest == 0)
+            if (rest == 0)
             {
-                int word = 
+                int word =
                     Convert.ToByte(span[4 * i]) << 24
                     | Convert.ToByte(span[4 * i + 1]) << 16
                     | Convert.ToByte(span[4 * i + 2]) << 8
                     | Convert.ToByte(span[4 * i + 3]);
-                Words.Span[i] = word;
+                writer.Write(word);
             }
             else
             {
-                if(i < wordLength -1)
+                if (i < wordLength - 1)
                 {
-                    int word = 
+                    int word =
                         Convert.ToByte(span[4 * i]) << 24
                         | Convert.ToByte(span[4 * i + 1]) << 16
                         | Convert.ToByte(span[4 * i + 2]) << 8
                         | Convert.ToByte(span[4 * i + 3]);
-                    Words.Span[i] = word;
+                    writer.Write(word);
 
                 }
-                else 
+                else
                 {
-                    if(rest == 1)
-                        Words.Span[i] = 
-                            Convert.ToByte(span[4*i]) << 24;
-                    else if(rest == 2)
-                        Words.Span[i] = 
+                    if (rest == 1)
+                        writer.Write(
                             Convert.ToByte(span[4 * i]) << 24
-                            | Convert.ToByte(span[4 * i + 1]) << 16;
-                    else if(rest == 3)
-                        Words.Span[i] = 
+                        );
+                    else if (rest == 2)
+                        writer.Write(
                             Convert.ToByte(span[4 * i]) << 24
                             | Convert.ToByte(span[4 * i + 1]) << 16
-                            | Convert.ToByte(span[4 * i + 2]) << 8;
+                        );
+                    else if (rest == 3)
+                        writer.Write(
+                            Convert.ToByte(span[4 * i]) << 24
+                            | Convert.ToByte(span[4 * i + 1]) << 16
+                            | Convert.ToByte(span[4 * i + 2]) << 8
+                        );
                 }
             }
         }
-    }
-
-
-    public void Dispose()
-    {
-        Words.Dispose();
     }
 }

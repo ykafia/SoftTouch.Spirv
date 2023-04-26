@@ -21,31 +21,71 @@ namespace SoftTouch.Spirv.Generators
 
         public void Execute(GeneratorExecutionContext context)
         {
-            var nop = spirvCore.RootElement.GetProperty("instructions").EnumerateArray().First();
-            context.AddSource(
-                "Instructions.gen.cs",
-                @$"
+            
+            var instructions = spirvCore.RootElement.GetProperty("instructions").EnumerateArray().Take(4);
+            
+            string generated = string.Join("\n",instructions.Select(CreateOperation));
+
+            var baseDefinition = @$"
 namespace SoftTouch.Spirv.Internals;
 
-public class OpNop : IInstruction
+public partial struct Instruction
 {{
-    public static int Op => {nop.GetProperty("opcode").GetInt32()};
-    public static string OpName {{ get; }} = ""{nop.GetProperty("opname").GetString()}"";
-
-    public int Id => Op;
-    public string Name => OpName;
-
-    public OperandArray? Operands {{get;}}
-
-    public OpNop() {{}}
-
-    public void Dispose()
-    {{
-        Operands?.Dispose();
-    }}
-}}
-                "
+    {generated}
+}}";
+            context.AddSource(
+                "Instructions.gen.cs",
+                baseDefinition
             );
+        }
+
+        public string CreateOperation(JsonElement op)
+        {
+            var parameters = "";
+            if(op.TryGetProperty("operands", out var operands))
+            {
+                parameters = string.Join(", ",operands.EnumerateArray().Select(ConvertOperandToParameter).Where(x => x != null));
+            }
+
+
+
+            return @$"
+    public static void {op.GetProperty("opname").GetString()}({parameters})
+    {{
+
+    }}
+";
+        }
+
+
+        public static string ConvertOperandToParameter(JsonElement element)
+        {
+            var kind = element.GetProperty("kind").GetString();
+            var getName = () => FirstCharToUpperAsSpan(element.GetProperty("name").GetString().Replace("'","").Replace(" ", ""));
+            return kind switch
+            {
+                "IdResult" => "int resultId",
+                "IdResultType" => "int resultType",
+                "IdRef" => $"int {getName()}",
+                "LiteralInteger" => $"int {getName()}",
+                "LiteralFloat" => $"float {getName()}",
+                "LiteralString" => $"string {getName()}",
+                "Dim" => "Dim dimension",
+                "ImageFormat" => "ImageFormat imageFormat",
+                "ExecutionMode" => "ExecutionMode executionMode",
+                "ExecutionModel" => "ExecutionModel executionModel",
+                _ => null //throw new NotImplementedException($"Operand {element.GetProperty("kind").GetString()} not recognized")
+            };
+        }
+        public static string FirstCharToUpperAsSpan(string input)
+        {
+            if (string.IsNullOrEmpty(input))
+            {
+                return string.Empty;
+            }
+            Span<char> destination = stackalloc char[1];
+            input.AsSpan(0, 1).ToLowerInvariant(destination);
+            return $"{destination.ToString()}{input.AsSpan(1).ToString()}";
         }
 
         public void Initialize(GeneratorInitializationContext context)
