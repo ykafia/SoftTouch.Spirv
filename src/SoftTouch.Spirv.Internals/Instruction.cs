@@ -22,6 +22,8 @@ public readonly struct InstructionClass
 
 public partial struct Instruction : IDisposable, ISpirvElement
 {
+
+
     InstructionClass Info { get; init; }
     public int? ResultId { get; init; }
     public int? ResultType { get; init; }

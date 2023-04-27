@@ -5,5 +5,6 @@ using SoftTouch.Spirv.Internals;
 // Console.WriteLine(nop.Id);
 
 
-var mix = new MyMixed();
+//var doc = JsonParser.Parse/*("{\"*/hello\" : \"world\"}");
+//Console.WriteLine(doc.RootElement.GetProperty("hello").GetString());
 var x = 0;

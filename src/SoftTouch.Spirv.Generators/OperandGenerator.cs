@@ -1,10 +1,6 @@
 ﻿using Microsoft.CodeAnalysis;
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SoftTouch.Spirv.Generators
 {
@@ -14,96 +10,85 @@ namespace SoftTouch.Spirv.Generators
     {
         public void Execute(GeneratorExecutionContext context)
         {
-            var cases =
-                string.Join(
-                    "\n     ",
-                    Enumerable.Range(1, 17).Select(GenerateMethod)
-                );
-            var file = @$"
-using CommunityToolkit.HighPerformance.Buffers;
-namespace SoftTouch.Spirv.Internals;
+            var code = new CodeWriter();
+            code
+            .AppendLine("using CommunityToolkit.HighPerformance.Buffers;")
+            .AppendLine("using System.Numerics;")
+            .AppendLine("namespace SoftTouch.Spirv.Internals;")
+            .AppendLine("")
+            .Append("public partial class OperandArray")
+            .AppendLine("{")
+            .Indent();
 
-public partial class OperandArray
-{{
-    {cases}
-}}
+            Enumerable.Range(1, 17).ToList().ForEach(x => GenerateMethod(x, code));
 
-";
+            code
+            .Dedent()
+            .AppendLine("}");
 
-            context.AddSource("OperandArray.g.cs", file);
+
+            context.AddSource("OperandArray.g.cs", code.ToString());
         }
 
         public void Initialize(GeneratorInitializationContext context)
         {
         }
 
-        public static string GenerateMethod(int number)
+        public static void GenerateMethod(int number, CodeWriter code)
         {
             if (number <= 16)
             {
                 var parameters = string.Join(", ", Enumerable.Range(0, number).Select(x => "int operand" + x));
                 var names = string.Join(", ", Enumerable.Range(0, number).Select(x => "operand" + x));
-                return @$"
-    public void Add({parameters})
-    {{
-        Length += {number};
-        if(data.Length < Length)
-        {{
-            data.Dispose();
-            data = MemoryOwner<int>.Allocate(data.Length * 2);
-        }}
-        stackalloc int[] {{ {names} }}.CopyTo(this[(Length - {number + 1})..(Length - 1)]);
-    }}
-";
+
+                code
+                .Append("public void Add(")
+                .Append(parameters)
+                .AppendLine(")")
+                .AppendLine("{")
+                .Indent()
+                .Append("Length += ").Append(number.ToString()).AppendLine(";")
+                .AppendLine("if(data.Length < Length)")
+                .AppendLine("{")
+                .Indent()
+                .AppendLine("data.Dispose();")
+                .AppendLine("data = MemoryOwner<int>.Allocate((int)BitOperations.RoundUpToPowerOf2((uint)data.Length));")
+                .Dedent()
+                .AppendLine("}")
+                .Append("stackalloc int[] {")
+                    .Append(names)
+                    .Append("}.CopyTo(this[(Length - ")
+                    .Append(number + 1)
+                    .AppendLine(")..(Length - 1)]);")
+                .Dedent()
+                .AppendLine("}");
             }
             else
             {
                 var parameters = string.Join(", ", Enumerable.Range(0, 16).Select(x => "int operand" + x));
                 var names = string.Join(", ", Enumerable.Range(0, 16).Select(x => "operand" + x));
-                return @$"
-    public void Add({parameters}, params int[] operands)
-    {{
-        Length += {number};
-        if(data.Length < Length)
-        {{
-            data.Dispose();
-            data = MemoryOwner<int>.Allocate(data.Length * 2);
-        }}
-        stackalloc int[] {{ {names} }}.CopyTo(this[(Length - {number + 1})..(Length - {number - 15})]);
-        operands.AsSpan().CopyTo(this[(Length - {number - 15})..(Length - 1)]);
-    }}
-";
-            }
-        }
-        public static string GenerateConstructors(int number)
-        {
-            if (number <= 16)
-            {
-                var parameters = string.Join(", ", Enumerable.Range(0, number).Select(x => "int operand" + x));
-                var names = string.Join(", ", Enumerable.Range(0, number).Select(x => "operand" + x));
-                return @$"
-    public OperandArray({parameters})
-    {{
-        Length = {number};
-        data = MemoryOwner<int>.Allocate(Length);
-        stackalloc int[] {{ {names} }}.CopyTo(data.Slice(0,Length).Span);
-    }}
-";
-            }
-            else
-            {
-                var parameters = string.Join(", ", Enumerable.Range(0, 16).Select(x => "int operand" + x));
-                var names = string.Join(", ", Enumerable.Range(0, 16).Select(x => "operand" + x));
-                return @$"
-    public OperandArray({parameters}, params int[] operands)
-    {{
-        Length = 15 + operands.Length;
-        data = MemoryOwner<int>.Allocate(Length);
-        stackalloc int[] {{ {names} }}.CopyTo(data.Slice(0,15).Span);
-        operands.AsSpan().CopyTo(data.Slice(15,Length).Span);
-        
-    }}
-";
+
+                code
+                .Append("public void Add(")
+                .Append(parameters)
+                .AppendLine(", params int[] operands)")
+                .AppendLine("{")
+                .Indent()
+                .Append("Length += ").Append(number).AppendLine(";")
+                .AppendLine("if(data.Length < Length)")
+                .AppendLine("{")
+                .Indent()
+                .AppendLine("data.Dispose();")
+                .AppendLine("data = MemoryOwner<int>.Allocate((int)BitOperations.RoundUpToPowerOf2((uint)data.Length));")
+                .Dedent()
+                .AppendLine("}")
+                .Append("stackalloc int[] {")
+                    .Append(names)
+                    .Append("}.CopyTo(this[(Length - ")
+                    .Append(number + 1)
+                    .Append(")..(Length - ").Append(number - 15).AppendLine(")]);")
+                .Dedent()
+                .AppendLine("}");
             }
         }
     }
