@@ -15,9 +15,6 @@ public readonly struct InstructionClass
 {
     public string Name { get; init; }
     public Op OpCode { get; init; }
-    public Capability[] Capability { get; init; }
-    public string[] Extensions { get; init; }
-
 }
 
 public partial struct Instruction : IDisposable, ISpirvElement

@@ -102,7 +102,8 @@ namespace SoftTouch.Spirv.Generators
                             .AppendLine("Info = new()")
                             .AppendLine("{")
                             .Indent()
-                                .Append("OpCode = Op.").AppendLine(opname)
+                                .Append("OpCode = Op.").Append(opname).AppendLine(",")
+                                .Append("Name = ").Append(opname)
                             .Dedent()
                             .AppendLine("},")
                             .AppendLine("Operands = operands,");
@@ -138,6 +139,7 @@ namespace SoftTouch.Spirv.Generators
             if (kind == "ImageFormat") return "ImageFormat imageFormat";
             if (kind == "ExecutionMode") return "ExecutionMode executionMode";
             if (kind == "ExecutionModel") return "ExecutionModel executionModel";
+            if (kind == "Capability") return "Capability capability";
             return null; //throw new NotImplementedException($"Operand {element.GetProperty("kind").GetString()} not recognized")
 
         }
@@ -159,6 +161,7 @@ namespace SoftTouch.Spirv.Generators
             if (kind == "ImageFormat") return "imageFormat";
             if (kind == "ExecutionMode") return "executionMode";
             if (kind == "ExecutionModel") return "executionModel";
+            if (kind == "Capability") return "capability";
             return null; //throw new NotImplementedException($"Operand {element.GetProperty("kind").GetString()} not recognized")
 
         }
