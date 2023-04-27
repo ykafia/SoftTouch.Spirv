@@ -81,7 +81,7 @@ namespace SoftTouch.Spirv.Generators
                 .AppendLine(")")
                 .AppendLine("{")
                 .Indent()
-                .AppendLine("var z = 0;")
+                .AppendLine("var v = 0;")
                 .AppendLine("return new Instruction();")
                 .Dedent()
                 .AppendLine("}");
