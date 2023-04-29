@@ -1,7 +1,8 @@
 namespace SoftTouch.Spirv.Internals;
 
-public enum OperandQuantifier {
+public enum OperandQuantifier 
+{
     One,
     ZeroOrOne,
-    ZeroOrMore,
+    ZeroOrMore
 }

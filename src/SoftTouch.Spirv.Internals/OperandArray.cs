@@ -43,7 +43,15 @@ public sealed partial class OperandArray : IDisposable
 
     public OperandArray(int capacity)
     {
-        data = MemoryOwner<int>.Allocate((int)BitOperations.RoundUpToPowerOf2((uint)capacity));
+        if (capacity != 0)
+            data = MemoryOwner<int>.Allocate((int)BitOperations.RoundUpToPowerOf2((uint)capacity));
+        else
+            data = MemoryOwner<int>.Empty;
+    }
+    public OperandArray(Span<int> span)
+    {
+        data = MemoryOwner<int>.Allocate(span.Length);
+        span.CopyTo(data.Span);
     }
 
     public void Expand(int size)

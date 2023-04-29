@@ -1,4 +1,6 @@
 using CommunityToolkit.HighPerformance.Buffers;
+using System.Runtime.InteropServices;
+using System.Text;
 
 namespace SoftTouch.Spirv.Internals;
 
@@ -70,5 +72,12 @@ public struct LiteralString : ISpirvElement
                 }
             }
         }
+    }
+
+    public static string Parse(Span<int> input)
+    {
+        var bytes = MemoryMarshal.AsBytes(input);
+        var end = bytes.IndexOf((byte)'\0');
+        return Encoding.UTF8.GetString(bytes[..end]);   
     }
 }
