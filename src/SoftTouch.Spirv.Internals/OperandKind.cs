@@ -2,6 +2,7 @@ namespace SoftTouch.Spirv.Internals;
 
 
 public enum OperandKind {
+    PackedVectorFormat,
     ImageOperands,
     FPFastMathMode,
     SelectionControl,

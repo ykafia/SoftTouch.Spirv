@@ -5,41 +5,24 @@ namespace SoftTouch.Spirv.Internals;
 
 using static Spv.Specification;
 
-public partial struct Instruction : IDisposable, ISpirvElement
+public ref struct RefInstruction
 {
     public Op OpCode { get; init; }
     public int? ResultId { get; set; }
     public int? ResultType { get; set; }
-    public OperandArray? Operands { get; init; }
+    public Span<int> Operands { get; init; }
 
     /// <summary>
     /// Word Count is the high-order 16 bits of word 0 of the instruction, holding its total WordCount. 
     /// <br/> If the instruction takes a variable number of operands, Word Count also says "+ variable", after stating the minimum size of the instruction.
     /// </summary>
     public int WordCount => 
-        (Operands?.Length ?? 0)
+        Operands.Length
         + (ResultId.HasValue ? 1 : 0)
         + (ResultType.HasValue ? 1 : 0);
 
 
-    public void Dispose()
-    {
-        Operands?.Dispose();
-    }
-
-    public void Write(scoped ref SpirvWriter writer)
-    {
-        writer.Write(WordCount << 16 | (int)OpCode);
-        if(ResultType is not null)
-            writer.Write(ResultType.Value);
-        if(ResultId is not null)
-            writer.Write(ResultId.Value);
-        if(Operands is not null)
-            writer.Write(Operands.Span);
-    }
-
-
-    public static Instruction Parse(Span<int> words)
+    public static RefInstruction Parse(Span<int> words)
     {
         var index = 0;
         var op = (Op)(words[0] & 0xFFFF);
@@ -52,16 +35,26 @@ public partial struct Instruction : IDisposable, ISpirvElement
         if (info.HasResultType)
             resultType = words[++index];
 
-        var operands = new OperandArray(words[index..]);
-
-        return new Instruction()
+        return new RefInstruction()
         {
             OpCode = op,
             ResultId = result,
             ResultType = resultType,
-            Operands = operands
+            Operands = words[index..]
         };
     }
+
+    public Instruction Allocate()
+    {
+        return new()
+        {
+            OpCode = OpCode,
+            ResultId = ResultId,
+            ResultType = ResultType,
+            Operands = new OperandArray(Operands)
+        };
+    }
+
     public override string ToString()
     {
         return OpCode.ToString();

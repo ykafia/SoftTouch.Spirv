@@ -1,4 +1,6 @@
 using CommunityToolkit.HighPerformance.Buffers;
+using System.Runtime.InteropServices;
+using System.Text;
 
 namespace SoftTouch.Spirv.Internals;
 
@@ -8,6 +10,11 @@ public struct LiteralString : ISpirvElement
     // internal static Dictionary<string, LiteralString> Cache { get;} = new();
 
     public string Value { get; init; }
+
+    internal int WordLength => (Value.Length / 4) + (HasRest ? 1 : 0);
+    internal bool HasRest => Value.Length % 4 > 0;
+    internal int RestSize => Value.Length % 4;
+
     internal LiteralString(string value)
     {
         Value = value;
@@ -65,5 +72,12 @@ public struct LiteralString : ISpirvElement
                 }
             }
         }
+    }
+
+    public static string Parse(Span<int> input)
+    {
+        var bytes = MemoryMarshal.AsBytes(input);
+        var end = bytes.IndexOf((byte)'\0');
+        return Encoding.UTF8.GetString(bytes[..end]);   
     }
 }
