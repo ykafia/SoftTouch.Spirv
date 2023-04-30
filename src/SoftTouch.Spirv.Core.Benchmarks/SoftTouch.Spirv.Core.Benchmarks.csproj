@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SoftTouch.Spirv.Internals\SoftTouch.Spirv.Internals.csproj" />
+    <ProjectReference Include="..\SoftTouch.Spirv.Core\SoftTouch.Spirv.Core.csproj" />
   </ItemGroup>
 
 </Project>

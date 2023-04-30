@@ -1,7 +1,7 @@
 ﻿// See https://aka.ms/new-console-template for more information
 using BenchmarkDotNet;
 using BenchmarkDotNet.Running;
-using SoftTouch.Spirv.Internals.Benchmarks;
+using SoftTouch.Spirv.Core.Benchmarks;
 
 BenchmarkRunner.Run<ParserBench>();
 

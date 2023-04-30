@@ -45,7 +45,7 @@ namespace SoftTouch.Spirv.Generators
 
             code
             .AppendLine("using static Spv.Specification;")
-            .AppendLine("namespace SoftTouch.Spirv.Internals;")
+            .AppendLine("namespace SoftTouch.Spirv.Core;")
             .AppendLine("")
             .AppendLine("public partial struct Instruction")
             .AppendLine("{")
@@ -71,7 +71,7 @@ namespace SoftTouch.Spirv.Generators
             code
             .AppendLine("using static Spv.Specification;")
             .AppendLine("")
-            .AppendLine("namespace SoftTouch.Spirv.Internals;")
+            .AppendLine("namespace SoftTouch.Spirv.Core;")
             .AppendLine("")
             .AppendLine("public partial class InstructionInfo")
             .AppendLine("{")

@@ -1,5 +1,5 @@
 ﻿using CommunityToolkit.HighPerformance.Buffers;
-using SoftTouch.Spirv.Internals;
+using SoftTouch.Spirv.Core;
 
 namespace SoftTouch.Spirv;
 

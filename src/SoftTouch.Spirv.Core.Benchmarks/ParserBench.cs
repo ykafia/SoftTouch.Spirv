@@ -5,8 +5,9 @@ using System.Linq;
 using System.Reflection.PortableExecutable;
 using System.Text;
 using System.Threading.Tasks;
+using SoftTouch.Spirv.Core;
 
-namespace SoftTouch.Spirv.Internals.Benchmarks;
+namespace SoftTouch.Spirv.Core.Benchmarks;
 
 [MemoryDiagnoser]
 public class ParserBench

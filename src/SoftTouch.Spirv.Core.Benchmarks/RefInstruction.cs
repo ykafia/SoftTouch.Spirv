@@ -1,7 +1,7 @@
 using CommunityToolkit.HighPerformance.Buffers;
 using System.Net.Sockets;
 
-namespace SoftTouch.Spirv.Internals;
+namespace SoftTouch.Spirv.Core;
 
 using static Spv.Specification;
 

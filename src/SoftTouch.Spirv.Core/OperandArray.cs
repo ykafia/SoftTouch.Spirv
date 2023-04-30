@@ -1,17 +1,80 @@
 using CommunityToolkit.HighPerformance.Buffers;
 using System.Numerics;
-using System.Security.Cryptography.X509Certificates;
-using static Spv.Specification;
+using System.Runtime.InteropServices;
 
-namespace SoftTouch.Spirv.Internals;
+namespace SoftTouch.Spirv.Core;
 
-
-public sealed partial class OperandArray : IDisposable
+public struct ArrayOrUnique
 {
     public int Length { get; private set; } = 0;
-    MemoryOwner<int> data;
+
+    private MemoryOwner<int>? array;
+    int unique;
+
+    public bool IsArray => array != null;
+    public bool IsUnique => array == null;
+
+    public Span<int> Span => GetSpan();
+
+    public ArrayOrUnique(Span<int> values)
+    {
+        if (values.Length == 1)
+            unique = values[0];
+        else if (values.Length == 0)
+            array = MemoryOwner<int>.Empty;
+        else
+        {
+            array = MemoryOwner<int>.Allocate(values.Length);
+            values.CopyTo(array.Span);
+        }
+    }
+    public ArrayOrUnique(int capacity)
+    {
+        if(capacity > 1)
+            array = MemoryOwner<int>.Allocate((int)BitOperations.RoundUpToPowerOf2((uint)capacity));
+        else if(capacity == 0)
+            array = MemoryOwner<int>.Empty;
+    }
+
+    public Span<int> GetSpan()
+    {
+        if (!IsArray)
+        {
+            return MemoryMarshal.CreateSpan(ref unique, 1);
+        }
+        else if (array != null)
+            return array.Span;
+        else throw new Exception("No data");
+    }
+
+    public void Expand(int size)
+    {
+        Length += size;
+        if (array?.Length < Length)
+        {
+            array.Dispose();
+            array = MemoryOwner<int>.Allocate((int)BitOperations.RoundUpToPowerOf2((uint)Length));
+        }
+    }
+    public void Clear()
+    {
+        Length = 0;
+        array?.Span.Clear();
+    }
+
+    public Span<int> Slice(int start) => Span[start..];
+    public Span<int> Slice(int start, int length) => Span.Slice(start, length);
+
+    public void Dispose() =>array?.Dispose();
+}
+
+public partial struct OperandArray : IDisposable
+{
+
+    ArrayOrUnique data;
 
     public Span<int> Span => data.Span;
+    public int Length => data.Length;
 
     public Span<int> this[Range range]
     {
@@ -22,7 +85,7 @@ public sealed partial class OperandArray : IDisposable
             var start = Math.Min(a, b);
             var end = Math.Max(a, b);
             var length = end - start;
-            return data.Slice(start, length).Span;
+            return data.Slice(start, length);
         }
     }
     public int this[Index index]
@@ -43,31 +106,22 @@ public sealed partial class OperandArray : IDisposable
 
     public OperandArray(int capacity)
     {
-        if (capacity != 0)
-            data = MemoryOwner<int>.Allocate((int)BitOperations.RoundUpToPowerOf2((uint)capacity));
-        else
-            data = MemoryOwner<int>.Empty;
+        data = new(capacity);
     }
     public OperandArray(Span<int> span)
     {
-        data = MemoryOwner<int>.Allocate(span.Length);
-        span.CopyTo(data.Span);
+        data = new(span);
     }
 
+    
     public void Expand(int size)
     {
-        Length += size;
-        if (data.Length < Length)
-        {
-            data.Dispose();
-            data = MemoryOwner<int>.Allocate((int)BitOperations.RoundUpToPowerOf2((uint)Length));
-        }
+        data.Expand(size);
     }
 
     public void Clear()
     {
-        Length = 0;
-        data.Span.Clear();
+        data.Clear();
     }
 
     public void Dispose()
@@ -114,7 +168,7 @@ public sealed partial class OperandArray : IDisposable
     public void Add(int[] value)
     {
         var start = Length - 1;
-        foreach( var item in value )
+        foreach (var item in value)
         {
             Add(item);
         }

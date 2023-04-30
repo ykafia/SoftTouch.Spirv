@@ -3,14 +3,16 @@
 
 ## Main goal 
 
-Create a spirv assembler for SDSL where shader bits and pieces are written in separate files as mixins and assembled through the compiler.
+This library is meant to be used for assembling and parsing spirv for SDSL (Stride shading language).
 
 
 
-## Basic design
+## Features
 
-First step is to generate spirv byte code for each mixins. Each mixins will contain functions, variables, types and parameters/bindings.
+- [X] Allocation free spirv parser
+- [X] Allocation free spirv writer
+- [ ] Disassembler for instruction operands
+- [X] Instruction assembler
+- [ ] Instruction optimizer
+- [ ] Abstraction for mixin composition
 
-Language : 
-
-1. Since a mixin can override 

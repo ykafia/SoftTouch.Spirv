@@ -1,4 +1,4 @@
-namespace SoftTouch.Spirv.Internals;
+namespace SoftTouch.Spirv.Core;
 
 
 public struct Result

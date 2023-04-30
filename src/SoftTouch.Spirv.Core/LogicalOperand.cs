@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SoftTouch.Spirv.Internals;
+namespace SoftTouch.Spirv.Core;
 
 public readonly struct LogicalOperand
 {

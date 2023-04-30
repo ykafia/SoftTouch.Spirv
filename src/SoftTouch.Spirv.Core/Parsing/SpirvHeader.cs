@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using static Spv.Specification;
 
-namespace SoftTouch.Spirv.Internals;
+namespace SoftTouch.Spirv.Core;
 
 public struct SpirvVersion
 {

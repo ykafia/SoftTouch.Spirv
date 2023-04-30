@@ -1,7 +1,7 @@
 using CommunityToolkit.HighPerformance.Buffers;
 using System.Net.Sockets;
 
-namespace SoftTouch.Spirv.Internals;
+namespace SoftTouch.Spirv.Core;
 
 using static Spv.Specification;
 
@@ -35,7 +35,7 @@ public partial struct Instruction : IDisposable, ISpirvElement
         if(ResultId is not null)
             writer.Write(ResultId.Value);
         if(Operands is not null)
-            writer.Write(Operands.Span);
+            writer.Write(Operands.Value.Span);
     }
 
 

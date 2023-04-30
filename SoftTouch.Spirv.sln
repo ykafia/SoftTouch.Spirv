@@ -3,56 +3,46 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{2BB89D60-F82B-469A-8654-D2531307347A}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{295D5E42-81BA-4428-AD0F-8DC13A6505DC}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SoftTouch.Spirv.Generators", "src\SoftTouch.Spirv.Generators\SoftTouch.Spirv.Generators.csproj", "{98249A7A-9068-4926-8707-BAD236765DAA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoftTouch.Spirv.Experiments", "src\SoftTouch.Spirv.Experiments\SoftTouch.Spirv.Experiments.csproj", "{D89A2F58-2F40-4F62-8D99-6C5E3739C324}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SoftTouch.Spirv.Internals", "src\SoftTouch.Spirv.Internals\SoftTouch.Spirv.Internals.csproj", "{FF375D45-9AF5-4F88-BF0B-3CBA981842FB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoftTouch.Spirv.Core.Benchmarks", "src\SoftTouch.Spirv.Core.Benchmarks\SoftTouch.Spirv.Core.Benchmarks.csproj", "{10A7CAD1-B8F8-4D84-99DB-60C59DA45C19}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SoftTouch.Spirv", "src\SoftTouch.Spirv\SoftTouch.Spirv.csproj", "{ACFA06E7-8205-4907-8B6C-B0C606CBD9B8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoftTouch.Spirv.Core", "src\SoftTouch.Spirv.Core\SoftTouch.Spirv.Core.csproj", "{5995F9F5-FF4E-4CA8-9500-36770D96AC7E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SoftTouch.Spirv.Experiments", "src\SoftTouch.Spirv.Experiments\SoftTouch.Spirv.Experiments.csproj", "{E19DF7E6-ED1C-4A25-89EB-8B1DB60A1101}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoftTouch.Spirv.Internals.Benchmarks", "src\SoftTouch.Spirv.Internals.Benchmarks\SoftTouch.Spirv.Internals.Benchmarks.csproj", "{93E39438-D1BE-44E8-A32E-138482A4F80E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoftTouch.Spirv", "src\SoftTouch.Spirv\SoftTouch.Spirv.csproj", "{57D89F3C-3D87-4595-A227-49C9B0F75C2A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
-	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{98249A7A-9068-4926-8707-BAD236765DAA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{98249A7A-9068-4926-8707-BAD236765DAA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{98249A7A-9068-4926-8707-BAD236765DAA}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{98249A7A-9068-4926-8707-BAD236765DAA}.Release|Any CPU.Build.0 = Release|Any CPU
-		{FF375D45-9AF5-4F88-BF0B-3CBA981842FB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{FF375D45-9AF5-4F88-BF0B-3CBA981842FB}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{FF375D45-9AF5-4F88-BF0B-3CBA981842FB}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{FF375D45-9AF5-4F88-BF0B-3CBA981842FB}.Release|Any CPU.Build.0 = Release|Any CPU
-		{ACFA06E7-8205-4907-8B6C-B0C606CBD9B8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{ACFA06E7-8205-4907-8B6C-B0C606CBD9B8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{ACFA06E7-8205-4907-8B6C-B0C606CBD9B8}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{ACFA06E7-8205-4907-8B6C-B0C606CBD9B8}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E19DF7E6-ED1C-4A25-89EB-8B1DB60A1101}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E19DF7E6-ED1C-4A25-89EB-8B1DB60A1101}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E19DF7E6-ED1C-4A25-89EB-8B1DB60A1101}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E19DF7E6-ED1C-4A25-89EB-8B1DB60A1101}.Release|Any CPU.Build.0 = Release|Any CPU
-		{93E39438-D1BE-44E8-A32E-138482A4F80E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{93E39438-D1BE-44E8-A32E-138482A4F80E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{93E39438-D1BE-44E8-A32E-138482A4F80E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{93E39438-D1BE-44E8-A32E-138482A4F80E}.Release|Any CPU.Build.0 = Release|Any CPU
-	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
-		{98249A7A-9068-4926-8707-BAD236765DAA} = {2BB89D60-F82B-469A-8654-D2531307347A}
-		{FF375D45-9AF5-4F88-BF0B-3CBA981842FB} = {2BB89D60-F82B-469A-8654-D2531307347A}
-		{ACFA06E7-8205-4907-8B6C-B0C606CBD9B8} = {2BB89D60-F82B-469A-8654-D2531307347A}
-		{E19DF7E6-ED1C-4A25-89EB-8B1DB60A1101} = {2BB89D60-F82B-469A-8654-D2531307347A}
-		{93E39438-D1BE-44E8-A32E-138482A4F80E} = {2BB89D60-F82B-469A-8654-D2531307347A}
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D89A2F58-2F40-4F62-8D99-6C5E3739C324}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D89A2F58-2F40-4F62-8D99-6C5E3739C324}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D89A2F58-2F40-4F62-8D99-6C5E3739C324}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D89A2F58-2F40-4F62-8D99-6C5E3739C324}.Release|Any CPU.Build.0 = Release|Any CPU
+		{10A7CAD1-B8F8-4D84-99DB-60C59DA45C19}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{10A7CAD1-B8F8-4D84-99DB-60C59DA45C19}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{10A7CAD1-B8F8-4D84-99DB-60C59DA45C19}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{10A7CAD1-B8F8-4D84-99DB-60C59DA45C19}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5995F9F5-FF4E-4CA8-9500-36770D96AC7E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5995F9F5-FF4E-4CA8-9500-36770D96AC7E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5995F9F5-FF4E-4CA8-9500-36770D96AC7E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5995F9F5-FF4E-4CA8-9500-36770D96AC7E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{57D89F3C-3D87-4595-A227-49C9B0F75C2A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{57D89F3C-3D87-4595-A227-49C9B0F75C2A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{57D89F3C-3D87-4595-A227-49C9B0F75C2A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{57D89F3C-3D87-4595-A227-49C9B0F75C2A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
-	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {D60C6B77-0841-49EE-AB54-EDC53607EF0C}
+	GlobalSection(NestedProjects) = preSolution
+		{D89A2F58-2F40-4F62-8D99-6C5E3739C324} = {295D5E42-81BA-4428-AD0F-8DC13A6505DC}
+		{10A7CAD1-B8F8-4D84-99DB-60C59DA45C19} = {295D5E42-81BA-4428-AD0F-8DC13A6505DC}
+		{5995F9F5-FF4E-4CA8-9500-36770D96AC7E} = {295D5E42-81BA-4428-AD0F-8DC13A6505DC}
+		{57D89F3C-3D87-4595-A227-49C9B0F75C2A} = {295D5E42-81BA-4428-AD0F-8DC13A6505DC}
 	EndGlobalSection
 EndGlobal
