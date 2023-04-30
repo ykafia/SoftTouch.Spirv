@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SoftTouch.Spirv.Core;
+namespace SoftTouch.Spirv.Core.Parsing;
 
 public ref struct SpirvReader
 {
@@ -47,49 +47,5 @@ public ref struct SpirvReader
             index += words[index] >> 16;
         }
         return count;
-    }
-
-    public ref struct InstructionEnumerator
-    {
-        int index;
-        int wordIndex;
-        bool started;
-        Span<int> instructionWords;
-
-        public InstructionEnumerator(Span<int> words)
-        {
-            started = false;
-            index = 0;
-            wordIndex = 0;
-            instructionWords = words;
-        }
-
-        public RefInstruction Current => ParseCurrentInstruction();
-
-        public bool MoveNext()
-        {
-            if (!started)
-            {
-                started = true;
-                return true;
-            }
-            else
-            {
-                index += 1;
-                var sizeToStep = instructionWords[wordIndex] >> 16;
-                wordIndex += sizeToStep;
-                if (wordIndex >= instructionWords.Length)
-                    return false;
-                return true;
-            }
-            
-        }
-
-
-        public RefInstruction ParseCurrentInstruction()
-        {
-            var wordNumber = instructionWords[wordIndex] >> 16;
-            return RefInstruction.Parse(instructionWords.Slice(wordIndex, wordNumber));
-        }
     }
 }

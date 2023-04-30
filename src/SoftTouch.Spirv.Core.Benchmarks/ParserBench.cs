@@ -6,6 +6,7 @@ using System.Reflection.PortableExecutable;
 using System.Text;
 using System.Threading.Tasks;
 using SoftTouch.Spirv.Core;
+using SoftTouch.Spirv.Core.Parsing;
 
 namespace SoftTouch.Spirv.Core.Benchmarks;
 

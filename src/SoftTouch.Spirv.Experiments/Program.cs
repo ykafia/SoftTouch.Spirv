@@ -1,6 +1,8 @@
 ﻿// See https://aka.ms/new-console-template for more information
 using SoftTouch.Spirv.Experiments;
 using SoftTouch.Spirv.Core;
+using SoftTouch.Spirv.Core.Parsing;
+using System.Runtime.InteropServices;
 // IInstruction nop = new OpNop();
 // Console.WriteLine(nop.Id);
 
@@ -10,11 +12,8 @@ using SoftTouch.Spirv.Core;
 
 var shader = File.ReadAllBytes("../../../../../shader.spv");
 
-var reader = new SpirvReader(shader);
-Console.WriteLine("there are " + reader.GetInstructionCount() + " instructions");
-var list = new List<Instruction>(64);
+var bytes = shader.AsSpan();
 
-SpirvReader.ParseToList(shader);
-var info = InstructionInfo.GetInfo(Spv.Specification.Op.OpAccessChain);
+var ints = MemoryMarshal.Cast<byte,int>(bytes);
 
 var x = 0;

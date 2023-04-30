@@ -1,3 +1,5 @@
+using SoftTouch.Spirv.Core.Parsing;
+
 namespace SoftTouch.Spirv.Core;
 
 
