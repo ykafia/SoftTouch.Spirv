@@ -8,7 +8,7 @@ using System.Runtime.InteropServices;
 
 namespace SoftTouch.Spirv.Core;
 
-public class WordBuffer
+public partial class WordBuffer
 {
     MemoryOwner<int> buffer;
     public int Length { get; private set; }
@@ -31,7 +31,14 @@ public class WordBuffer
         else
             Length += size;
     }
-    public void Add(LiteralString value)
+
+    public void Add(Span<int> words)
+    {
+        Expand(words.Length);
+        words.CopyTo(buffer.Span[(Length-words.Length)..Length]);
+    }
+
+    public void AddString(LiteralString value)
     {
         var chars = MemoryMarshal.Cast<char,int>(value.Value.AsSpan());
         var wordLength = value.WordLength;
@@ -40,13 +47,13 @@ public class WordBuffer
         span.Clear();
         chars.CopyTo(span);
     }
-    public void Add(int value)
+    public void AddInt(int value)
     {
         var start = Length - 1;
         Expand(1);
         buffer.Span[start] = value;
     }
-    public void Add(int[] value)
+    public void AddArray(int[] value)
     {
         Expand(value.Length);
         value.AsSpan().CopyTo(buffer.Span[(Length - value.Length)..Length]);
@@ -60,11 +67,34 @@ public class WordBuffer
             buffer.Span[start] = value.Value;
         }
     }
-    public void Add<T>(T value)
-        where T : Enum
+
+    public void Add<T>(T? value)
     {
-        Expand(1);
-        Add(Convert.ToInt32(value));
+        if (value != null)
+        {
+            var start = Length - 1;
+            Expand(GetWordLength(value));
+            if (value is int i)
+                AddInt(i);
+            else if (value is int[] array)
+                AddArray(array);
+            else if (value is string s)
+                AddString(s);
+            else if (value is Enum e)
+                Add(Convert.ToInt32(e));
+        }
     }
 
+    public static int GetWordLength<T>(T? value)
+    {
+        if (value is null) return 0;
+
+        return value switch
+        {
+            int _ => 1,
+            string v => new LiteralString(v).WordLength,
+            Enum _ => 1,
+            _ => 0
+        };
+    }
 }

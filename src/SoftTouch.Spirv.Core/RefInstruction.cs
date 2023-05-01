@@ -7,6 +7,7 @@ using static Spv.Specification;
 
 public ref struct RefInstruction
 {
+
     public Op OpCode { get; init; }
     public int? ResultId { get; set; }
     public int? ResultType { get; set; }
