@@ -26,7 +26,9 @@ public partial class WordBuffer
     {
         if (buffer.Length < Length + size)
         {
-            buffer = MemoryOwner<int>.Allocate((int)BitOperations.RoundUpToPowerOf2((uint)(Length + size)));
+            var tmp = MemoryOwner<int>.Allocate((int)BitOperations.RoundUpToPowerOf2((uint)(Length + size)));
+            buffer.Span.CopyTo(tmp.Span);
+            buffer = tmp;
         }
         else
             Length += size;

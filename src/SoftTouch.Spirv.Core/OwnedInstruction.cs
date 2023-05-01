@@ -5,7 +5,7 @@ namespace SoftTouch.Spirv.Core;
 
 using static Spv.Specification;
 
-public struct Instruction2
+public struct OwnedInstruction
 {
 
     public Op OpCode { get; init; }
@@ -23,7 +23,7 @@ public struct Instruction2
         + (ResultType.HasValue ? 1 : 0);
 
 
-    public static Instruction2 Parse(MemoryOwner<int> words)
+    public static OwnedInstruction Parse(MemoryOwner<int> words)
     {
         var index = 0;
         var op = (Op)(words.Span[0] & 0xFFFF);
@@ -37,7 +37,7 @@ public struct Instruction2
         if (info.HasResultType)
             resultType = words.Span[++index];
 
-        return new Instruction2()
+        return new OwnedInstruction()
         {
             OpCode = op,
             ResultId = result,

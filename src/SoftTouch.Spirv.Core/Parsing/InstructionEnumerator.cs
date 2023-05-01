@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CommunityToolkit.HighPerformance.Buffers;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,12 +12,14 @@ public ref struct InstructionEnumerator
     int wordIndex;
     bool started;
     readonly Span<int> instructionWords;
+    MemoryOwner<int>? owner;
 
-    public InstructionEnumerator(Span<int> words)
+    public InstructionEnumerator(Span<int> words, MemoryOwner<int>? data = null)
     {
         started = false;
         wordIndex = 0;
         instructionWords = words;
+        owner = data;
     }
 
     public RefInstruction Current => ParseCurrentInstruction();
@@ -43,6 +46,9 @@ public ref struct InstructionEnumerator
     public RefInstruction ParseCurrentInstruction()
     {
         var wordNumber = instructionWords[wordIndex] >> 16;
-        return RefInstruction.Parse(instructionWords.Slice(wordIndex, wordNumber));
+        if(owner != null)
+            return RefInstruction.Parse(owner, wordIndex);
+        else
+            return RefInstruction.ParseRef(instructionWords.Slice(wordIndex, wordNumber));
     }
 }
