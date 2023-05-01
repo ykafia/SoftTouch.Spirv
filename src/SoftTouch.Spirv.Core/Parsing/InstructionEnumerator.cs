@@ -5,6 +5,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using static Spv.Specification;
+
 namespace SoftTouch.Spirv.Core.Parsing;
 
 public ref struct InstructionEnumerator
@@ -12,14 +14,14 @@ public ref struct InstructionEnumerator
     int wordIndex;
     bool started;
     readonly Span<int> instructionWords;
-    MemoryOwner<int>? owner;
+    Memory<int>? memorySlice;
 
-    public InstructionEnumerator(Span<int> words, MemoryOwner<int>? data = null)
+    public InstructionEnumerator(Span<int> words, Memory<int>? slice = null)
     {
         started = false;
         wordIndex = 0;
         instructionWords = words;
-        owner = data;
+        memorySlice = slice;
     }
 
     public RefInstruction Current => ParseCurrentInstruction();
@@ -46,8 +48,10 @@ public ref struct InstructionEnumerator
     public RefInstruction ParseCurrentInstruction()
     {
         var wordNumber = instructionWords[wordIndex] >> 16;
-        if(owner != null)
-            return RefInstruction.Parse(owner, wordIndex);
+        if (memorySlice is not null)
+        {
+            return RefInstruction.Parse(memorySlice.Value, wordIndex);
+        }
         else
             return RefInstruction.ParseRef(instructionWords.Slice(wordIndex, wordNumber));
     }

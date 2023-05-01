@@ -11,7 +11,7 @@ public struct OwnedInstruction
     public Op OpCode { get; init; }
     public int? ResultId { get; set; }
     public int? ResultType { get; set; }
-    public MemoryOwner<int> Operands { get; init; }
+    public Memory<int> Operands { get; init; }
 
     /// <summary>
     /// Word Count is the high-order 16 bits of word 0 of the instruction, holding its total WordCount. 
@@ -23,7 +23,7 @@ public struct OwnedInstruction
         + (ResultType.HasValue ? 1 : 0);
 
 
-    public static OwnedInstruction Parse(MemoryOwner<int> words)
+    public static void Parse(in Memory<int> words, out OwnedInstruction instruction)
     {
         var index = 0;
         var op = (Op)(words.Span[0] & 0xFFFF);
@@ -37,12 +37,12 @@ public struct OwnedInstruction
         if (info.HasResultType)
             resultType = words.Span[++index];
 
-        return new OwnedInstruction()
+        instruction = new OwnedInstruction()
         {
             OpCode = op,
             ResultId = result,
             ResultType = resultType,
-            Operands = words[index..wordLength]
+            Operands = words.Slice(index, wordLength)
         };
     }
 

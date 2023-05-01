@@ -10,13 +10,26 @@ namespace SoftTouch.Spirv.Core.Parsing;
 
 public ref struct SpirvReader
 {
+    public static void ParseToList(byte[] byteCode, List<OwnedInstruction> instructions)
+    {
+        var data = MemoryOwner<int>.Allocate(byteCode.Length / 4);
+        var span = MemoryMarshal.Cast<byte, int>(byteCode.AsSpan());
+        span.CopyTo(data.Span);
+        var reader = new SpirvReader(data);
+        foreach (var instruction in reader)
+        {
+            instruction.ToOwned(out var owned);
+            if (owned is not null)
+                instructions.Add(owned.Value);
+        }
+    }
     public static List<OwnedInstruction> ParseToList(byte[] byteCode)
     {
         var data = MemoryOwner<int>.Allocate(byteCode.Length / 4);
         var span = MemoryMarshal.Cast<byte, int>(byteCode.AsSpan());
         span.CopyTo(data.Span);
         var reader = new SpirvReader(data);
-        var list = new List<OwnedInstruction>();
+        var list = new List<OwnedInstruction>(reader.Count);
         foreach(var instruction in reader)
         {
             instruction.ToOwned(out var owned);
@@ -28,7 +41,7 @@ public ref struct SpirvReader
     public static List<OwnedInstruction> ParseToList(MemoryOwner<int> data)
     {
         var reader = new SpirvReader(data);
-        var list = new List<OwnedInstruction>();
+        var list = new List<OwnedInstruction>(reader.Count);
         foreach (var instruction in reader)
         {
             instruction.ToOwned(out var owned);
@@ -36,6 +49,16 @@ public ref struct SpirvReader
                 list.Add(owned.Value);
         }
         return list;
+    }
+    public static void ParseToList(MemoryOwner<int> data, List<OwnedInstruction> list)
+    {
+        var reader = new SpirvReader(data);
+        foreach (var instruction in reader)
+        {
+            instruction.ToOwned(out var owned);
+            if (owned is not null)
+                list.Add(owned.Value);
+        }
     }
 
 
@@ -50,16 +73,16 @@ public ref struct SpirvReader
         words = MemoryMarshal.Cast<byte, int>(byteCode.AsSpan());
         var header = SpirvHeader.Read(words[0..5]);
     }
-    public SpirvReader(MemoryOwner<int> owned)
+    public SpirvReader(MemoryOwner<int> slice)
     {
-        var wordLength = owned.Length;
-        words = owned.Span;
-        data = owned;
+        var wordLength = slice.Length;
+        words = slice.Span[5..];
+        data = slice;
         var header = SpirvHeader.Read(words[0..5]);
     }
 
 
-    public InstructionEnumerator GetEnumerator() => new(words,data);
+    public InstructionEnumerator GetEnumerator() => new(words, data?.Memory[5..]);
 
     public int GetInstructionCount()
     {

@@ -12,7 +12,7 @@ public ref struct RefInstruction
     public int? ResultId { get; set; }
     public int? ResultType { get; set; }
     public Span<int> Operands { get; init; }
-    public MemoryOwner<int> Owner { get; init; }
+    public Memory<int>? Slice { get; init; }
     public int OwnerIndex { get; set; }
 
     /// <summary>
@@ -25,7 +25,7 @@ public ref struct RefInstruction
         + (ResultType.HasValue ? 1 : 0);
 
 
-    public static RefInstruction Parse(MemoryOwner<int> owner, int ownerIndex)
+    public static RefInstruction Parse(Memory<int> owner, int ownerIndex)
     {
         var words = owner.Span.Slice(ownerIndex, owner.Span[ownerIndex] >> 16);
         var index = 0;
@@ -46,7 +46,7 @@ public ref struct RefInstruction
             ResultType = resultType,
             Operands = words[index..],
             OwnerIndex = ownerIndex,
-            Owner = owner
+            Slice = owner
         };
     }
     public static RefInstruction ParseRef(Span<int> words)
@@ -73,7 +73,7 @@ public ref struct RefInstruction
 
     public bool ToOwned(out OwnedInstruction? instruction)
     {
-        if (Owner == null)
+        if (Slice == null)
         {
             instruction = null;
             return false;
@@ -85,7 +85,7 @@ public ref struct RefInstruction
                 OpCode = OpCode,
                 ResultId = ResultId,
                 ResultType = ResultType,
-                Operands = Owner.Slice(OwnerIndex, Owner.Span[OwnerIndex] >> 16)
+                Operands = Slice.Value
             };
             return true;
         }

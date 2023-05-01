@@ -16,12 +16,15 @@ namespace SoftTouch.Spirv.Core.Benchmarks;
 public class ParserBench
 {
     public MemoryOwner<int> shader;
+    public List<OwnedInstruction> instructions;
 
     public ParserBench()
     {
         var bytes = File.ReadAllBytes("C:\\Users\\kafia\\source\\repos\\SoftTouch.Spirv\\shader.spv");
         shader = MemoryOwner<int>.Allocate(bytes.Length / 4);
         MemoryMarshal.Cast<byte, int>(bytes.AsSpan()).CopyTo(shader.Span);
+        var reader = new SpirvReader(bytes);
+        instructions = new(reader.Count);
     }
 
 
@@ -45,5 +48,6 @@ public class ParserBench
     public void ParseToList()
     {
         var list = SpirvReader.ParseToList(shader);
+        list.Clear();
     }
 }
