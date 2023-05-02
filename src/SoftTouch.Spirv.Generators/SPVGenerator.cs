@@ -41,6 +41,9 @@ namespace SoftTouch.Spirv.Generators
 
         public void Execute(GeneratorExecutionContext context)
         {
+
+            CreateInfo(context);
+
             var code = new CodeWriter();
 
             code
@@ -64,34 +67,6 @@ namespace SoftTouch.Spirv.Generators
                 "WordBuffer.gen.cs",
                 code.ToString()
             );
-
-
-            code = new CodeWriter();
-
-            code
-            .AppendLine("using static Spv.Specification;")
-            .AppendLine("")
-            .AppendLine("namespace SoftTouch.Spirv.Core;")
-            .AppendLine("")
-            .AppendLine("public partial class InstructionInfo")
-            .AppendLine("{")
-            .Indent()
-            .AppendLine("static InstructionInfo()")
-            .AppendLine("{")
-            .Indent();
-
-            foreach (var instruction in spirvCore.RootElement.GetProperty("instructions").EnumerateArray().ToList())
-            {
-                GenerateInfo(instruction, code);
-            }
-            code
-            .Dedent()
-            .AppendLine("}")
-            .Dedent()
-            .AppendLine("}");
-
-
-            context.AddSource("InstructionInfo.gen.cs", code.ToString());
         }
 
         public void CreateOperation(JsonElement op, CodeWriter code)
@@ -215,47 +190,7 @@ namespace SoftTouch.Spirv.Generators
                 
             }
         }
+
         
-
-        public void GenerateInfo(JsonElement op, CodeWriter code)
-        {
-            var opname = op.GetProperty("opname").GetString();
-
-            if (op.TryGetProperty("operands", out var operands))
-            {
-                foreach (var operand in operands.EnumerateArray())
-                {
-                    var hasKind = operand.TryGetProperty("kind", out var kindJson);
-                    var hasQuant = operand.TryGetProperty("quantifier", out var quantifierJson);
-                    var hasName = operand.TryGetProperty("name", out var nameJson);
-
-                    if (hasKind)
-                    {
-                        code
-                            .Append("Instance.Register(Op.")
-                            .Append(opname)
-                            .Append(", OperandKind.")
-                            .Append(kindJson.GetString())
-                            .Append(", OperandQuantifier.")
-                            .Append(!hasQuant ? "One" : ConvertQuantifier(quantifierJson.GetString()))
-                            .Append(!hasName ? "" : ", \"" + ConvertOperandName(nameJson.GetString()) + "\"")
-                            .AppendLine(");");
-                    }
-                }
-            }
-            else
-            {
-                code.Append("Instance.Register(Op.").Append(opname).AppendLine(", null, null);");
-            }
-        }
-
-        public static string ConvertQuantifier(string quant)
-        {
-            if (quant == "*")
-                return "ZeroOrMore";
-            else if (quant == "?")
-                return "ZeroOrOne";
-            else return "One";
-        }
     }
 }

@@ -106,8 +106,8 @@ namespace SoftTouch.Spirv.Generators
         {
             return kind switch
             {
-                var x when x.StartsWith("Id") => "int",
                 "LiteralInteger" => "int",
+                "LiteralFloat" => "float",
                 "LiteralString" => "string",
                 "ImageOperands" => "ImageOperandsMask",
                 "FunctionControl" => "FunctionControlMask",

@@ -18,9 +18,8 @@ public ref struct SpirvReader
         var reader = new SpirvReader(data);
         foreach (var instruction in reader)
         {
-            instruction.ToOwned(out var owned);
-            if (owned is not null)
-                instructions.Add(owned.Value);
+            if(instruction.ToOwned(out var owned))
+                instructions.Add(owned);
         }
     }
     public static List<OwnedInstruction> ParseToList(byte[] byteCode)
@@ -32,9 +31,8 @@ public ref struct SpirvReader
         var list = new List<OwnedInstruction>(reader.Count);
         foreach(var instruction in reader)
         {
-            instruction.ToOwned(out var owned);
-            if(owned is not null)
-                list.Add(owned.Value);
+            if(instruction.ToOwned(out var owned))
+                list.Add(owned);
         }
         return list;
     }
@@ -44,9 +42,8 @@ public ref struct SpirvReader
         var list = new List<OwnedInstruction>(reader.Count);
         foreach (var instruction in reader)
         {
-            instruction.ToOwned(out var owned);
-            if (owned is not null)
-                list.Add(owned.Value);
+            if(instruction.ToOwned(out var owned))
+                list.Add(owned);
         }
         return list;
     }
@@ -55,9 +52,8 @@ public ref struct SpirvReader
         var reader = new SpirvReader(data);
         foreach (var instruction in reader)
         {
-            instruction.ToOwned(out var owned);
-            if (owned is not null)
-                list.Add(owned.Value);
+            if(instruction.ToOwned(out var owned))
+                list.Add(owned);
         }
     }
 

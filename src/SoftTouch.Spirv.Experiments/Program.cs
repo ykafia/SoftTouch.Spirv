@@ -4,6 +4,7 @@ using SoftTouch.Spirv.Core;
 using SoftTouch.Spirv.Core.Parsing;
 using System.Runtime.InteropServices;
 using CommunityToolkit.HighPerformance.Buffers;
+using System.Runtime.CompilerServices;
 // IInstruction nop = new OpNop();
 // Console.WriteLine(nop.Id);
 
@@ -11,7 +12,11 @@ using CommunityToolkit.HighPerformance.Buffers;
 //var doc = JsonParser.Parse/*("{\"*/hello\" : \"world\"}");
 //Console.WriteLine(doc.RootElement.GetProperty("hello").GetString());
 
-var shader = File.ReadAllBytes("../../../../../shader.spv");
+Console.WriteLine(Unsafe.SizeOf<Memory<int>>());
+
+InstructionInfo.GetInfo(Spv.Specification.Op.OpCapability);
+
+var shader = File.ReadAllBytes("../../shader.spv");
 
 var data = MemoryOwner<int>.Allocate(shader.Length / 4);
 var slice = data.Memory[..5];

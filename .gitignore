@@ -5,3 +5,4 @@ obj/
 .fake
 /.vs
 build/packages/
+*.log

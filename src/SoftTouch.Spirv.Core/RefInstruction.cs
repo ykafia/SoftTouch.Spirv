@@ -71,11 +71,11 @@ public ref struct RefInstruction
         };
     }
 
-    public bool ToOwned(out OwnedInstruction? instruction)
+    public bool ToOwned(out OwnedInstruction instruction)
     {
         if (Slice == null)
         {
-            instruction = null;
+            instruction = new();
             return false;
         }
         else
@@ -88,6 +88,39 @@ public ref struct RefInstruction
                 Operands = Slice.Value
             };
             return true;
+        }
+    }
+
+
+    public void SetResultId(int id)
+    {
+        var info = InstructionInfo.GetInfo(OpCode);
+        
+        if(info.HasResult)
+        {
+            int i = 0;
+            while(info[i].Kind != OperandKind.IdResult){ i+= 1;}
+            Operands[id] = id;
+        }
+    }
+    public void SetResultType(int id)
+    {
+        var info = InstructionInfo.GetInfo(OpCode);
+        
+        if(info.HasResultType)
+        {
+            int i = 0;
+            while(info[i].Kind != OperandKind.IdResultType){ i+= 1;}
+            Operands[id] = id;
+        }
+    }
+    public void ReplaceIdRef(int toReplace, int value)
+    {
+        var info = InstructionInfo.GetInfo(OpCode);
+        for(int i = 0; i < info.Count; i++)
+        {
+            if(info[i].Kind == OperandKind.IdRef && Operands[i] == toReplace)
+                Operands[i] = value;
         }
     }
 
