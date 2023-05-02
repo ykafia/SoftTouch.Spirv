@@ -85,7 +85,7 @@ namespace SoftTouch.Spirv.Generators
                 var normalParameters = parameters.Where(x => !x.Contains("?") && !x.Contains("params"));
 
                 code
-                    .Append("public WordBuffer ")
+                    .Append("public Instruction Add")
                     .Append(opname)
                     .Append('(')
                     .Append(string.Join(", ", normalParameters))
@@ -106,7 +106,7 @@ namespace SoftTouch.Spirv.Generators
 
 
                 code
-                    .AppendLine("return this;")
+                    .AppendLine("return new(this, Count - 1);")
                     .Dedent().AppendLine("}");
 
                 //if (parameterNames.Any(x => x.Contains("resultId")))
@@ -136,13 +136,13 @@ namespace SoftTouch.Spirv.Generators
             else
             {
                 code
-                    .Append("public WordBuffer ")
+                    .Append("public Instruction Add")
                     .Append(opname)
                     .AppendLine("()")
                     .AppendLine("{")
                     .Indent()
                         .Append("Add( 1 << 16 & (int)Op.").Append(opname).AppendLine(");")
-                        .AppendLine("return this;")
+                        .AppendLine("return new(this, Count - 1);")
                     .Dedent()
                     .AppendLine("}");
             }
@@ -168,7 +168,7 @@ namespace SoftTouch.Spirv.Generators
 
 
                 code
-                    .Append("public WordBuffer GLSL")
+                    .Append("public Instruction AddGLSL")
                     .Append(opname)
                     .Append('(')
                     .Append(string.Join(", ", normalParameters))
@@ -177,13 +177,13 @@ namespace SoftTouch.Spirv.Generators
                     .AppendLine(")")
                     .AppendLine("{")
                     .Indent()
-                        .Append("OpExtInst(")
+                        .Append("AddOpExtInst(")
                             .Append("set, ")
                             .Append(opcode)
                             .Append(parameterNames.Any(x => x == "resultType") ? ", resultType, " : ", null")
                             .Append(parameterNames.Any(x => x == "resultId") ? ", resultId, " : ", null")
                             .Append(other.Count() > 0 ? ", " + string.Join(", ", other) : "").AppendLine(");")
-                        .AppendLine("return this;")
+                        .AppendLine("return new(this, Count - 1);")
                     .Dedent()
                     .AppendLine("}");
 
