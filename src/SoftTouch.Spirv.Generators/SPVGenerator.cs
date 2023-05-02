@@ -14,7 +14,7 @@ namespace SoftTouch.Spirv.Generators
 {
 
     [Generator]
-    public class SPVGenerator : ISourceGenerator
+    public partial class SPVGenerator : ISourceGenerator
     {
         JsonDocument spirvCore;
         JsonDocument spirvGlsl;
@@ -45,9 +45,9 @@ namespace SoftTouch.Spirv.Generators
 
             code
             .AppendLine("using static Spv.Specification;")
-            .AppendLine("namespace SoftTouch.Spirv.Internals;")
+            .AppendLine("namespace SoftTouch.Spirv.Core;")
             .AppendLine("")
-            .AppendLine("public partial struct Instruction")
+            .AppendLine("public partial class WordBuffer")
             .AppendLine("{")
             .Indent();
 
@@ -61,7 +61,7 @@ namespace SoftTouch.Spirv.Generators
            .Dedent()
            .AppendLine("}");
             context.AddSource(
-                "Instructions.gen.cs",
+                "WordBuffer.gen.cs",
                 code.ToString()
             );
 
@@ -71,7 +71,7 @@ namespace SoftTouch.Spirv.Generators
             code
             .AppendLine("using static Spv.Specification;")
             .AppendLine("")
-            .AppendLine("namespace SoftTouch.Spirv.Internals;")
+            .AppendLine("namespace SoftTouch.Spirv.Core;")
             .AppendLine("")
             .AppendLine("public partial class InstructionInfo")
             .AppendLine("{")
@@ -97,68 +97,77 @@ namespace SoftTouch.Spirv.Generators
         public void CreateOperation(JsonElement op, CodeWriter code)
         {
             var opname = op.GetProperty("opname").GetString();
+            if (opname == "OpConstant") return;
+            if (opname == "OpSpecConstant") return;
 
             if (op.TryGetProperty("operands", out var operands))
             {
-                var parameters = operands.EnumerateArray().Select(ConvertOperandToParameter).Where(x => x != null);
-                //parameters = string.Join(", ", operands.EnumerateArray().Select(ConvertOperandToParameter).Where(x => x != null));
+                var parameters = ConvertOperandsToParameters(op);
+                var parameterNames = ConvertOperandsToParameterNames(op);
 
-                var parameterNames = operands.EnumerateArray().Select(ConvertOperandToParameterName).Where(x => x != null).ToList();
                 var paramsParameters = parameters.Where(x => x.Contains("params"));
                 var nullableParameters = parameters.Where(x => x.Contains("?"));
                 var normalParameters = parameters.Where(x => !x.Contains("?") && !x.Contains("params"));
 
                 code
-                    .Append("public static Instruction ")
+                    .Append("public WordBuffer ")
                     .Append(opname)
                     .Append('(')
-                    .Append(string.Join(", ",normalParameters))
+                    .Append(string.Join(", ", normalParameters))
                     .Append(nullableParameters.Count() == 0 ? "" : (normalParameters.Count() > 0 ? ", " : "") + string.Join(", ", nullableParameters))
                     .Append(paramsParameters.Count() == 0 ? "" : (normalParameters.Count() + nullableParameters.Count() > 0 ? ", " : "") + paramsParameters.First())
                     .AppendLine(")")
                     .AppendLine("{")
-                    .Indent()
-                        .Append("var operands = new OperandArray(").Append(parameterNames.Where(x => !x.Contains("resultId") && !x.Contains("resultType")).Count()).AppendLine(");");
+                    .Indent();
 
-                foreach (var parameter in parameterNames.Where(x => x != "resultId" && x != "resultType"))
+                code.Append("var wordLength = 1").Append(parameterNames.Any() ? " + " : "").Append(string.Join(" + ", parameterNames.Select(x => $"GetWordLength({x})"))).AppendLine(";");
+
+                code.Append("var op = wordLength << 16 | (int)Op.").Append(opname).AppendLine(";");
+                code.AppendLine("Add(op);");
+                foreach(var p in parameterNames)
                 {
-                    code.Append("operands.Add(").Append(parameter).AppendLine(");");
+                    code.Append("Add(").Append(p).AppendLine(");");
                 }
 
+
                 code
-                        .AppendLine("return new ()")
-                        .AppendLine("{")
-                        .Indent()
-                            .Append("OpCode = Op.").Append(opname).AppendLine(",")
-                            .AppendLine("Operands = operands,");
-                if (parameterNames.Any(x => x.Contains("resultId")))
-                    code.AppendLine("ResultId = resultId,");
-                if (parameterNames.Any(x => x.Contains("resultType")))
-                    code.AppendLine("ResultType = resultType,");
-                code
-                        .Dedent()
-                    .AppendLine("};")
-                    .Dedent()
-                    .AppendLine("}")
-                    .AppendLine("");
+                    .AppendLine("return this;")
+                    .Dedent().AppendLine("}");
+
+                //if (parameterNames.Any(x => x.Contains("resultId")))
+                //    code.AppendLine("Add(resultId)");
+                //foreach (var parameter in parameterNames.Where(x => x != "resultId" && x != "resultType"))
+                //{
+                //    code.Append("Add(").Append(parameter).AppendLine(");");
+                //}
+
+                //code
+                //        .AppendLine("return new()")
+                //        .AppendLine("{")
+                //        .Indent()
+                //            .Append("OpCode = Op.").Append(opname).AppendLine(",")
+                //            .AppendLine("Operands = operands,");
+                //if (parameterNames.Any(x => x.Contains("resultId")))
+                //    code.AppendLine("ResultId = resultId,");
+                //if (parameterNames.Any(x => x.Contains("resultType")))
+                //    code.AppendLine("ResultType = resultType,");
+                //code
+                //        .Dedent()
+                //    .AppendLine("};")
+                //    .Dedent()
+                //    .AppendLine("}")
+                //    .AppendLine("");
             }
             else
             {
                 code
-                    .Append("public static Instruction ")
+                    .Append("public WordBuffer ")
                     .Append(opname)
                     .AppendLine("()")
                     .AppendLine("{")
                     .Indent()
-                        .AppendLine("return new()")
-                        .AppendLine("{")
-                        .Indent()
-                            .Append("OpCode = Op.")
-                            .Append(opname)
-                            .AppendLine(",")
-                            .AppendLine("Operands = new OperandArray(0)")
-                        .Dedent()
-                        .AppendLine("};")
+                        .Append("Add( 1 << 16 & (int)Op.").Append(opname).AppendLine(");")
+                        .AppendLine("return this;")
                     .Dedent()
                     .AppendLine("}");
             }
@@ -167,19 +176,24 @@ namespace SoftTouch.Spirv.Generators
         public void CreateGlslOperation(JsonElement op, CodeWriter code)
         {
             var opname = op.GetProperty("opname").GetString();
+            var opcode = op.GetProperty("opcode").GetInt32();
 
             if (op.TryGetProperty("operands", out var operands))
             {
-                var parameters = operands.EnumerateArray().Select(ConvertOperandToParameter).Where(x => x != null).Append("int set");
-                //parameters = string.Join(", ", operands.EnumerateArray().Select(ConvertOperandToParameter).Where(x => x != null));
+                var parameters = ConvertOperandsToParameters(op);
+                parameters.Add("int set");
 
-                var parameterNames = operands.EnumerateArray().Select(ConvertOperandToParameterName).Where(x => x != null).Append("set").ToList();
+                var parameterNames = ConvertOperandsToParameterNames(op);
+                parameterNames.Add("set");
+
                 var paramsParameters = parameters.Where(x => x.Contains("params"));
                 var nullableParameters = parameters.Where(x => x.Contains("?"));
                 var normalParameters = parameters.Where(x => !x.Contains("?") && !x.Contains("params"));
                 var other = parameterNames.Where(x => x != "resultType" && x != "resultId" && x != "set");
+
+
                 code
-                    .Append("public static Instruction ")
+                    .Append("public WordBuffer GLSL")
                     .Append(opname)
                     .Append('(')
                     .Append(string.Join(", ", normalParameters))
@@ -188,93 +202,20 @@ namespace SoftTouch.Spirv.Generators
                     .AppendLine(")")
                     .AppendLine("{")
                     .Indent()
-                        .Append("return OpExtInst(")
-                            .Append("set")
+                        .Append("OpExtInst(")
+                            .Append("set, ")
+                            .Append(opcode)
                             .Append(parameterNames.Any(x => x == "resultType") ? ", resultType, " : ", null")
                             .Append(parameterNames.Any(x => x == "resultId") ? ", resultId, " : ", null")
                             .Append(other.Count() > 0 ? ", " + string.Join(", ", other) : "").AppendLine(");")
+                        .AppendLine("return this;")
                     .Dedent()
                     .AppendLine("}");
 
                 
             }
         }
-
-
-        public static string ConvertOperandToParameter(JsonElement element)
-        {
-            var kind = element.GetProperty("kind").GetString();
-            var hasQuantifier = element.TryGetProperty("quantifier", out var quantifier);
-            string getName() => ConvertOperandName(element.GetProperty("name").GetString().Replace("'", "").Replace(" ", ""));
-            
-            if (kind == "IdResult") return "int? resultId";
-            if (kind == "IdResultType") return "int? resultType";
-            if (kind == "IdRef" && !hasQuantifier) return $"int {getName()}";
-            if (kind == "IdRef" && hasQuantifier && quantifier.GetString() == "*") return $"params int[] values";
-            if (kind == "IdRef" && hasQuantifier && quantifier.GetString() == "?") return $"int? {getName()} = null";
-            if (kind == "LiteralInteger") return $"int {getName()}";
-            if (kind == "LiteralFloat") return $"float {getName()}";
-            if (kind == "LiteralString") return $"string {getName()}";
-            if (kind == "Dim") return "Dim dimension";
-            if (kind == "ImageFormat") return "ImageFormat imageFormat";
-            if (kind == "ExecutionMode") return "ExecutionMode executionMode";
-            if (kind == "ExecutionModel") return "ExecutionModel executionModel";
-            if (kind == "Capability") return "Capability capability";
-            return null; //throw new NotImplementedException($"Operand {element.GetProperty("kind").GetString()} not recognized")
-
-        }
-        public static string ConvertOperandToParameterName(JsonElement element)
-        {
-            var kind = element.GetProperty("kind").GetString();
-            var hasQuantifier = element.TryGetProperty("quantifier", out var quantifier);
-            string getName() => ConvertOperandName(element.GetProperty("name").GetString());
-
-            if (kind == "IdResult") return "resultId";
-            if (kind == "IdResultType") return "resultType";
-            if (kind == "IdRef" && !hasQuantifier) return $"{getName()}";
-            if (kind == "IdRef" && hasQuantifier && quantifier.GetString() == "*") return $"values";
-            if (kind == "IdRef" && hasQuantifier && quantifier.GetString() == "?") return $"{getName()}";
-            if (kind == "LiteralInteger") return $"{getName()}";
-            if (kind == "LiteralFloat") return $"{getName()}";
-            if (kind == "LiteralString") return $"{getName()}";
-            if (kind == "Dim") return "dimension";
-            if (kind == "ImageFormat") return "imageFormat";
-            if (kind == "ExecutionMode") return "executionMode";
-            if (kind == "ExecutionModel") return "executionModel";
-            if (kind == "Capability") return "capability";
-            return null; //throw new NotImplementedException($"Operand {element.GetProperty("kind").GetString()} not recognized")
-
-        }
-        public static string ConvertOperandName(string input)
-        {
-            if (string.IsNullOrEmpty(input))
-            {
-                return string.Empty;
-            }
-            var result = "";
-            bool firstLetterHit = false;
-            for(int i = 0; i < input.Length; i++)
-            {
-
-                if (char.IsLetterOrDigit(input[i]) || input[i] == '_')
-                {
-                    if (!firstLetterHit)
-                    {
-                        firstLetterHit = true;
-                        result += char.ToLowerInvariant(input[i]);
-                    }
-                    else
-                        result += input[i];
-                }
-                
-            }
-            if (result == "event") return "eventId";
-            if (result == "string") return "value";
-            if (result == "base") return "baseId";
-            if (result == "object") return "objectId";
-            if (result == "default") return "defaultId";
-            return result;
-        }
+        
 
         public void GenerateInfo(JsonElement op, CodeWriter code)
         {

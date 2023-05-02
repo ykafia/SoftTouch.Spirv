@@ -1,6 +1,6 @@
 using CommunityToolkit.HighPerformance.Buffers;
 
-namespace SoftTouch.Spirv.Internals;
+namespace SoftTouch.Spirv.Core.Parsing;
 
 
 public ref struct SpirvWriter

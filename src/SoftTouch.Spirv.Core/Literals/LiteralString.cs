@@ -1,8 +1,9 @@
 using CommunityToolkit.HighPerformance.Buffers;
+using SoftTouch.Spirv.Core.Parsing;
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace SoftTouch.Spirv.Internals;
+namespace SoftTouch.Spirv.Core;
 
 
 public struct LiteralString : ISpirvElement

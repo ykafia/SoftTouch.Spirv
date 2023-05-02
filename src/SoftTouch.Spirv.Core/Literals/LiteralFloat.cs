@@ -1,7 +1,8 @@
+using SoftTouch.Spirv.Core.Parsing;
 using System.Numerics;
 
 
-namespace SoftTouch.Spirv.Internals;
+namespace SoftTouch.Spirv.Core;
 
 
 public struct LiteralFloat : ISpirvElement

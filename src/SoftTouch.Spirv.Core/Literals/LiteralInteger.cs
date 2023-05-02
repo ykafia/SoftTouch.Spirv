@@ -1,4 +1,6 @@
-namespace SoftTouch.Spirv.Internals;
+using SoftTouch.Spirv.Core.Parsing;
+
+namespace SoftTouch.Spirv.Core;
 
 
 public struct LiteralInteger : ISpirvElement
