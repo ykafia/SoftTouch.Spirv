@@ -2,6 +2,7 @@ using CommunityToolkit.HighPerformance.Buffers;
 using SoftTouch.Spirv.Core.Parsing;
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace SoftTouch.Spirv.Core;
 
@@ -11,6 +12,8 @@ public struct Instruction
 {
     WordBuffer Buffer { get; init; }
     public int Index { get; init; }
+
+    public int CountOfWords => Buffer[Index].CountOfWords;
     public Op OpCode => Buffer[Index].OpCode;
     public int? ResultId => Buffer[Index].ResultId;
     public int? ResultType => Buffer[Index].ResultType;
@@ -38,20 +41,32 @@ public struct Instruction
 
     }
     public T Get<T>(string propertyName)
+        where T : struct
     {
+        var lowerProperty = propertyName.ToLowerInvariant();
         var info = InstructionInfo.GetInfo(OpCode);
-        LogicalOperand? operand = null;
-        foreach (var e in info)
+        int? index = null;
+        int wordId = 0;
+        for(int i = 0; i < info.Count || info[i].Quantifier == OperandQuantifier.One; i++)
         {
-            if (e.Name == propertyName)
-                operand = e;
+            if(info[i].Kind == OperandKind.LiteralString)
+                break;
+            if (info[i].Name == lowerProperty)
+            {
+                index = i;
+                wordId += info[i].GetWordSize();
+                break;
+            }
         }
-        if (operand is null)
+        if (index is null)
             throw new Exception("Property name doesn't exist for " + OpCode.ToString());
-        else if (operand.Value.Kind != null && CanBeCastTo<T>(operand.Value.Kind.Value))
+
+        var operand = info[index.Value];
+
+        if (operand.Kind != null)
         {
             // TODO : improve reflection
-            info.IndexOf(operand.Value);
+            return MemoryMarshal.Cast<int,T>(Operands.Slice(wordId,operand.GetWordSize()))[0];
         }
         throw new NotImplementedException();
     }

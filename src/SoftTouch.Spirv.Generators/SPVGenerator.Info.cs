@@ -106,7 +106,7 @@ namespace SoftTouch.Spirv.Generators
                 ("base", _) => "baseId",
                 ("object", _) => "objectId",
                 ("default", _) => "defaultId",
-                _ => name
+                _ => name.Replace("'", "").ToLowerInvariant()
             };
         }
 

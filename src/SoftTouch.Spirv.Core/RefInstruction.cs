@@ -8,6 +8,7 @@ using static Spv.Specification;
 public ref struct RefInstruction
 {
 
+    public int CountOfWords { get; init; }
     public Op OpCode { get; init; }
     public int? ResultId { get; set; }
     public int? ResultType { get; set; }
@@ -41,6 +42,7 @@ public ref struct RefInstruction
 
         return new RefInstruction()
         {
+            CountOfWords = words[0] >> 16,
             OpCode = op,
             ResultId = result,
             ResultType = resultType,
@@ -64,6 +66,7 @@ public ref struct RefInstruction
 
         return new RefInstruction()
         {
+            CountOfWords = words[0] >> 16,
             OpCode = op,
             ResultId = result,
             ResultType = resultType,

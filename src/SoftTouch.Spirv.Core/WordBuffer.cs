@@ -34,6 +34,11 @@ public partial class WordBuffer
         BufferLength = 0;
         buffer = MemoryOwner<int>.Allocate(initialCapacity);
     }
+    public WordBuffer(MemoryOwner<int> data)
+    {
+        buffer = data;
+        BufferLength = Count;
+    }
 
     public InstructionEnumerator GetEnumerator() => new(buffer.Span);
 

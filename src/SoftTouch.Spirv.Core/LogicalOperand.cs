@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace SoftTouch.Spirv.Core;
 
-public readonly struct LogicalOperand
+public readonly partial struct LogicalOperand
 {
     public string? Name { get; init; }
     public OperandKind? Kind { get; init; }
