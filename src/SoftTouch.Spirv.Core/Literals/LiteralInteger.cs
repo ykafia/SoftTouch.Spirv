@@ -3,7 +3,7 @@ using SoftTouch.Spirv.Core.Parsing;
 namespace SoftTouch.Spirv.Core;
 
 
-public struct LiteralInteger : ISpirvElement
+public struct LiteralInteger : ISpirvElement, IFromSpirv<LiteralInteger>
 {
 
     // internal static Dictionary<byte, LiteralInteger> CacheByte { get; } = new();
@@ -16,60 +16,77 @@ public struct LiteralInteger : ISpirvElement
     // internal static Dictionary<long, LiteralInteger> CacheLong { get; } = new();
 
     public long Words { get; init; }
-    int size;
+    public int Size { get; init; }
+    public int WordCount => Size / 32;
 
     internal LiteralInteger(sbyte value)
     {
         Words = 0 | value;
         // CacheSByte.Add(value, this);
-        size = sizeof(sbyte) * 4;
+        Size = sizeof(sbyte) * 8;
     }
     internal LiteralInteger(byte value)
     {
         Words = 0 | value;
         // CacheByte.Add(value, this);
-        size = sizeof(byte) * 4;
+        Size = sizeof(byte) * 8;
     }
 
     internal LiteralInteger(short value)
     {
         Words = 0 | value;
         // CacheInt.Add(value, this);
-        size = sizeof(short) * 4;
+        Size = sizeof(short) * 8;
     }
     internal LiteralInteger(ushort value)
     {
         Words = 0 | value;
         // CacheUInt.Add(value, this);
-        size = sizeof(ushort) * 4;
+        Size = sizeof(ushort) * 8;
     }
 
     internal LiteralInteger(int value)
     {
         Words = 0 | value;
         // CacheInt.Add(value, this);
-        size = sizeof(int) * 4;
+        Size = sizeof(int) * 8;
     }
     internal LiteralInteger(uint value)
     {
         Words = 0 | value;
         // CacheUInt.Add(value, this);
-        size = sizeof(uint) * 4;
+        Size = sizeof(uint) * 8;
 
     }
     internal LiteralInteger(long value)
     {
         Words = 0 | value;
         // CacheLong.Add(value, this);
-        size = sizeof(long) * 4;
+        Size = sizeof(long) * 8;
     }
     internal LiteralInteger(ulong value)
     {
         Words = (long)value;
         // CacheULong.Add(value, this);
-        size = sizeof(ulong) * 4;
+        Size = sizeof(ulong) * 8;
 
     }
+
+    internal LiteralInteger(Span<int> value)
+    {
+        if(value.Length == 2)
+        {
+            Size = sizeof(long) * 8;
+            Words = value[0] << 32 | value[1];
+        }
+        else if (value.Length == 1)
+        {
+            Size = sizeof(int) * 8;
+            Words = value[0];
+        }
+    }
+
+
     public static implicit operator LiteralInteger(byte value) => new LiteralInteger(value);
     public static implicit operator LiteralInteger(sbyte value) => new LiteralInteger(value);
     public static implicit operator LiteralInteger(ushort value) => new LiteralInteger(value);
@@ -86,10 +103,15 @@ public struct LiteralInteger : ISpirvElement
             (int)(Words >> 32),
             (int)(Words & 0X000000FF)
         };
-        if (size < 64)
+        if (Size < 64)
             writer.Write(span[1]);
         else
             writer.Write(span);
+    }
+
+    public static LiteralInteger From(Span<int> words)
+    {
+        return new(words);
     }
 }
 

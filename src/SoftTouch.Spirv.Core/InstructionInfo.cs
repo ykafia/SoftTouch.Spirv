@@ -16,15 +16,15 @@ public partial class InstructionInfo
     Dictionary<Op, LogicalOperandArray> Info = new();
     InstructionInfo(){}
 
-    internal void Register(Op op, OperandKind? kind, OperandQuantifier? quantifier, string? name = null)
+    internal void Register(Op op, OperandKind? kind, OperandQuantifier? quantifier, string? name = null, string? spvClass = null)
     {
         if(Info.TryGetValue(op, out var list))
         {
-            list.Add(new(kind, quantifier, name));
+            list.Add(new(kind, quantifier, name, spvClass));
         }
         else
         {
-            Info.Add(op, new() { new(kind, quantifier, name)});
+            Info.Add(op, new() { new(kind, quantifier, name, spvClass)});
         }
     }
 

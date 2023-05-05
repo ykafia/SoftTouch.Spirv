@@ -10,9 +10,14 @@ namespace SoftTouch.Spirv.Core;
 
 public partial class WordBuffer
 {
+    MemoryOwner<int> replaceBuffer;
+    private int replaceLength;
+
+
     MemoryOwner<int> buffer;
     public int BufferLength { get; private set; }
-    public int Count => new SpirvReader(buffer[..BufferLength]).Count;
+    public Span<int> Span => buffer.Span[..BufferLength];
+    public int Count => new SpirvReader(buffer.Memory[..BufferLength]).Count;
 
     public RefInstruction this[int index]
     {
@@ -33,11 +38,13 @@ public partial class WordBuffer
     {
         BufferLength = 0;
         buffer = MemoryOwner<int>.Allocate(initialCapacity);
+        replaceBuffer = MemoryOwner<int>.Allocate(32);
     }
     public WordBuffer(MemoryOwner<int> data)
     {
         buffer = data;
         BufferLength = Count;
+        replaceBuffer = MemoryOwner<int>.Allocate(32);
     }
 
     public InstructionEnumerator GetEnumerator() => new(buffer.Span);
@@ -53,6 +60,18 @@ public partial class WordBuffer
         }
         else
             BufferLength += size;
+    }
+
+    private void ExpandReplace(int size)
+    {
+        if (replaceBuffer.Length < replaceLength + size)
+        {
+            var tmp = MemoryOwner<int>.Allocate((int)BitOperations.RoundUpToPowerOf2((uint)(replaceLength + size)));
+            replaceBuffer.Span.CopyTo(tmp.Span);
+            replaceBuffer = tmp;
+        }
+        else
+            replaceLength += size;
     }
 
     internal void Add(Span<int> words)
@@ -72,7 +91,7 @@ public partial class WordBuffer
     }
     internal void AddInt(int value)
     {
-        var start = BufferLength - 1;
+        var start = BufferLength;
         Expand(1);
         buffer.Span[start] = value;
     }
@@ -85,18 +104,33 @@ public partial class WordBuffer
     {
         if (value.HasValue)
         {
-            var start = BufferLength - 1;
-            Expand(1);
-            buffer.Span[start] = value.Value;
+            AddInt(value.Value);
         }
+    }
+
+    internal void Add(LiteralInteger value)
+    {
+        var start = BufferLength;
+        if(value.WordCount == 2)
+        {
+            Add((int)(value.Words >> 16));
+        }
+        Add((int)(value.Words & 0xFFFFFFFF));
+    }
+    internal void Add(LiteralFloat value)
+    {
+        var start = BufferLength;
+        if (value.WordCount == 2)
+        {
+            Add((int)(value.Words >> 16));
+        }
+        Add((int)(value.Words & 0xFFFFFFFF));
     }
 
     internal void Add<T>(T? value)
     {
         if (value != null)
         {
-            var start = BufferLength - 1;
-            Expand(GetWordLength(value));
             if (value is int i)
                 AddInt(i);
             else if (value is int[] array)
@@ -114,6 +148,8 @@ public partial class WordBuffer
 
         return value switch
         {
+            LiteralInteger i => i.WordCount,
+            LiteralFloat i => i.WordCount,
             int _ => 1,
             string v => new LiteralString(v).WordLength,
             int[] a => a.Length,

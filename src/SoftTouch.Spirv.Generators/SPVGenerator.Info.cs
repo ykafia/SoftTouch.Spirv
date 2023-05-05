@@ -50,7 +50,7 @@ namespace SoftTouch.Spirv.Generators
         public void GenerateInfo(JsonElement op, CodeWriter code)
         {
             var opname = op.GetProperty("opname").GetString();
-
+            var spvClass = op.GetProperty("class").GetString();
             if (op.TryGetProperty("operands", out var operands))
             {
                 foreach (var operand in operands.EnumerateArray())
@@ -71,6 +71,7 @@ namespace SoftTouch.Spirv.Generators
                                 .Append(kindJson.GetString())
                                 .Append(", OperandQuantifier.One, ")
                                 .Append(!hasName ? $"\"{ConvertKindToName(kindJson.GetString())}\"" : $"\"{ConvertOperandName(nameJson.GetString())}\"")
+                                .Append($", \"{spvClass}\"")
                                 .AppendLine(");");
                         }
                         else 
@@ -85,6 +86,7 @@ namespace SoftTouch.Spirv.Generators
                                 .Append(ConvertQuantifier(quantifierJson.GetString()))
                                 .Append(", ")
                                 .Append(!hasName ? $"\"{ConvertNameQuantToName(kind, quant) }\"": $"\"{ConvertNameQuantToName(nameJson.GetString(), quant)}\"")
+                                .Append($", \"{spvClass}\"")
                                 .AppendLine(");");
                         }
                     }
@@ -92,7 +94,7 @@ namespace SoftTouch.Spirv.Generators
             }
             else
             {
-                code.Append("Instance.Register(Op.").Append(opname).AppendLine(", null, null);");
+                code.Append("Instance.Register(Op.").Append(opname).AppendLine(", null, null, \"Debug\");");
             }
         }
 

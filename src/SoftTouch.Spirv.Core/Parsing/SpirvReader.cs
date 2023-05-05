@@ -62,28 +62,32 @@ public ref struct SpirvReader
     Span<int> words;
     public int Count => GetInstructionCount();
     public int WordCount => words.Length;
+    public bool HasHeader { get; init; }
 
-    public SpirvReader(byte[] byteCode)
+    public SpirvReader(byte[] byteCode, bool hasHeader = false)
     {
-        var wordLength = byteCode.Length / 4;
         words = MemoryMarshal.Cast<byte, int>(byteCode.AsSpan());
-        var header = SpirvHeader.Read(words[0..5]);
+        HasHeader = hasHeader;
     }
-    public SpirvReader(MemoryOwner<int> slice)
+    public SpirvReader(MemoryOwner<int> slice, bool hasHeader = false)
     {
-        var wordLength = slice.Length;
-        words = slice.Span[5..];
+        words = slice.Span[(hasHeader ? 5 : 0)..];
         data = slice;
-        var header = SpirvHeader.Read(words[0..5]);
+        HasHeader = hasHeader;
+    }
+    public SpirvReader(Memory<int> slice, bool hasHeader = false)
+    {
+        words = slice.Span[(hasHeader ? 5 : 0)..];
+        //data = slice;
     }
 
 
-    public InstructionEnumerator GetEnumerator() => new(words, data?.Memory[5..]);
+    public InstructionEnumerator GetEnumerator() => new(words, data?.Memory[(HasHeader ? 5 : 0)..]);
 
     public int GetInstructionCount()
     {
         var count = 0;
-        var index = 5;
+        var index = 0;
         while(index < words.Length) 
         {
             count += 1;

@@ -72,10 +72,68 @@ namespace SoftTouch.Spirv.Generators
         public void CreateOperation(JsonElement op, CodeWriter code)
         {
             var opname = op.GetProperty("opname").GetString();
-            if (opname == "OpConstant") return;
-            if (opname == "OpSpecConstant") return;
+            if (opname == "OpConstant")
+            {
+                code
+                    .AppendLine("public Instruction AddOpConstant(IdResultType? resultType, IdResult? resultId, LiteralInteger value)")
+                    .AppendLine("{")
+                    .Indent()
+                        .AppendLine("var wordLength = 1 + GetWordLength(resultType) + GetWordLength(resultId) + value.WordCount;")
+                        .AppendLine("var op = wordLength << 16 | (int)Op.OpConstant;")
+                        .AppendLine("Add(op);")
+                        .AppendLine("Add(resultType);")
+                        .AppendLine("Add(resultId);")
+                        .AppendLine("Add(value);")
+                        .AppendLine("return new(this, Count-1);")
+                    .Dedent()
+                    .AppendLine("}");
 
-            if (op.TryGetProperty("operands", out var operands))
+                code
+                    .AppendLine("public Instruction AddOpConstant(IdResultType? resultType, IdResult? resultId, LiteralFloat value)")
+                    .AppendLine("{")
+                    .Indent()
+                        .AppendLine("var wordLength = 1 + GetWordLength(resultType) + GetWordLength(resultId) + value.WordCount;")
+                        .AppendLine("var op = wordLength << 16 | (int)Op.OpConstant;")
+                        .AppendLine("Add(op);")
+                        .AppendLine("Add(resultType);")
+                        .AppendLine("Add(resultId);")
+                        .AppendLine("Add(value);")
+                        .AppendLine("return new(this, Count-1);")
+                    .Dedent()
+                    .AppendLine("}");
+            }
+            else if (opname == "OpSpecConstant")
+            {
+                code
+                    .AppendLine("public Instruction AddOpSpecConstant(IdResultType? resultType, IdResult? resultId, LiteralInteger value)")
+                    .AppendLine("{")
+                    .Indent()
+                        .AppendLine("var wordLength = 1 + GetWordLength(resultType) + GetWordLength(resultId) + value.WordCount;")
+                        .AppendLine("var op = wordLength << 16 | (int)Op.OpSpecConstant;")
+                        .AppendLine("Add(op);")
+                        .AppendLine("Add(resultType);")
+                        .AppendLine("Add(resultId);")
+                        .AppendLine("Add(value);")
+                        .AppendLine("return new(this, Count-1);")
+                    .Dedent()
+                    .AppendLine("}");
+
+                code
+                    .AppendLine("public Instruction AddOpSpecConstant(IdResultType? resultType, IdResult? resultId, LiteralFloat value)")
+                    .AppendLine("{")
+                    .Indent()
+                        .AppendLine("var wordLength = 1 + GetWordLength(resultType) + GetWordLength(resultId) + value.WordCount;")
+                        .AppendLine("var op = wordLength << 16 | (int)Op.OpSpecConstant;")
+                        .AppendLine("Add(op);")
+                        .AppendLine("Add(resultType);")
+                        .AppendLine("Add(resultId);")
+                        .AppendLine("Add(value);")
+                        .AppendLine("return new(this, Count-1);")
+                    .Dedent()
+                    .AppendLine("}");
+            }
+
+            else if (op.TryGetProperty("operands", out var operands))
             {
                 var parameters = ConvertOperandsToParameters(op);
                 var parameterNames = ConvertOperandsToParameterNames(op);
@@ -141,7 +199,7 @@ namespace SoftTouch.Spirv.Generators
                     .AppendLine("()")
                     .AppendLine("{")
                     .Indent()
-                        .Append("Add( 1 << 16 & (int)Op.").Append(opname).AppendLine(");")
+                        .Append("Add( 1 << 16 | (int)Op.").Append(opname).AppendLine(");")
                         .AppendLine("return new(this, Count - 1);")
                     .Dedent()
                     .AppendLine("}");

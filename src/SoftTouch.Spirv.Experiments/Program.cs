@@ -7,7 +7,7 @@ using CommunityToolkit.HighPerformance.Buffers;
 using System.Runtime.CompilerServices;
 using static Spv.Specification;
 // IInstruction nop = new OpNop();
-// Console.WriteLine(nop.Id);
+Console.WriteLine("Hello, world!");
 
 
 //var doc = JsonParser.Parse/*("{\"*/hello\" : \"world\"}");
@@ -17,7 +17,7 @@ static void ParseShader()
 {
     Console.WriteLine(Unsafe.SizeOf<Memory<int>>());
 
-    InstructionInfo.GetInfo(Spv.Specification.Op.OpCapability);
+    InstructionInfo.GetInfo(Op.OpCapability);
 
     var shader = File.ReadAllBytes("../../shader.spv");
 
@@ -42,6 +42,10 @@ static void CreateShader()
     var buffer = new WordBuffer();
 
     var nop = buffer.AddOpNop();
+    var capability = buffer.AddOpCapability(Capability.Shader);
+    capability.Get("capability", out SpvEnum<Capability> c);
+    Console.WriteLine((Capability)c);
+    var x = 0;
 }
 
 

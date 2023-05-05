@@ -8,12 +8,12 @@ namespace SoftTouch.Spirv.Core;
 
 using static Spv.Specification;
 
-public struct Instruction
+public partial struct Instruction
 {
     WordBuffer Buffer { get; init; }
     public int Index { get; init; }
 
-    public int CountOfWords => Buffer[Index].CountOfWords;
+    public int CountOfWords => Buffer[Index].WordCount;
     public Op OpCode => Buffer[Index].OpCode;
     public int? ResultId => Buffer[Index].ResultId;
     public int? ResultType => Buffer[Index].ResultType;
@@ -33,147 +33,14 @@ public struct Instruction
             var kind = e.Kind;
         }
 
-        if (value is string s)
+        if (value is LiteralString s)
             return false;
         if (value is int i)
             return false;
-        return false;
+        return false;   
 
     }
-    public T Get<T>(string propertyName)
-        where T : struct
-    {
-        var lowerProperty = propertyName.ToLowerInvariant();
-        var info = InstructionInfo.GetInfo(OpCode);
-        int? index = null;
-        int wordId = 0;
-        for(int i = 0; i < info.Count || info[i].Quantifier == OperandQuantifier.One; i++)
-        {
-            if(info[i].Kind == OperandKind.LiteralString)
-                break;
-            if (info[i].Name == lowerProperty)
-            {
-                index = i;
-                wordId += info[i].GetWordSize();
-                break;
-            }
-        }
-        if (index is null)
-            throw new Exception("Property name doesn't exist for " + OpCode.ToString());
-
-        var operand = info[index.Value];
-
-        if (operand.Kind != null)
-        {
-            // TODO : improve reflection
-            return MemoryMarshal.Cast<int,T>(Operands.Slice(wordId,operand.GetWordSize()))[0];
-        }
-        throw new NotImplementedException();
-    }
-
-    public static bool CanBeCastTo<T>(OperandKind kind)
-    {
-        if (kind == OperandKind.PackedVectorFormat && typeof(T) == typeof(PackedVectorFormat))
-            return true;
-        else if (kind == OperandKind.ImageOperands && typeof(T) == typeof(ImageOperandsMask))
-            return true;
-        else if (kind == OperandKind.FPFastMathMode && typeof(T) == typeof(FPFastMathModeMask))
-            return true;
-        else if (kind == OperandKind.SelectionControl && typeof(T) == typeof(SelectionControlMask))
-            return true;
-        else if (kind == OperandKind.LoopControl && typeof(T) == typeof(LoopControlMask))
-            return true;
-        else if (kind == OperandKind.FunctionControl && typeof(T) == typeof(FunctionControlMask))
-            return true;
-        else if (kind == OperandKind.MemorySemantics && typeof(T) == typeof(MemorySemanticsMask))
-            return true;
-        else if (kind == OperandKind.MemoryAccess && typeof(T) == typeof(MemoryAccessMask))
-            return true;
-        else if (kind == OperandKind.KernelProfilingInfo && typeof(T) == typeof(KernelProfilingInfoMask))
-            return true;
-        else if (kind == OperandKind.RayFlags && typeof(T) == typeof(RayFlagsMask))
-            return true;
-        else if (kind == OperandKind.FragmentShadingRate && typeof(T) == typeof(FragmentShadingRateMask))
-            return true;
-        else if (kind == OperandKind.SourceLanguage && typeof(T) == typeof(SourceLanguage))
-            return true;
-        else if (kind == OperandKind.ExecutionModel && typeof(T) == typeof(ExecutionModel))
-            return true;
-        else if (kind == OperandKind.AddressingModel && typeof(T) == typeof(AddressingModel))
-            return true;
-        else if (kind == OperandKind.MemoryModel && typeof(T) == typeof(MemoryModel))
-            return true;
-        else if (kind == OperandKind.ExecutionMode && typeof(T) == typeof(ExecutionModel))
-            return true;
-        else if (kind == OperandKind.StorageClass && typeof(T) == typeof(StorageClass))
-            return true;
-        else if (kind == OperandKind.Dim && typeof(T) == typeof(Dim))
-            return true;
-        else if (kind == OperandKind.SamplerAddressingMode && typeof(T) == typeof(SamplerAddressingMode))
-            return true;
-        else if (kind == OperandKind.SamplerFilterMode && typeof(T) == typeof(SamplerFilterMode))
-            return true;
-        else if (kind == OperandKind.ImageFormat && typeof(T) == typeof(ImageFormat))
-            return true;
-        else if (kind == OperandKind.ImageChannelOrder && typeof(T) == typeof(ImageChannelOrder))
-            return true;
-        else if (kind == OperandKind.ImageChannelDataType && typeof(T) == typeof(ImageChannelDataType))
-            return true;
-        else if (kind == OperandKind.FPRoundingMode && typeof(T) == typeof(FPRoundingMode))
-            return true;
-        else if (kind == OperandKind.LinkageType && typeof(T) == typeof(LinkageType))
-            return true;
-        else if (kind == OperandKind.AccessQualifier && typeof(T) == typeof(AccessQualifier))
-            return true;
-        else if (kind == OperandKind.FunctionParameterAttribute && typeof(T) == typeof(FunctionParameterAttribute))
-            return true;
-        else if (kind == OperandKind.Decoration && typeof(T) == typeof(Decoration))
-            return true;
-        else if (kind == OperandKind.BuiltIn && typeof(T) == typeof(BuiltIn))
-            return true;
-        else if (kind == OperandKind.Scope && typeof(T) == typeof(Scope))
-            return true;
-        else if (kind == OperandKind.GroupOperation && typeof(T) == typeof(GroupOperation))
-            return true;
-        else if (kind == OperandKind.KernelEnqueueFlags && typeof(T) == typeof(KernelEnqueueFlags))
-            return true;
-        else if (kind == OperandKind.Capability && typeof(T) == typeof(Capability))
-            return true;
-        else if (kind == OperandKind.RayQueryIntersection && typeof(T) == typeof(RayQueryIntersection))
-            return true;
-        else if (kind == OperandKind.RayQueryCommittedIntersectionType && typeof(T) == typeof(RayQueryCommittedIntersectionType))
-            return true;
-        else if (kind == OperandKind.RayQueryCandidateIntersectionType && typeof(T) == typeof(RayQueryCandidateIntersectionType))
-            return true;
-        else if (kind == OperandKind.IdResultType && typeof(T) == typeof(IdResultType))
-            return true;
-        else if (kind == OperandKind.IdResult && typeof(T) == typeof(IdResult))
-            return true;
-        else if (kind == OperandKind.IdMemorySemantics && typeof(T) == typeof(IdMemorySemantics))
-            return true;
-        else if (kind == OperandKind.IdScope && typeof(T) == typeof(IdScope))
-            return true;
-        else if (kind == OperandKind.IdRef && typeof(T) == typeof(IdRef))
-            return true;
-        else if (kind == OperandKind.LiteralInteger && typeof(T) == typeof(LiteralInteger))
-            return true;
-        else if (kind == OperandKind.LiteralString && typeof(T) == typeof(LiteralString))
-            return true;
-        else if (kind == OperandKind.LiteralContextDependentNumber && typeof(T) == typeof(int))
-            return true;
-        else if (kind == OperandKind.LiteralExtInstInteger && typeof(T) == typeof(int))
-            return true;
-        else if (kind == OperandKind.LiteralSpecConstantOpInteger && typeof(T) == typeof(int))
-            return true;
-        else if (kind == OperandKind.PairLiteralIntegerIdRef && typeof(T) == typeof(ValueTuple<int, int>))
-            return true;
-        else if (kind == OperandKind.PairIdRefLiteralInteger && typeof(T) == typeof(ValueTuple<int, int>))
-            return true;
-        else if (kind == OperandKind.PairIdRefIdRef && typeof(T) == typeof(ValueTuple<int, int>))
-            return true;
-        else return false;
-    }
-
+    
 }
 
 internal static class SpirvOperandExtensions

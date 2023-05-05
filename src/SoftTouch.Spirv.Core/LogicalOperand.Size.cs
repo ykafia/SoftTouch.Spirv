@@ -62,8 +62,8 @@ public readonly partial struct LogicalOperand
             or OperandKind.IdScope
             or OperandKind.IdRef
             or OperandKind.LiteralInteger => 1,
-            OperandKind.LiteralString => 0,
-            OperandKind.LiteralContextDependentNumber => 0,
+            OperandKind.LiteralString => -1,
+            OperandKind.LiteralContextDependentNumber => -1,
             OperandKind.LiteralExtInstInteger => 1,
             OperandKind.LiteralSpecConstantOpInteger => 1,
             OperandKind.PairLiteralIntegerIdRef => 2,

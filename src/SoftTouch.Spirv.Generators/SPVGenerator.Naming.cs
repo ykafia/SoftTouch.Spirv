@@ -106,16 +106,16 @@ namespace SoftTouch.Spirv.Generators
         {
             return kind switch
             {
-                "LiteralInteger" => "int",
-                "LiteralFloat" => "float",
-                "LiteralString" => "string",
+                "LiteralInteger" => "LiteralInteger",
+                "LiteralFloat" => "LiteralFloat",
+                "LiteralString" => "LiteralString",
                 "ImageOperands" => "ImageOperandsMask",
                 "FunctionControl" => "FunctionControlMask",
                 "MemoryAccess" => "MemoryAccessMask",
                 "LoopControl" => "LoopControlMask",
                 "SelectionControl" => "SelectionControlMask",
-                "LiteralExtInstInteger" => "int",
-                "LiteralSpecConstantOpInteger" => "int",
+                "LiteralExtInstInteger" => "LiteralInteger",
+                "LiteralSpecConstantOpInteger" => "Op",
                 "PairIdRefIdRef" => "ValueTuple<int,int>",
                 "PairIdRefLiteralInteger" => "ValueTuple<int,LiteralInteger>",
                 "PairLiteralIntegerIdRef" => "ValueTuple<LiteralInteger,int>",

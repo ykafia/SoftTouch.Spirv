@@ -1,11 +1,9 @@
 namespace SoftTouch.Spirv.Core;
 
 
-public struct IdMemorySemantics
+public record struct IdMemorySemantics(int Value) : IFromSpirv<IdMemorySemantics>
 {
-    public int Value { get; set; }
-
-    public IdMemorySemantics(int v) { Value = v; }
     public static implicit operator int(IdMemorySemantics r) => r.Value;
     public static implicit operator IdMemorySemantics(int v) => new(v);
+    public static IdMemorySemantics From(Span<int> words) => new() { Value = words[0] };
 }

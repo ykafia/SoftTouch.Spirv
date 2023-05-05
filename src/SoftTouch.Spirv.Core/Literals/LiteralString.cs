@@ -6,7 +6,7 @@ using System.Text;
 namespace SoftTouch.Spirv.Core;
 
 
-public struct LiteralString : ISpirvElement
+public struct LiteralString : ISpirvElement, IFromSpirv<LiteralString>
 {
     // internal static Dictionary<string, LiteralString> Cache { get;} = new();
 
@@ -19,6 +19,11 @@ public struct LiteralString : ISpirvElement
     internal LiteralString(string value)
     {
         Value = value;
+    }
+    internal LiteralString(Span<int> words)
+    {
+        var chars = MemoryMarshal.Cast<int, char>(words);
+        Value = chars.ToString();
     }
     public static implicit operator LiteralString(string s) => new LiteralString(s);
 
@@ -80,5 +85,10 @@ public struct LiteralString : ISpirvElement
         var bytes = MemoryMarshal.AsBytes(input);
         var end = bytes.IndexOf((byte)'\0');
         return Encoding.UTF8.GetString(bytes[..end]);   
+    }
+
+    public static LiteralString From(Span<int> words)
+    {
+        return new(words);
     }
 }
