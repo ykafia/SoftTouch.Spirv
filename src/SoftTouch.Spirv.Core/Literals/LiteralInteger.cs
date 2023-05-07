@@ -113,5 +113,10 @@ public struct LiteralInteger : ISpirvElement, IFromSpirv<LiteralInteger>
     {
         return new(words);
     }
+
+    public static LiteralInteger From(string value)
+    {
+        throw new NotImplementedException();
+    }
 }
 

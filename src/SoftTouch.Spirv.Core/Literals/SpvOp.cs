@@ -11,4 +11,9 @@ public record struct SpvEnum<T>(T Value) : IFromSpirv<SpvEnum<T>>
     public static implicit operator T(SpvEnum<T> r) => r.Value;
     public static implicit operator SpvEnum<T>(T v) => new(v);
     public static SpvEnum<T> From(Span<int> words) => new() { Value = Unsafe.As<int, T>(ref words[0]) };
+
+    public static SpvEnum<T> From(string value)
+    {
+        throw new NotImplementedException();
+    }
 }

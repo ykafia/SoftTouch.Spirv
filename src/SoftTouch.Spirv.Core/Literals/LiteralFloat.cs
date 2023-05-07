@@ -121,4 +121,9 @@ public struct LiteralFloat : ISpirvElement, IFromSpirv<LiteralFloat>
     }
 
     public static LiteralFloat From(Span<int> words) => new(words);
+
+    public static LiteralFloat From(string value)
+    {
+        throw new NotImplementedException();
+    }
 }

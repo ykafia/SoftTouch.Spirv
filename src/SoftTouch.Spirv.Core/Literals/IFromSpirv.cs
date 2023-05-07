@@ -9,4 +9,5 @@ namespace SoftTouch.Spirv.Core;
 public interface IFromSpirv<T>
 {
     static abstract T From(Span<int> words);
+    static abstract T From(string value);
 }

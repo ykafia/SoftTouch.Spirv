@@ -1,10 +1,12 @@
-﻿using CommunityToolkit.HighPerformance.Buffers;
+﻿using CommunityToolkit.HighPerformance;
+using CommunityToolkit.HighPerformance.Buffers;
 using SoftTouch.Spirv.Core.Parsing;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using System.Runtime.InteropServices;
+using System.Text;
 
 namespace SoftTouch.Spirv.Core;
 
@@ -82,12 +84,14 @@ public partial class WordBuffer
 
     internal void AddString(LiteralString value)
     {
-        var chars = MemoryMarshal.Cast<char,int>(value.Value.AsSpan());
         var wordLength = value.WordLength;
+        Span<byte> bytes = stackalloc byte[wordLength * 4];
+        ASCIIEncoding.UTF8.GetBytes(value.Value.AsSpan(), bytes);
+        var words = MemoryMarshal.Cast<byte,int>(bytes);
         Expand(wordLength);
         var span = buffer.Span[(BufferLength - wordLength)..BufferLength];
         span.Clear();
-        chars.CopyTo(span);
+        words.CopyTo(span);
     }
     internal void AddInt(int value)
     {
@@ -126,7 +130,6 @@ public partial class WordBuffer
         }
         Add((int)(value.Words & 0xFFFFFFFF));
     }
-
     internal void Add<T>(T? value)
     {
         if (value != null)
@@ -137,6 +140,8 @@ public partial class WordBuffer
                 AddArray(array);
             else if (value is string s)
                 AddString(s);
+            else if (value is LiteralString ls)
+                AddString(ls.Value);
             else if (value is Enum e)
                 Add(Convert.ToInt32(e));
         }
@@ -152,6 +157,7 @@ public partial class WordBuffer
             LiteralFloat i => i.WordCount,
             int _ => 1,
             string v => new LiteralString(v).WordLength,
+            LiteralString v => v.WordLength,
             int[] a => a.Length,
             Enum _ => 1,
             _ => 0

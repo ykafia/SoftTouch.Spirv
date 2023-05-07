@@ -91,4 +91,6 @@ public struct LiteralString : ISpirvElement, IFromSpirv<LiteralString>
     {
         return new(words);
     }
+
+    public static LiteralString From(string value) => value;
 }
