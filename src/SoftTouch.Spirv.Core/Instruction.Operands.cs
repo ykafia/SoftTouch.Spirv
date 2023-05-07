@@ -92,6 +92,18 @@ public partial struct Instruction
                     index += 1;
                     wid += 1;
                 }
+                else if (o.GetWordSize() == 1 && o.Quantifier == OperandQuantifier.ZeroOrOne)
+                {
+                    throw new NotImplementedException();
+                    //spans[index] = (wid, 1);
+                    //if (o.Name == lowerProperty)
+                    //{
+                    //    result = T.From(Operands.Slice(wid, 1));
+                    //    return true;
+                    //}
+                    //index += 1;
+                    //wid += 1;
+                }
             }
         }
         result = default;
