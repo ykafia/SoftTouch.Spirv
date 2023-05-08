@@ -92,17 +92,38 @@ public partial struct Instruction
                     index += 1;
                     wid += 1;
                 }
-                else if (o.GetWordSize() == 1 && o.Quantifier == OperandQuantifier.ZeroOrOne)
+                else if (o.GetWordSize() == 2 && o.Quantifier == OperandQuantifier.One)
                 {
-                    throw new NotImplementedException();
-                    //spans[index] = (wid, 1);
-                    //if (o.Name == lowerProperty)
-                    //{
-                    //    result = T.From(Operands.Slice(wid, 1));
-                    //    return true;
-                    //}
-                    //index += 1;
-                    //wid += 1;
+                    spans[index] = (wid, 2);
+                    if (o.Name == lowerProperty)
+                    {
+                        result = T.From(Operands.Slice(wid, 2));
+                        return true;
+                    }
+                    index += 1;
+                    wid += 1;
+                }
+                else if (o.GetWordSize() == 1 && o.Quantifier == OperandQuantifier.ZeroOrOne && missing == 0)
+                {
+                    spans[index] = (wid, 1);
+                    if (o.Name == lowerProperty)
+                    {
+                        result = T.From(Operands.Slice(wid, 1));
+                        return true;
+                    }
+                    index += 1;
+                    wid += 1;
+                }
+                else if (o.GetWordSize() == 2 && o.Quantifier == OperandQuantifier.ZeroOrOne && missing == 0)
+                {
+                    spans[index] = (wid, 2);
+                    if (o.Name == lowerProperty)
+                    {
+                        result = T.From(Operands.Slice(wid, 2));
+                        return true;
+                    }
+                    index += 1;
+                    wid += 1;
                 }
             }
         }

@@ -138,9 +138,9 @@ namespace SoftTouch.Spirv.Generators
                 var parameters = ConvertOperandsToParameters(op);
                 var parameterNames = ConvertOperandsToParameterNames(op);
 
-                var paramsParameters = parameters.Where(x => x.Contains("params"));
+                var paramsParameters = parameters.Where(x => x.Contains("Span"));
                 var nullableParameters = parameters.Where(x => x.Contains("?"));
-                var normalParameters = parameters.Where(x => !x.Contains("?") && !x.Contains("params"));
+                var normalParameters = parameters.Where(x => !x.Contains("?") && !x.Contains("Span"));
 
                 code
                     .Append("public Instruction Add")
@@ -219,9 +219,9 @@ namespace SoftTouch.Spirv.Generators
                 var parameterNames = ConvertOperandsToParameterNames(op);
                 parameterNames.Add("set");
 
-                var paramsParameters = parameters.Where(x => x.Contains("params"));
+                var paramsParameters = parameters.Where(x => x.Contains("Span"));
                 var nullableParameters = parameters.Where(x => x.Contains("?"));
-                var normalParameters = parameters.Where(x => !x.Contains("?") && !x.Contains("params"));
+                var normalParameters = parameters.Where(x => !x.Contains("?") && !x.Contains("Span"));
                 var other = parameterNames.Where(x => x != "resultType" && x != "resultId" && x != "set");
 
 
@@ -235,12 +235,13 @@ namespace SoftTouch.Spirv.Generators
                     .AppendLine(")")
                     .AppendLine("{")
                     .Indent()
+                        .Append("Span<IdRef> refs = stackalloc IdRef[]{").Append(string.Join(", ", other)).AppendLine("};")
                         .Append("AddOpExtInst(")
                             .Append("set, ")
                             .Append(opcode)
                             .Append(parameterNames.Any(x => x == "resultType") ? ", resultType, " : ", null")
                             .Append(parameterNames.Any(x => x == "resultId") ? ", resultId, " : ", null")
-                            .Append(other.Count() > 0 ? ", " + string.Join(", ", other) : "").AppendLine(");")
+                            .AppendLine(", refs);")
                         .AppendLine("return new(this, Count - 1);")
                     .Dedent()
                     .AppendLine("}");

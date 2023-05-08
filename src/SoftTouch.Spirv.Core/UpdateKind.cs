@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SoftTouch.Spirv.Core.Assembler;
+namespace SoftTouch.Spirv.Core;
 
 public enum UpdateKind
 {

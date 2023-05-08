@@ -45,7 +45,7 @@ static void CreateShader()
     var capability = buffer.AddOpCapability(Capability.Shader);
     capability.Get("capability", out SpvEnum<Capability> c);
     Console.WriteLine((Capability)c);
-    var extInstImport = buffer.AddOpExtInstImport("GLSL.std.450", 1);
+    var extInstImport = buffer.AddOpExtInstImport(1, "GLSL.std.450");
     extInstImport.Get("name", out LiteralString name);
     var x = 0;
 }
