@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using static Spv.Specification;
 
 namespace SoftTouch.Spirv.Core;
@@ -26,7 +27,7 @@ public ref struct MutRefInstruction
         _index = 1;
     }
 
-    public void Add(LiteralInteger value)
+    public void AddInt(LiteralInteger value)
     {
         if(value.WordCount > 1)
         {
@@ -38,7 +39,7 @@ public ref struct MutRefInstruction
             Words[_index++] = (int)value.Words;
         }
     }
-    public void Add(LiteralFloat value)
+    public void AddFloat(LiteralFloat value)
     {
         if(value.WordCount > 1)
         {
@@ -50,9 +51,71 @@ public ref struct MutRefInstruction
             Words[_index++] = (int)value.Words;
         }
     }
-    public void Add(LiteralString value)
+    
+    public void AddString(LiteralString value)
     {
         value.WriteTo(Words[_index..(_index+value.WordLength)]);
         _index += value.WordLength;
+    }
+    public void Add(Span<IdRef> values)
+    {
+        foreach(var e in values)
+            Add(e);
+    }
+    public void Add(Span<LiteralInteger> values)
+    {
+        foreach(var e in values)
+            Add(e);
+    }
+    public void Add(Span<PairLiteralIntegerIdRef> values)
+    {
+        foreach(var e in values)
+            Add(e);
+    }
+    public void Add(Span<PairIdRefLiteralInteger> values)
+    {
+        foreach(var e in values)
+            Add(e);
+    }
+    public void Add(Span<PairIdRefIdRef> values)
+    {
+        foreach(var e in values)
+            Add(e);
+    }
+
+    public void Add<T>(T? value)
+    {
+        if (value != null)
+        {
+            if (value is int i)
+                AddInt(i);
+            else if (value is LiteralInteger li)
+                AddInt(li);
+            else if (value is float f)
+                AddFloat(f);
+            else if (value is LiteralFloat lf)
+                AddFloat(lf);
+            else if (value is PairIdRefIdRef pair)
+            {
+                AddInt(pair.Value.Item1);
+                AddInt(pair.Value.Item2);
+            }
+            else if (value is PairIdRefLiteralInteger pair2)
+            {
+                AddInt(pair2.Value.Item1);
+                AddInt(pair2.Value.Item2);
+            }
+            else if (value is PairLiteralIntegerIdRef pair3)
+            {
+                AddInt(pair3.Value.Item1);
+                AddInt(pair3.Value.Item2);
+            }
+            else if (value is string s)
+                AddString(s);
+            else if (value is LiteralString ls)
+                AddString(ls.Value);
+            else if (value is Enum e)
+                Add(Convert.ToInt32(e));
+        }
     }
 }

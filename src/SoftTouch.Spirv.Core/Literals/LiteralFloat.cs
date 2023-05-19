@@ -56,6 +56,7 @@ public struct LiteralFloat : ISpirvElement, IFromSpirv<LiteralFloat>
     public static implicit operator LiteralFloat(Half value) => new LiteralFloat(value);
     public static implicit operator LiteralFloat(float value) => new LiteralFloat(value); 
     public static implicit operator LiteralFloat(double value) => new LiteralFloat(value);
+    public static implicit operator LiteralInteger(LiteralFloat value) => new LiteralInteger(value.Words);
 
 
     

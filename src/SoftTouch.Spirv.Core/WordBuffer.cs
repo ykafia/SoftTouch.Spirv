@@ -168,6 +168,11 @@ public partial class WordBuffer
         }
     }
 
+    internal void Add(MutRefInstruction instruction)
+    {
+        throw new NotImplementedException();
+    }
+
     internal void Add<T>(T? value)
     {
         if (value != null)

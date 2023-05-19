@@ -41,8 +41,8 @@ static void CreateShader()
 {
     var mut = new MutRefInstruction(stackalloc int[10]);
     mut.OpCode = Op.OpMemoryModel;
-    mut.Add((LiteralInteger)1);
-    mut.Add((LiteralInteger)2);
+    mut.Add(1);
+    mut.Add(2f);
     mut.Add("aaaa");
     Span<int> values = stackalloc int[20];
     var start = values[..4];

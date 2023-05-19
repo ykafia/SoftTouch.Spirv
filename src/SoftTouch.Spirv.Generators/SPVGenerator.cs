@@ -79,8 +79,8 @@ namespace SoftTouch.Spirv.Generators
                     .AppendLine("{")
                     .Indent()
                         .AppendLine("var wordLength = 1 + GetWordLength(resultType) + GetWordLength(resultId) + value.WordCount;")
-                        .AppendLine("var op = wordLength << 16 | (int)Op.OpConstant;")
-                        .AppendLine("Add(op);")
+                        .AppendLine("var mutInstruction = new MutRefInstruction(stackalloc int[wordLength]);")
+                        .AppendLine("mutInstruction.OpCode = Op.OpConstant;")
                         .AppendLine("Add(resultType);")
                         .AppendLine("Add(resultId);")
                         .AppendLine("Add(value);")
@@ -93,8 +93,8 @@ namespace SoftTouch.Spirv.Generators
                     .AppendLine("{")
                     .Indent()
                         .AppendLine("var wordLength = 1 + GetWordLength(resultType) + GetWordLength(resultId) + value.WordCount;")
-                        .AppendLine("var op = wordLength << 16 | (int)Op.OpConstant;")
-                        .AppendLine("Add(op);")
+                        .AppendLine("var mutInstruction = new MutRefInstruction(stackalloc int[wordLength]);")
+                        .AppendLine("mutInstruction.OpCode = Op.OpConstant;")
                         .AppendLine("Add(resultType);")
                         .AppendLine("Add(resultId);")
                         .AppendLine("Add(value);")
@@ -109,11 +109,12 @@ namespace SoftTouch.Spirv.Generators
                     .AppendLine("{")
                     .Indent()
                         .AppendLine("var wordLength = 1 + GetWordLength(resultType) + GetWordLength(resultId) + value.WordCount;")
-                        .AppendLine("var op = wordLength << 16 | (int)Op.OpSpecConstant;")
-                        .AppendLine("Add(op);")
-                        .AppendLine("Add(resultType);")
-                        .AppendLine("Add(resultId);")
-                        .AppendLine("Add(value);")
+                        .AppendLine("var mutInstruction = new MutRefInstruction(stackalloc int[wordLength]);")
+                        .AppendLine("mutInstruction.OpCode = Op.OpSpecConstant;")
+                        .AppendLine("mutInstruction.Add(resultType);")
+                        .AppendLine("mutInstruction.Add(resultId);")
+                        .AppendLine("mutInstruction.Add(value);")
+                        .AppendLine("Add(mutInstruction);")
                         .AppendLine("return new(this, Count-1);")
                     .Dedent()
                     .AppendLine("}");
@@ -123,11 +124,12 @@ namespace SoftTouch.Spirv.Generators
                     .AppendLine("{")
                     .Indent()
                         .AppendLine("var wordLength = 1 + GetWordLength(resultType) + GetWordLength(resultId) + value.WordCount;")
-                        .AppendLine("var op = wordLength << 16 | (int)Op.OpSpecConstant;")
-                        .AppendLine("Add(op);")
-                        .AppendLine("Add(resultType);")
-                        .AppendLine("Add(resultId);")
-                        .AppendLine("Add(value);")
+                        .AppendLine("var mutInstruction = new MutRefInstruction(stackalloc int[wordLength]);")
+                        .AppendLine("mutInstruction.OpCode = Op.OpSpecConstant;")
+                        .AppendLine("mutInstruction.Add(resultType);")
+                        .AppendLine("mutInstruction.Add(resultId);")
+                        .AppendLine("mutInstruction.Add(value);")
+                        .AppendLine("Add(mutInstruction);")
                         .AppendLine("return new(this, Count-1);")
                     .Dedent()
                     .AppendLine("}");
@@ -139,13 +141,14 @@ namespace SoftTouch.Spirv.Generators
                     .AppendLine("{")
                     .Indent()
                         .AppendLine("var wordLength = 1 + GetWordLength(target) + GetWordLength(decoration) + GetWordLength(additional1) + GetWordLength(additional2) + GetWordLength(additionalString);")
-                        .AppendLine("var op = wordLength << 16 | (int)Op.OpSpecConstant;")
-                        .AppendLine("Add(op);")
-                        .AppendLine("Add(target);")
-                        .AppendLine("Add(decoration);")
-                        .AppendLine("Add(additional1);")
-                        .AppendLine("Add(additional2);")
-                        .AppendLine("Add(additionalString);")
+                        .AppendLine("var mutInstruction = new MutRefInstruction(stackalloc int[wordLength]);")
+                        .AppendLine("mutInstruction.OpCode = Op.OpDecorate;")
+                        .AppendLine("mutInstruction.Add(target);")
+                        .AppendLine("mutInstruction.Add(decoration);")
+                        .AppendLine("mutInstruction.Add(additional1);")
+                        .AppendLine("mutInstruction.Add(additional2);")
+                        .AppendLine("mutInstruction.Add(additionalString);")
+                        .AppendLine("Add(mutInstruction);")
                         .AppendLine("return new(this, Count-1);")
                     .Dedent()
                     .AppendLine("}");
@@ -157,14 +160,15 @@ namespace SoftTouch.Spirv.Generators
                     .AppendLine("{")
                     .Indent()
                         .AppendLine("var wordLength = 1 + GetWordLength(structureType) + GetWordLength(member) + GetWordLength(decoration) + GetWordLength(additional1) + GetWordLength(additional2) + GetWordLength(additionalString);")
-                        .AppendLine("var op = wordLength << 16 | (int)Op.OpSpecConstant;")
-                        .AppendLine("Add(op);")
-                        .AppendLine("Add(structureType);")
-                        .AppendLine("Add(member);")
-                        .AppendLine("Add(decoration);")
-                        .AppendLine("Add(additional1);")
-                        .AppendLine("Add(additional2);")
-                        .AppendLine("Add(additionalString);")
+                        .AppendLine("var mutInstruction = new MutRefInstruction(stackalloc int[wordLength]);")
+                        .AppendLine("mutInstruction.OpCode = Op.OpMemberDecorate;")
+                        .AppendLine("mutInstruction.Add(structureType);")
+                        .AppendLine("mutInstruction.Add(member);")
+                        .AppendLine("mutInstruction.Add(decoration);")
+                        .AppendLine("mutInstruction.Add(additional1);")
+                        .AppendLine("mutInstruction.Add(additional2);")
+                        .AppendLine("mutInstruction.Add(additionalString);")
+                        .AppendLine("Add(mutInstruction);")
                         .AppendLine("return new(this, Count-1);")
                     .Dedent()
                     .AppendLine("}");
@@ -198,42 +202,19 @@ namespace SoftTouch.Spirv.Generators
                     code.AppendLine("var resultId = bound.Next();");
                 }
                 code.Append("var wordLength = 1").Append(parameterNames.Any() ? " + " : "").Append(string.Join(" + ", parameterNames.Select(x => $"GetWordLength({x})"))).AppendLine(";");
-
-                code.Append("var op = wordLength << 16 | (int)Op.").Append(opname).AppendLine(";");
-                code.AppendLine("Add(op);");
+                code.AppendLine("var mutInstruction = new MutRefInstruction(stackalloc int[wordLength]);");
+                code.Append("mutInstruction.OpCode = Op.").Append(opname).AppendLine(";");
+                
                 foreach(var p in parameterNames)
                 {
-                    code.Append("Add(").Append(p).AppendLine(");");
+                    code.Append("mutInstruction.Add(").Append(p).AppendLine(");");
                 }
 
 
                 code
+                    .AppendLine("Add(mutInstruction);")
                     .AppendLine("return new(this, Count - 1);")
                     .Dedent().AppendLine("}");
-
-                //if (parameterNames.Any(x => x.Contains("resultId")))
-                //    code.AppendLine("Add(resultId)");
-                //foreach (var parameter in parameterNames.Where(x => x != "resultId" && x != "resultType"))
-                //{
-                //    code.Append("Add(").Append(parameter).AppendLine(");");
-                //}
-
-                //code
-                //        .AppendLine("return new()")
-                //        .AppendLine("{")
-                //        .Indent()
-                //            .Append("OpCode = Op.").Append(opname).AppendLine(",")
-                //            .AppendLine("Operands = operands,");
-                //if (parameterNames.Any(x => x.Contains("resultId")))
-                //    code.AppendLine("ResultId = resultId,");
-                //if (parameterNames.Any(x => x.Contains("resultType")))
-                //    code.AppendLine("ResultType = resultType,");
-                //code
-                //        .Dedent()
-                //    .AppendLine("};")
-                //    .Dedent()
-                //    .AppendLine("}")
-                //    .AppendLine("");
             }
             else
             {
@@ -297,11 +278,7 @@ namespace SoftTouch.Spirv.Generators
                         .AppendLine("return new(this, Count - 1);")
                     .Dedent()
                     .AppendLine("}");
-
-                
             }
         }
-
-        
     }
 }
