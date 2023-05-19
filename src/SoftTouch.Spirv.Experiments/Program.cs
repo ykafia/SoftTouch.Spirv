@@ -39,7 +39,11 @@ static void ParseShader()
 
 static void CreateShader()
 {
-    var orders = InstructionInfo.Instance.OrderGroup;
+    var mut = new MutRefInstruction(stackalloc int[10]);
+    mut.OpCode = Op.OpMemoryModel;
+    mut.Add((LiteralInteger)1);
+    mut.Add((LiteralInteger)2);
+    mut.Add("aaaa");
     Span<int> values = stackalloc int[20];
     var start = values[..4];
     start.Fill(1);
