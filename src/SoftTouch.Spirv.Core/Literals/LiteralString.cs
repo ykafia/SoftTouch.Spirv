@@ -27,6 +27,16 @@ public struct LiteralString : ISpirvElement, IFromSpirv<LiteralString>
     }
     public static implicit operator LiteralString(string s) => new LiteralString(s);
 
+    
+    public void WriteTo(Span<int> slice)
+    {
+        Span<byte> bytes = stackalloc byte[WordLength * 4];
+        Encoding.UTF8.GetBytes(Value.AsSpan(), bytes);
+        var words = MemoryMarshal.Cast<byte, int>(bytes);
+        slice.Clear();
+        words.CopyTo(slice);
+    }
+
     public void Write(ref SpirvWriter writer)
     {
         var wordLength = Value.Length / 4;

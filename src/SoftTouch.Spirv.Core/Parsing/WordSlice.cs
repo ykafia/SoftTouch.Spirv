@@ -26,5 +26,4 @@ public ref struct WordSlice
     {
         return words.TryCopyTo(destination.words);
     }
-
 }
