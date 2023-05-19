@@ -6,6 +6,9 @@ namespace SoftTouch.Spirv.Core;
 
 public struct LogicalOperandArray : IList<LogicalOperand>
 {
+
+    public string ClassName { get; init; }
+
     List<LogicalOperand> LogicalOperands { get; }
     public bool HasResult => GetHasResult();
     public bool HasResultType => GetHasResultType();
@@ -14,21 +17,23 @@ public struct LogicalOperandArray : IList<LogicalOperand>
 
     public bool IsReadOnly => false;
 
-    public LogicalOperand this[int index] 
-    {   get => LogicalOperands[index]; 
-        set => LogicalOperands[index] = value; 
+    public LogicalOperand this[int index]
+    {
+        get => LogicalOperands[index];
+        set => LogicalOperands[index] = value;
     }
 
-    public LogicalOperandArray()
+    public LogicalOperandArray(string? className)
     {
+        ClassName = className ?? "Debug";
         LogicalOperands = new();
     }
 
     bool GetHasResult()
     {
-        foreach(var o in LogicalOperands)
+        foreach (var o in LogicalOperands)
         {
-            if(o.Kind == OperandKind.IdResult)
+            if (o.Kind == OperandKind.IdResult)
                 return true;
         }
         return false;

@@ -10,18 +10,30 @@ using System.Text;
 
 namespace SoftTouch.Spirv.Core;
 
-public struct ReplaceBuffer
+public partial class WordBuffer
 {
-    MemoryOwner<int> buffer;
-    public int Length { get; private set; }
+
+    // TODO : Generate overloads so that instructions are added with automatic bound
+    Bound bound = new();
+    internal MemoryOwner<int> buffer;
+    public int BufferLength { get; private set; }
+    public Span<int> Span => buffer.Span[..BufferLength];
+    public int Count => new SpirvReader(buffer.Memory[..BufferLength]).Count;
+
+    public SortedList<int, SpirvUpdate> Redirection;
 
     public RefInstruction this[int index]
     {
         get
         {
+            var usedIndex = index;
+            if(Redirection.TryGetValue(index, out var redirect) && redirect.Kind == UpdateKind.Replace)
+            {
+                usedIndex = redirect.DataIndex;
+            }
             int id = 0;
             int wid = 0;
-            while (id < index)
+            while (id < usedIndex)
             {
                 wid += buffer.Span[wid] >> 16;
                 id++;
@@ -30,71 +42,17 @@ public struct ReplaceBuffer
         }
     }
 
-    public ReplaceBuffer()
-    {
-        buffer = MemoryOwner<int>.Allocate(32);
-        Length = 0;
-    }
-
-    public void Expand(int size)
-    {
-        if (buffer.Length < Length + size)
-        {
-            var tmp = MemoryOwner<int>.Allocate((int)BitOperations.RoundUpToPowerOf2((uint)(Length + size)));
-            buffer.Span.CopyTo(tmp.Span);
-            buffer = tmp;
-        }
-        else
-            Length += size;
-    }
-
-    public void Add(Span<int> words)
-    {
-        Expand(words.Length);
-        words.CopyTo(buffer.Span.Slice(Length - words.Length, words.Length));
-    }
-}
-
-public partial class WordBuffer
-{
-
-    // TODO : Generate overloads so that instructions are added with automatic bound
-    Bound bound = new(0);
-
-
-    ReplaceBuffer replacedInstructions;
-
-    MemoryOwner<int> buffer;
-    public int BufferLength { get; private set; }
-    public List<SpirvUpdate> Updates { get; private set; }
-
-    public Span<int> Span => buffer.Span[..BufferLength];
-    public int Count => new SpirvReader(buffer.Memory[..BufferLength]).Count;
-
-    public RefInstruction this[int index]
-    {
-        get
-        {
-            int id = 0;
-            int wid = 0;
-            while(id < index)
-            {
-                wid += buffer.Span[wid] >> 16;
-                id++;
-            }
-            return RefInstruction.ParseRef(buffer.Span.Slice(wid,buffer.Span[wid] >> 16));
-        }
-    }
-
     public WordBuffer(int initialCapacity = 32)
     {
         BufferLength = 0;
-        buffer = MemoryOwner<int>.Allocate(initialCapacity);
+        buffer = MemoryOwner<int>.Allocate(initialCapacity, AllocationMode.Clear);
+        Redirection = new();
     }
     public WordBuffer(MemoryOwner<int> data)
     {
         buffer = data;
         BufferLength = Count;
+        Redirection = new();
     }
 
     public InstructionEnumerator GetEnumerator() => new(buffer.Span);
@@ -104,7 +62,7 @@ public partial class WordBuffer
     {
         if (buffer.Length < BufferLength + size)
         {
-            var tmp = MemoryOwner<int>.Allocate((int)BitOperations.RoundUpToPowerOf2((uint)(BufferLength + size)));
+            var tmp = MemoryOwner<int>.Allocate((int)BitOperations.RoundUpToPowerOf2((uint)(BufferLength + size)), AllocationMode.Clear);
             buffer.Span.CopyTo(tmp.Span);
             buffer = tmp;
         }
@@ -115,7 +73,7 @@ public partial class WordBuffer
     internal void Add(Span<int> words)
     {
         Expand(words.Length);
-        words.CopyTo(buffer.Span[(BufferLength-words.Length)..BufferLength]);
+        words.CopyTo(buffer.Span[(BufferLength - words.Length)..BufferLength]);
     }
 
     internal void AddString(LiteralString value)
@@ -123,7 +81,7 @@ public partial class WordBuffer
         var wordLength = value.WordLength;
         Span<byte> bytes = stackalloc byte[wordLength * 4];
         Encoding.UTF8.GetBytes(value.Value.AsSpan(), bytes);
-        var words = MemoryMarshal.Cast<byte,int>(bytes);
+        var words = MemoryMarshal.Cast<byte, int>(bytes);
         Expand(wordLength);
         var span = buffer.Span[(BufferLength - wordLength)..BufferLength];
         span.Clear();
@@ -151,7 +109,7 @@ public partial class WordBuffer
     internal void Add(LiteralInteger value)
     {
         var start = BufferLength;
-        if(value.WordCount == 2)
+        if (value.WordCount == 2)
         {
             Add((int)(value.Words >> 16));
         }

@@ -12,7 +12,7 @@ namespace SoftTouch.Spirv.Core;
 
 public partial class InstructionInfo
 {
-    internal static InstructionInfo Instance { get; } = new();
+    public static InstructionInfo Instance { get; } = new();
     Dictionary<Op, LogicalOperandArray> Info = new();
     InstructionInfo(){}
 
@@ -20,11 +20,11 @@ public partial class InstructionInfo
     {
         if(Info.TryGetValue(op, out var list))
         {
-            list.Add(new(kind, quantifier, name, spvClass));
+            list.Add(new(kind, quantifier, name));
         }
         else
         {
-            Info.Add(op, new() { new(kind, quantifier, name, spvClass)});
+            Info.Add(op, new(spvClass) { new(kind, quantifier, name)});
         }
     }
 

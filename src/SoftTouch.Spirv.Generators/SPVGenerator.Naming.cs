@@ -66,6 +66,13 @@ namespace SoftTouch.Spirv.Generators
                         parameters.AddUnique(realKind + " " + ConvertKindToName(kind));
                 }
             }
+            if(parameters.Any(x => x.Contains("resultType")) && parameters.Any(x => x.Contains("resultId")))
+            {
+                var resultType = parameters[0];
+                var resultId = parameters[1];
+                parameters[0] = resultId;
+                parameters[1] = resultType;
+            }
             return parameters;
         }
 

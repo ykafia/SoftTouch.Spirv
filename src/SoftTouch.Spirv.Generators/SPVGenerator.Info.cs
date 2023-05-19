@@ -38,6 +38,7 @@ namespace SoftTouch.Spirv.Generators
                 GenerateInfo(instruction, code);
             }
             code
+            .AppendLine("Instance.InitOrder();")
             .Dedent()
             .AppendLine("}")
             .Dedent()

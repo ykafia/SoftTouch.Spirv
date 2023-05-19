@@ -12,7 +12,7 @@ public ref struct SpirvReader
 {
     public static void ParseToList(byte[] byteCode, List<OwnedInstruction> instructions)
     {
-        var data = MemoryOwner<int>.Allocate(byteCode.Length / 4);
+        var data = MemoryOwner<int>.Allocate(byteCode.Length / 4, AllocationMode.Clear);
         var span = MemoryMarshal.Cast<byte, int>(byteCode.AsSpan());
         span.CopyTo(data.Span);
         var reader = new SpirvReader(data);
@@ -24,7 +24,7 @@ public ref struct SpirvReader
     }
     public static List<OwnedInstruction> ParseToList(byte[] byteCode)
     {
-        var data = MemoryOwner<int>.Allocate(byteCode.Length / 4);
+        var data = MemoryOwner<int>.Allocate(byteCode.Length / 4, AllocationMode.Clear);
         var span = MemoryMarshal.Cast<byte, int>(byteCode.AsSpan());
         span.CopyTo(data.Span);
         var reader = new SpirvReader(data);

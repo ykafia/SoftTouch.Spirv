@@ -105,7 +105,7 @@ namespace SoftTouch.Spirv.Generators
             else if (opname == "OpSpecConstant")
             {
                 code
-                    .AppendLine("public Instruction AddOpSpecConstant(IdResultType? resultType, IdResult? resultId, LiteralInteger value)")
+                    .AppendLine("public Instruction AddOpSpecConstant(IdResult? resultId, IdResultType? resultType, LiteralInteger value)")
                     .AppendLine("{")
                     .Indent()
                         .AppendLine("var wordLength = 1 + GetWordLength(resultType) + GetWordLength(resultId) + value.WordCount;")
@@ -119,7 +119,7 @@ namespace SoftTouch.Spirv.Generators
                     .AppendLine("}");
 
                 code
-                    .AppendLine("public Instruction AddOpSpecConstant(IdResultType? resultType, IdResult? resultId, LiteralFloat value)")
+                    .AppendLine("public Instruction AddOpSpecConstant(IdResult? resultId, IdResultType? resultType, LiteralFloat value)")
                     .AppendLine("{")
                     .Indent()
                         .AppendLine("var wordLength = 1 + GetWordLength(resultType) + GetWordLength(resultId) + value.WordCount;")
@@ -132,12 +132,53 @@ namespace SoftTouch.Spirv.Generators
                     .Dedent()
                     .AppendLine("}");
             }
+            else if(opname == "OpDecorate")
+            {
+                code
+                    .AppendLine("public Instruction AddOpDecorate(IdRef target, Decoration decoration, int? additional1 = null, int? additional2 = null, string? additionalString = null)")
+                    .AppendLine("{")
+                    .Indent()
+                        .AppendLine("var wordLength = 1 + GetWordLength(target) + GetWordLength(decoration) + GetWordLength(additional1) + GetWordLength(additional2) + GetWordLength(additionalString);")
+                        .AppendLine("var op = wordLength << 16 | (int)Op.OpSpecConstant;")
+                        .AppendLine("Add(op);")
+                        .AppendLine("Add(target);")
+                        .AppendLine("Add(decoration);")
+                        .AppendLine("Add(additional1);")
+                        .AppendLine("Add(additional2);")
+                        .AppendLine("Add(additionalString);")
+                        .AppendLine("return new(this, Count-1);")
+                    .Dedent()
+                    .AppendLine("}");
+            }
+            else if(opname == "OpMemberDecorate")
+            {
+                code
+                    .AppendLine("public Instruction AddOpMemberDecorate(IdRef structureType, LiteralInteger member, Decoration decoration, int? additional1 = null, int? additional2 = null, string? additionalString = null)")
+                    .AppendLine("{")
+                    .Indent()
+                        .AppendLine("var wordLength = 1 + GetWordLength(structureType) + GetWordLength(member) + GetWordLength(decoration) + GetWordLength(additional1) + GetWordLength(additional2) + GetWordLength(additionalString);")
+                        .AppendLine("var op = wordLength << 16 | (int)Op.OpSpecConstant;")
+                        .AppendLine("Add(op);")
+                        .AppendLine("Add(structureType);")
+                        .AppendLine("Add(member);")
+                        .AppendLine("Add(decoration);")
+                        .AppendLine("Add(additional1);")
+                        .AppendLine("Add(additional2);")
+                        .AppendLine("Add(additionalString);")
+                        .AppendLine("return new(this, Count-1);")
+                    .Dedent()
+                    .AppendLine("}");
+            }
 
             else if (op.TryGetProperty("operands", out var operands))
             {
                 var parameters = ConvertOperandsToParameters(op);
                 var parameterNames = ConvertOperandsToParameterNames(op);
-
+                var hasResultId = parameterNames.Contains("resultId") && opname != "OpExtInst";
+                if(hasResultId)
+                {
+                    parameters.Remove(parameters.First(x => x.Contains("resultId")));
+                }
                 var paramsParameters = parameters.Where(x => x.Contains("Span"));
                 var nullableParameters = parameters.Where(x => x.Contains("?"));
                 var normalParameters = parameters.Where(x => !x.Contains("?") && !x.Contains("Span"));
@@ -152,7 +193,10 @@ namespace SoftTouch.Spirv.Generators
                     .AppendLine(")")
                     .AppendLine("{")
                     .Indent();
-
+                if(hasResultId)
+                {
+                    code.AppendLine("var resultId = bound.Next();");
+                }
                 code.Append("var wordLength = 1").Append(parameterNames.Any() ? " + " : "").Append(string.Join(" + ", parameterNames.Select(x => $"GetWordLength({x})"))).AppendLine(";");
 
                 code.Append("var op = wordLength << 16 | (int)Op.").Append(opname).AppendLine(";");
@@ -219,6 +263,13 @@ namespace SoftTouch.Spirv.Generators
                 var parameterNames = ConvertOperandsToParameterNames(op);
                 parameterNames.Add("set");
 
+                var hasResultId = parameterNames.Contains("resultId");
+
+                if(hasResultId)
+                {
+                    parameters.Remove(parameters.First(x => x.Contains("resultId")));
+                }
+
                 var paramsParameters = parameters.Where(x => x.Contains("Span"));
                 var nullableParameters = parameters.Where(x => x.Contains("?"));
                 var normalParameters = parameters.Where(x => !x.Contains("?") && !x.Contains("Span"));
@@ -235,12 +286,13 @@ namespace SoftTouch.Spirv.Generators
                     .AppendLine(")")
                     .AppendLine("{")
                     .Indent()
+                        .AppendLine("var resultId = bound.Next();")
                         .Append("Span<IdRef> refs = stackalloc IdRef[]{").Append(string.Join(", ", other)).AppendLine("};")
                         .Append("AddOpExtInst(")
                             .Append("set, ")
                             .Append(opcode)
-                            .Append(parameterNames.Any(x => x == "resultType") ? ", resultType, " : ", null")
                             .Append(parameterNames.Any(x => x == "resultId") ? ", resultId, " : ", null")
+                            .Append(parameterNames.Any(x => x == "resultType") ? ", resultType, " : ", null")
                             .AppendLine(", refs);")
                         .AppendLine("return new(this, Count - 1);")
                     .Dedent()

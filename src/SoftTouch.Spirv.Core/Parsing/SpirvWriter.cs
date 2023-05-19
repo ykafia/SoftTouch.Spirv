@@ -12,7 +12,7 @@ public ref struct SpirvWriter
 
     public SpirvWriter(int initialSize = 32)
     {
-        buffer = MemoryOwner<int>.Allocate(initialSize);
+        buffer = MemoryOwner<int>.Allocate(initialSize, AllocationMode.Clear);
         Length = 0;
     }
 
@@ -23,7 +23,7 @@ public ref struct SpirvWriter
         if(Length > buffer.Length)
         {
             buffer.Dispose();
-            buffer = MemoryOwner<int>.Allocate(realLength*2);
+            buffer = MemoryOwner<int>.Allocate(realLength*2, AllocationMode.Clear);
         }
     }
 

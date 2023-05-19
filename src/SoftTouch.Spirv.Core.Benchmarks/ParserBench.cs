@@ -21,7 +21,7 @@ public class ParserBench
     public ParserBench()
     {
         var bytes = File.ReadAllBytes("C:/Users/youness_kafia/Documents/dotnetProjs/SoftTouch.Spirv/shader.spv");
-        shader = MemoryOwner<int>.Allocate(bytes.Length / 4);
+        shader = MemoryOwner<int>.Allocate(bytes.Length / 4, AllocationMode.Clear);
         MemoryMarshal.Cast<byte, int>(bytes.AsSpan()).CopyTo(shader.Span);
         var reader = new SpirvReader(bytes);
         instructions = new(reader.Count);

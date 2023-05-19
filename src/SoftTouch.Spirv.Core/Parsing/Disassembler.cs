@@ -14,14 +14,14 @@ public ref struct Disassembler
 
     public Disassembler(int initialCapacity = 256)
     {
-        buffer = MemoryOwner<char>.Allocate(initialCapacity);
+        buffer = MemoryOwner<char>.Allocate(initialCapacity, AllocationMode.Clear);
     }
 
     public void Expand(int size)
     {
         if(Length + size > buffer.Length)
         {
-            var tmp = MemoryOwner<char>.Allocate((int)BitOperations.RoundUpToPowerOf2((uint)(Length+size)));
+            var tmp = MemoryOwner<char>.Allocate((int)BitOperations.RoundUpToPowerOf2((uint)(Length+size)), AllocationMode.Clear);
             buffer.Span.CopyTo(tmp.Span);
             buffer = tmp;
         }

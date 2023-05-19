@@ -10,5 +10,4 @@ public enum UpdateKind
 {
     Remove,
     Replace,
-    Insert,
 }
