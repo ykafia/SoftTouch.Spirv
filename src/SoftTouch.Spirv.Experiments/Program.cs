@@ -129,6 +129,13 @@ static void CreateShader()
     buffer.AddOpReturn();
     buffer.AddOpFunctionEnd();
 
+    var list = new List<Instruction>(buffer.Count);
+
+    foreach(var e in buffer)
+    {
+        list.Add(e);
+    }
+
     var x = 0;
 }
 

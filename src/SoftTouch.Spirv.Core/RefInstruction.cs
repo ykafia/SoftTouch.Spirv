@@ -72,7 +72,7 @@ public ref struct RefInstruction
             Operands = words[index..]
         };
     }
-
+    
     public bool ToOwned(out OwnedInstruction instruction)
     {
         if (Slice == null)

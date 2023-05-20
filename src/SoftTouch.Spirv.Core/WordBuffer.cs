@@ -56,7 +56,7 @@ public partial class WordBuffer
         Redirection = new();
     }
 
-    public InstructionEnumerator GetEnumerator() => new(buffer.Span);
+    public OrderedEnumerator GetEnumerator() => new(this);
 
 
     public void Expand(int size)
@@ -81,36 +81,38 @@ public partial class WordBuffer
 
     internal Instruction Add(MutRefInstruction instruction)
     {
-        int group = 0;
-        if (instruction.OpCode == Op.OpVariable)
-            group = InstructionInfo.GetGroupOrder(instruction.OpCode, (StorageClass)instruction.Words[3]);
-        else
-            group = InstructionInfo.GetGroupOrder(instruction.OpCode);
+        Insert(BufferLength, instruction.Words);
+        return new(this, Count - 1);
+        //int group = 0;
+        //if (instruction.OpCode == Op.OpVariable)
+        //    group = InstructionInfo.GetGroupOrder(instruction.OpCode, (StorageClass)instruction.Words[3]);
+        //else
+        //    group = InstructionInfo.GetGroupOrder(instruction.OpCode);
 
-        if (group == 13)
-        {
-            Insert(BufferLength, instruction.Words);
-            return new(this, Count - 1);
-        }
-        else
-        {
+        //if (group == 13)
+        //{
+        //    Insert(BufferLength, instruction.Words);
+        //    return new(this, Count - 1);
+        //}
+        //else
+        //{
 
-            var index = 0;
-            var wIndex = 0;
-            while (InstructionInfo.GetGroupOrder((Op)(buffer.Span[wIndex] & 0xFF), ((Op)(buffer.Span[wIndex] & 0xFF)) == Op.OpVariable ? (StorageClass)buffer.Span[wIndex+3] : null) < group)
-            {
-                wIndex += buffer.Span[wIndex] >> 16;
-                index += 1;
-                if(wIndex >= BufferLength)
-                {
-                    Insert(BufferLength, instruction.Words);
-                    return new(this, Count - 1);
-                }
+        //    var index = 0;
+        //    var wIndex = 0;
+        //    while (InstructionInfo.GetGroupOrder((Op)(buffer.Span[wIndex] & 0xFF), ((Op)(buffer.Span[wIndex] & 0xFF)) == Op.OpVariable ? (StorageClass)buffer.Span[wIndex+3] : null) <= group)
+        //    {
+        //        wIndex += buffer.Span[wIndex] >> 16;
+        //        index += 1;
+        //        if(wIndex >= BufferLength)
+        //        {
+        //            Insert(BufferLength, instruction.Words);
+        //            return new(this, Count - 1);
+        //        }
 
-            }
-            Insert(wIndex, instruction.Words);
-            return new(this, index);
-        }
+        //    }
+        //    Insert(wIndex, instruction.Words);
+        //    return new(this, index);
+        //}
     }
 
     internal static int GetWordLength<T>(T? value)
