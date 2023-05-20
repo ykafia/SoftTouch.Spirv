@@ -40,6 +40,9 @@ public partial struct Instruction
         return false;   
 
     }
+
+    public static implicit operator IdRef(Instruction i) => new (i.ResultId ?? throw new Exception("Instruction has no result id"));
+    public static implicit operator IdResultType(Instruction i) => new(i.ResultId ?? throw new Exception("Instruction has no result id"));
     
 }
 

@@ -7,6 +7,7 @@ using System.Linq;
 using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Text;
+using static Spv.Specification;
 
 namespace SoftTouch.Spirv.Core;
 
@@ -65,128 +66,50 @@ public partial class WordBuffer
             var tmp = MemoryOwner<int>.Allocate((int)BitOperations.RoundUpToPowerOf2((uint)(BufferLength + size)), AllocationMode.Clear);
             buffer.Span.CopyTo(tmp.Span);
             buffer = tmp;
+            BufferLength += size;
         }
         else
             BufferLength += size;
     }
-
-    internal void Add(Span<int> words)
+    internal void Insert(int start, Span<int> words)
     {
         Expand(words.Length);
-        words.CopyTo(buffer.Span[(BufferLength - words.Length)..BufferLength]);
+        var slice = buffer.Span[start..(BufferLength-words.Length)];
+        slice.CopyTo(buffer.Span[(start + words.Length)..]);
+        words.CopyTo(buffer.Span.Slice(start, words.Length));
     }
 
-    internal void AddString(LiteralString value)
+    internal Instruction Add(MutRefInstruction instruction)
     {
-        var wordLength = value.WordLength;
-        Span<byte> bytes = stackalloc byte[wordLength * 4];
-        Encoding.UTF8.GetBytes(value.Value.AsSpan(), bytes);
-        var words = MemoryMarshal.Cast<byte, int>(bytes);
-        Expand(wordLength);
-        var span = buffer.Span[(BufferLength - wordLength)..BufferLength];
-        span.Clear();
-        words.CopyTo(span);
-    }
-    internal void AddInt(int value)
-    {
-        var start = BufferLength;
-        Expand(1);
-        buffer.Span[start] = value;
-    }
-    internal void AddArray(int[] value)
-    {
-        Expand(value.Length);
-        value.AsSpan().CopyTo(buffer.Span[(BufferLength - value.Length)..BufferLength]);
-    }
-    internal void Add(int? value)
-    {
-        if (value.HasValue)
-        {
-            AddInt(value.Value);
-        }
-    }
+        int group = 0;
+        if (instruction.OpCode == Op.OpVariable)
+            group = InstructionInfo.GetGroupOrder(instruction.OpCode, (StorageClass)instruction.Words[3]);
+        else
+            group = InstructionInfo.GetGroupOrder(instruction.OpCode);
 
-    internal void Add(LiteralInteger value)
-    {
-        var start = BufferLength;
-        if (value.WordCount == 2)
+        if (group == 13)
         {
-            Add((int)(value.Words >> 16));
+            Insert(BufferLength, instruction.Words);
+            return new(this, Count - 1);
         }
-        Add((int)(value.Words & 0xFFFFFFFF));
-    }
-    internal void Add(LiteralFloat value)
-    {
-        var start = BufferLength;
-        if (value.WordCount == 2)
+        else
         {
-            Add((int)(value.Words >> 16));
-        }
-        Add((int)(value.Words & 0xFFFFFFFF));
-    }
 
-    internal void Add(Span<IdRef> values)
-    {
-        Expand(values.Length);
-        foreach (var i in values) Add(i.Value);
-    }
-    internal void Add(Span<LiteralInteger> values)
-    {
-        Expand(values.Length);
-        foreach (var i in values)
-        {
-            if (i.Size > 32)
-                Add((int)i.Words >> 32);
-            Add(i.Words & 0xFFFFFFFF);
-        }
-    }
-    internal void Add(Span<PairIdRefIdRef> values)
-    {
-        Expand(values.Length);
-        foreach (var i in values)
-        {
-            Add(i.Value.Item1);
-            Add(i.Value.Item2);
-        }
-    }
-    internal void Add(Span<PairIdRefLiteralInteger> values)
-    {
-        Expand(values.Length);
-        foreach (var i in values)
-        {
-            Add(i.Value.Item1);
-            Add(i.Value.Item2);
-        }
-    }
-    internal void Add(Span<PairLiteralIntegerIdRef> values)
-    {
-        Expand(values.Length);
-        foreach (var i in values)
-        {
-            Add(i.Value.Item1);
-            Add(i.Value.Item2);
-        }
-    }
+            var index = 0;
+            var wIndex = 0;
+            while (InstructionInfo.GetGroupOrder((Op)(buffer.Span[wIndex] & 0xFF), ((Op)(buffer.Span[wIndex] & 0xFF)) == Op.OpVariable ? (StorageClass)buffer.Span[wIndex+3] : null) < group)
+            {
+                wIndex += buffer.Span[wIndex] >> 16;
+                index += 1;
+                if(wIndex >= BufferLength)
+                {
+                    Insert(BufferLength, instruction.Words);
+                    return new(this, Count - 1);
+                }
 
-    internal void Add(MutRefInstruction instruction)
-    {
-        throw new NotImplementedException();
-    }
-
-    internal void Add<T>(T? value)
-    {
-        if (value != null)
-        {
-            if (value is int i)
-                AddInt(i);
-            else if (value is int[] array)
-                AddArray(array);
-            else if (value is string s)
-                AddString(s);
-            else if (value is LiteralString ls)
-                AddString(ls.Value);
-            else if (value is Enum e)
-                Add(Convert.ToInt32(e));
+            }
+            Insert(wIndex, instruction.Words);
+            return new(this, index);
         }
     }
 
@@ -199,11 +122,13 @@ public partial class WordBuffer
             LiteralInteger i => i.WordCount,
             LiteralFloat i => i.WordCount,
             int _ => 1,
+            IdRef _ => 1,
+            IdResultType _ => 1,
             string v => new LiteralString(v).WordLength,
             LiteralString v => v.WordLength,
             int[] a => a.Length,
             Enum _ => 1,
-            _ => 0
+            _ => throw new NotImplementedException()
         };
     }
     internal static int GetWordLength(Span<int> values) => values.Length;

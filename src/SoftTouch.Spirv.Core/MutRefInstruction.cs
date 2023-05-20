@@ -10,7 +10,7 @@ public ref struct MutRefInstruction
     public Op OpCode 
     {
         get => (Op)(Words[0] & 0xFF); 
-        set { unchecked { Words[0] = (Words[0] & (int)(0xFFFF0000)) | (int)value;}}
+        set { unchecked { Words[0] = (Words[0] & (int)0xFFFF0000) | (int)value;}}
     }
     public int WordCount
     {

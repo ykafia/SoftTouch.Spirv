@@ -75,62 +75,64 @@ namespace SoftTouch.Spirv.Generators
             if (opname == "OpConstant")
             {
                 code
-                    .AppendLine("public Instruction AddOpConstant(IdResultType? resultType, IdResult? resultId, LiteralInteger value)")
+                    .AppendLine("public Instruction AddOpConstant(IdResultType? resultType, LiteralInteger value)")
                     .AppendLine("{")
                     .Indent()
-                        .AppendLine("var wordLength = 1 + GetWordLength(resultType) + GetWordLength(resultId) + value.WordCount;")
+                        .AppendLine("var resultId = bound.Next();")
+                        .AppendLine("var wordLength = 1 + 1 + GetWordLength(resultType) + GetWordLength(resultId) + value.WordCount;")
                         .AppendLine("var mutInstruction = new MutRefInstruction(stackalloc int[wordLength]);")
                         .AppendLine("mutInstruction.OpCode = Op.OpConstant;")
-                        .AppendLine("Add(resultType);")
-                        .AppendLine("Add(resultId);")
-                        .AppendLine("Add(value);")
-                        .AppendLine("return new(this, Count-1);")
+                        .AppendLine("mutInstruction.Add(resultType);")
+                        .AppendLine("mutInstruction.Add(resultId);")
+                        .AppendLine("mutInstruction.Add(value);")
+                        .AppendLine("return Add(mutInstruction);")
                     .Dedent()
                     .AppendLine("}");
 
                 code
-                    .AppendLine("public Instruction AddOpConstant(IdResultType? resultType, IdResult? resultId, LiteralFloat value)")
+                    .AppendLine("public Instruction AddOpConstant(IdResultType? resultType, LiteralFloat value)")
                     .AppendLine("{")
                     .Indent()
+                        .AppendLine("var resultId = bound.Next();")
                         .AppendLine("var wordLength = 1 + GetWordLength(resultType) + GetWordLength(resultId) + value.WordCount;")
                         .AppendLine("var mutInstruction = new MutRefInstruction(stackalloc int[wordLength]);")
                         .AppendLine("mutInstruction.OpCode = Op.OpConstant;")
-                        .AppendLine("Add(resultType);")
-                        .AppendLine("Add(resultId);")
-                        .AppendLine("Add(value);")
-                        .AppendLine("return new(this, Count-1);")
+                        .AppendLine("mutInstruction.Add(resultType);")
+                        .AppendLine("mutInstruction.Add(resultId);")
+                        .AppendLine("mutInstruction.Add(value);")
+                        .AppendLine("return Add(mutInstruction);")
                     .Dedent()
                     .AppendLine("}");
             }
             else if (opname == "OpSpecConstant")
             {
                 code
-                    .AppendLine("public Instruction AddOpSpecConstant(IdResult? resultId, IdResultType? resultType, LiteralInteger value)")
+                    .AppendLine("public Instruction AddOpSpecConstant(IdResultType? resultType, LiteralInteger value)")
                     .AppendLine("{")
                     .Indent()
+                        .AppendLine("var resultId = bound.Next();")
                         .AppendLine("var wordLength = 1 + GetWordLength(resultType) + GetWordLength(resultId) + value.WordCount;")
                         .AppendLine("var mutInstruction = new MutRefInstruction(stackalloc int[wordLength]);")
                         .AppendLine("mutInstruction.OpCode = Op.OpSpecConstant;")
                         .AppendLine("mutInstruction.Add(resultType);")
                         .AppendLine("mutInstruction.Add(resultId);")
                         .AppendLine("mutInstruction.Add(value);")
-                        .AppendLine("Add(mutInstruction);")
-                        .AppendLine("return new(this, Count-1);")
+                        .AppendLine("return Add(mutInstruction);")
                     .Dedent()
                     .AppendLine("}");
 
                 code
-                    .AppendLine("public Instruction AddOpSpecConstant(IdResult? resultId, IdResultType? resultType, LiteralFloat value)")
+                    .AppendLine("public Instruction AddOpSpecConstant(IdResultType? resultType, LiteralFloat value)")
                     .AppendLine("{")
                     .Indent()
+                        .AppendLine("var resultId = bound.Next();")
                         .AppendLine("var wordLength = 1 + GetWordLength(resultType) + GetWordLength(resultId) + value.WordCount;")
                         .AppendLine("var mutInstruction = new MutRefInstruction(stackalloc int[wordLength]);")
                         .AppendLine("mutInstruction.OpCode = Op.OpSpecConstant;")
                         .AppendLine("mutInstruction.Add(resultType);")
                         .AppendLine("mutInstruction.Add(resultId);")
                         .AppendLine("mutInstruction.Add(value);")
-                        .AppendLine("Add(mutInstruction);")
-                        .AppendLine("return new(this, Count-1);")
+                        .AppendLine("return Add(mutInstruction);")
                     .Dedent()
                     .AppendLine("}");
             }
@@ -148,8 +150,7 @@ namespace SoftTouch.Spirv.Generators
                         .AppendLine("mutInstruction.Add(additional1);")
                         .AppendLine("mutInstruction.Add(additional2);")
                         .AppendLine("mutInstruction.Add(additionalString);")
-                        .AppendLine("Add(mutInstruction);")
-                        .AppendLine("return new(this, Count-1);")
+                        .AppendLine("return Add(mutInstruction);")
                     .Dedent()
                     .AppendLine("}");
             }
@@ -168,8 +169,7 @@ namespace SoftTouch.Spirv.Generators
                         .AppendLine("mutInstruction.Add(additional1);")
                         .AppendLine("mutInstruction.Add(additional2);")
                         .AppendLine("mutInstruction.Add(additionalString);")
-                        .AppendLine("Add(mutInstruction);")
-                        .AppendLine("return new(this, Count-1);")
+                        .AppendLine("return Add(mutInstruction);")
                     .Dedent()
                     .AppendLine("}");
             }
@@ -212,8 +212,7 @@ namespace SoftTouch.Spirv.Generators
 
 
                 code
-                    .AppendLine("Add(mutInstruction);")
-                    .AppendLine("return new(this, Count - 1);")
+                    .AppendLine("return Add(mutInstruction);")
                     .Dedent().AppendLine("}");
             }
             else
@@ -224,8 +223,9 @@ namespace SoftTouch.Spirv.Generators
                     .AppendLine("()")
                     .AppendLine("{")
                     .Indent()
-                        .Append("Add( 1 << 16 | (int)Op.").Append(opname).AppendLine(");")
-                        .AppendLine("return new(this, Count - 1);")
+                        .AppendLine("var mutInstruction = new MutRefInstruction(stackalloc int[1]);")
+                        .Append("mutInstruction.OpCode = Op.").Append(opname).AppendLine(";")
+                        .AppendLine("return Add(mutInstruction);")
                     .Dedent()
                     .AppendLine("}");
             }
@@ -269,13 +269,12 @@ namespace SoftTouch.Spirv.Generators
                     .Indent()
                         .AppendLine("var resultId = bound.Next();")
                         .Append("Span<IdRef> refs = stackalloc IdRef[]{").Append(string.Join(", ", other)).AppendLine("};")
-                        .Append("AddOpExtInst(")
+                        .Append("return AddOpExtInst(")
                             .Append("set, ")
                             .Append(opcode)
                             .Append(parameterNames.Any(x => x == "resultId") ? ", resultId, " : ", null")
                             .Append(parameterNames.Any(x => x == "resultType") ? ", resultType, " : ", null")
                             .AppendLine(", refs);")
-                        .AppendLine("return new(this, Count - 1);")
                     .Dedent()
                     .AppendLine("}");
             }

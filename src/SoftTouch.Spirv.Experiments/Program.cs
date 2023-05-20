@@ -39,127 +39,95 @@ static void ParseShader()
 
 static void CreateShader()
 {
-    var mut = new MutRefInstruction(stackalloc int[10]);
-    mut.OpCode = Op.OpMemoryModel;
-    mut.Add(1);
-    mut.Add(2f);
-    mut.Add("aaaa");
-    Span<int> values = stackalloc int[20];
-    var start = values[..4];
-    start.Fill(1);
-
-    var middle = values[4..14];
-    middle.Fill(2);
-    
-    var end = values[14..];
-    end.Fill(4);
-
-    Span<int> endCopy = stackalloc int[end.Length];
-    end.CopyTo(endCopy);
-    
-    end.Clear();
-    middle.CopyTo(values[end.Length..]);
-    endCopy.CopyTo(values);
-    var y = 1;
 
 
     // var bound = new Bound();
-    // var buffer = new WordBuffer();
-
+    var buffer = new WordBuffer();
     // // Capabilities
 
-    // buffer.AddOpCapability(Capability.Shader);
-    // var extInstImport = buffer.AddOpExtInstImport("GLSL.std.450");
-    // buffer.AddOpMemoryModel(AddressingModel.Logical,MemoryModel.GLSL450);
-    // Span<IdRef> v = stackalloc IdRef[]{31,33,42,57};
-    // buffer.AddOpEntryPoint(ExecutionModel.Fragment,4,"main",v);
-    // buffer.AddOpExecutionMode(4,ExecutionMode.OriginLowerLeft);
-    
-    // //Debug
-
-    // buffer.AddOpSource(SourceLanguage.GLSL,450,null,null);
-    // buffer.AddOpName(4,"main");
-    // buffer.AddOpName(9,"scale");
-    // buffer.AddOpName(17,"S");
-    // buffer.AddOpMemberName(17,0,"b");
-    // buffer.AddOpMemberName(17,1,"v");
-    // buffer.AddOpMemberName(17,2,"i");
-    // buffer.AddOpName(18,"blockName");
-    // buffer.AddOpMemberName(18,0,"s");
-    // buffer.AddOpMemberName(18,1,"cond");
-    // buffer.AddOpName(20,"");
-    // buffer.AddOpName(31,"color");
-    // buffer.AddOpName(33,"color1");
-    // buffer.AddOpName(42,"color2");
-    // buffer.AddOpName(48,"i");
-    // buffer.AddOpName(57,"multiplier");
-
-    // // Annotations
-
-    // buffer.AddOpDecorate(15, Decoration.ArrayStride, 16);
-    // buffer.AddOpMemberDecorate(17, 0, Decoration.Offset, 0);
-    // buffer.AddOpMemberDecorate(17, 1, Decoration.Offset, 16);
-    // buffer.AddOpMemberDecorate(17, 2, Decoration.Offset, 96);
-    // buffer.AddOpMemberDecorate(18, 0, Decoration.Offset, 0);
-    // buffer.AddOpMemberDecorate(18, 1, Decoration.Offset, 112);
-    // buffer.AddOpDecorate(18, Decoration.Block);
-    // buffer.AddOpDecorate(20, Decoration.DescriptorSet, 0);
-    // buffer.AddOpDecorate(42, Decoration.NoPerspective);
-
-    // // declarations
-
-    // Span<IdRef> c = stackalloc IdRef[10]; // This is for use in parameters
+    buffer.AddOpCapability(Capability.Shader);
+    var extInstImport = buffer.AddOpExtInstImport("GLSL.std.450");
+    buffer.AddOpMemoryModel(AddressingModel.Logical, MemoryModel.GLSL450);
 
 
-    // var typeVoid = buffer.AddOpTypeVoid();
-   
-    // buffer.AddOpTypeFunction(2, Span<IdRef>.Empty);
-    // buffer.AddOpTypeFloat(32);
-    // buffer.AddOpTypeVector(6, 4);
-    // buffer.AddOpTypePointer(StorageClass.Function, 7);
-    // buffer.AddOpConstant(10, 6, 1f);
-    // buffer.AddOpConstant(11, 6, 2f);
+    // declarations
 
-    // var composite = c.Slice(0,4);
-    // composite[0] = 10;
-    // composite[1] = 10;
-    // composite[2] = 11;
-    // composite[3] = 10;
-    // buffer.AddOpConstantComposite(12, 7, c);
-    // composite.Clear();
+    Span<IdRef> c = stackalloc IdRef[10]; // This is for use in parameters
 
-    
-    // buffer.AddOpTypeInt(13, 32, 0);
-    // buffer.AddOpConstant(14, 13, 5f);
-    // buffer.AddOpTypeArray(15, 7, 14);
-    // buffer.AddOpTypeInt(16, 32, 1);
-    // var structParams = c.Slice(0,3);
-    // structParams[0] = 13;
-    // structParams[1] = 15;
-    // structParams[2] = 16;
-    // buffer.AddOpTypeStruct(17, structParams);
-    // structParams.Clear();
-    // structParams = c.Slice(0,2);
-    // structParams[0] = 17;
-    // structParams[1] = 13;
-    // buffer.AddOpTypeStruct(18, structParams);
-    // buffer.AddOpTypePointer(19, StorageClass.Uniform, 18);
-    // buffer.AddOpVariable(20, 19, StorageClass.Uniform,null);
-    // buffer.AddOpConstant(21, 16, 1f);
-    // buffer.AddOpTypePointer(22, StorageClass.Uniform, 13);
-    // buffer.AddOpTypeBool(25);
-    // buffer.AddOpConstant(26, 13, 0f);
-    // buffer.AddOpTypePointer(30, StorageClass.Output, 7);
-    // buffer.AddOpVariable(31, 30, StorageClass.Output, null);
-    // buffer.AddOpTypePointer(32, StorageClass.Input, 7);
-    // buffer.AddOpVariable(33, 32, StorageClass.Input, null);
-    // buffer.AddOpConstant(35, 16, 0f);
-    // buffer.AddOpConstant(36, 16, 2f);
-    // buffer.AddOpTypePointer(37, StorageClass.Uniform, 7);
-    // buffer.AddOpVariable(42, 32, StorageClass.Input,null);
-    // buffer.AddOpTypePointer(47, StorageClass.Function, 16);
-    // buffer.AddOpConstant(55, 16, 4f);
-    // buffer.AddOpVariable(57, 32, StorageClass.Input,null);
+
+    var t_void = buffer.AddOpTypeVoid();
+
+    var t_bool = buffer.AddOpTypeBool();
+
+    var t_func = buffer.AddOpTypeFunction(t_void, Span<IdRef>.Empty);
+    var t_float = buffer.AddOpTypeFloat(32);
+    var t_uint = buffer.AddOpTypeInt(32,0);
+    var t_int = buffer.AddOpTypeInt(32,1);
+    var t_float4 = buffer.AddOpTypeVector(t_float, 4);
+    var t_p_float4_func = buffer.AddOpTypePointer(StorageClass.Function, t_float4);
+    var constant1 = buffer.AddOpConstant(t_float, 5f);
+    var constant2 = buffer.AddOpConstant(t_float, 2f);
+    var constant3 = buffer.AddOpConstant(t_uint, 5);
+    var compositeType = buffer.AddOpConstantComposite(t_float4, stackalloc IdRef[] { constant1, constant1, constant2, constant1 });
+
+    var t_array = buffer.AddOpTypeArray(t_float4, constant3);
+
+    var t_struct = buffer.AddOpTypeStruct(stackalloc IdRef[] { t_uint, t_array, t_int });
+    var t_struct2 = buffer.AddOpTypeStruct(stackalloc IdRef[] { t_struct, t_uint });
+
+    var t_p_struct2 = buffer.AddOpTypePointer(StorageClass.Uniform, t_struct2);
+
+    var v_struct2 = buffer.AddOpVariable(t_p_struct2, StorageClass.Uniform, null);
+
+    var constant4 = buffer.AddOpConstant(t_int, 1);
+
+    var t_p_uint = buffer.AddOpTypePointer(StorageClass.Uniform, t_uint);
+    var constant5 = buffer.AddOpConstant(t_uint, 0);
+
+    var t_p_output = buffer.AddOpTypePointer(StorageClass.Output, t_float4);
+    var v_output = buffer.AddOpVariable(t_p_output, StorageClass.Output, null);
+
+    var t_p_input = buffer.AddOpTypePointer(StorageClass.Input, t_float4);
+    var v_input = buffer.AddOpVariable(t_p_input, StorageClass.Input, null);
+
+    var constant6 = buffer.AddOpConstant(t_int, 0);
+    var constant7 = buffer.AddOpConstant(t_int, 2);
+    var t_p_float4_unif = buffer.AddOpTypePointer(StorageClass.Uniform, t_float4);
+
+    var v_input_2 = buffer.AddOpVariable(t_p_input, StorageClass.Input, null);
+    var t_p_func = buffer.AddOpTypePointer(StorageClass.Function, t_int);
+    var constant8 = buffer.AddOpConstant(t_int, 4);
+    var v_input_3 = buffer.AddOpVariable(t_p_input, StorageClass.Input, null);
+
+
+    buffer.AddOpEntryPoint(ExecutionModel.Fragment, t_p_func, "main", stackalloc IdRef[] { v_output, v_input, v_input_2, v_input_3 });
+    buffer.AddOpExecutionMode(t_p_func, ExecutionMode.OriginLowerLeft);
+
+
+    buffer.AddOpDecorate(t_array, Decoration.ArrayStride, 16);
+    buffer.AddOpMemberDecorate(t_struct, 0, Decoration.Offset, 0);
+    buffer.AddOpMemberDecorate(t_struct, 1, Decoration.Offset, 16);
+    buffer.AddOpMemberDecorate(t_struct, 2, Decoration.Offset, 96);
+    buffer.AddOpMemberDecorate(t_struct2, 0, Decoration.Offset, 0);
+    buffer.AddOpMemberDecorate(t_struct2, 1, Decoration.Offset, 112);
+    buffer.AddOpDecorate(t_struct2, Decoration.Block);
+    buffer.AddOpDecorate(v_struct2, Decoration.DescriptorSet, 0);
+    buffer.AddOpDecorate(v_input_2, Decoration.NoPerspective);
+
+
+
+
+    buffer.AddOpName(t_p_func, "main");
+    buffer.AddOpName(t_struct, "S");
+    buffer.AddOpMemberName(t_struct, 0, "b");
+    buffer.AddOpMemberName(t_struct, 1, "v");
+    buffer.AddOpMemberName(t_struct, 2, "i");
+
+
+    buffer.AddOpFunction(t_void, FunctionControlMask.MaskNone, t_func);
+    buffer.AddOpLabel();
+    buffer.AddOpReturn();
+    buffer.AddOpFunctionEnd();
 
     var x = 0;
 }

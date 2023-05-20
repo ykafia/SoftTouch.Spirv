@@ -12,7 +12,7 @@ namespace SoftTouch.Spirv.Core;
 
 public partial class InstructionInfo
 {
-    public Dictionary<(Op, StorageClass?), int> OrderGroup = new();
+    Dictionary<(Op, StorageClass?), int> OrderGroup = new();
 
     void InitOrder()
     {
@@ -49,6 +49,12 @@ public partial class InstructionInfo
 
         foreach(var e in Enum.GetValues<Op>().Except(OrderGroup.Keys.Select(x => x.Item1)))
             OrderGroup[(e,null)] = 13;
+        OrderGroup[(Op.OpVariable,StorageClass.Function)] = 13;
+    }
+
+    public static int GetGroupOrder(Op op, StorageClass? sc = null)
+    {
+        return Instance.OrderGroup[(op, sc)];
     }
 
 }
