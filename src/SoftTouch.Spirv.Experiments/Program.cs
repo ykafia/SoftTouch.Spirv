@@ -39,7 +39,13 @@ static void ParseShader()
 
 static void CreateShader()
 {
+    LiteralString sname = "S";
 
+    var ssize = sname.WordLength;
+    var array = new byte[] {0,0,0,8};
+
+    var s = array.AsSpan();
+    Span<int> ints = MemoryMarshal.Cast<byte,int>(s);
 
     // var bound = new Bound();
     var buffer = new WordBuffer();
@@ -61,8 +67,8 @@ static void CreateShader()
 
     var t_func = buffer.AddOpTypeFunction(t_void, Span<IdRef>.Empty);
     var t_float = buffer.AddOpTypeFloat(32);
-    var t_uint = buffer.AddOpTypeInt(32,0);
-    var t_int = buffer.AddOpTypeInt(32,1);
+    var t_uint = buffer.AddOpTypeInt(32, 0);
+    var t_int = buffer.AddOpTypeInt(32, 1);
     var t_float4 = buffer.AddOpTypeVector(t_float, 4);
     var t_p_float4_func = buffer.AddOpTypePointer(StorageClass.Function, t_float4);
     var constant1 = buffer.AddOpConstant(t_float, 5f);
@@ -128,16 +134,30 @@ static void CreateShader()
     buffer.AddOpLabel();
     buffer.AddOpReturn();
     buffer.AddOpFunctionEnd();
-
     var list = new List<Instruction>(buffer.Count);
-
     foreach(var e in buffer)
-    {
         list.Add(e);
-    }
+
+    var bytes = buffer.GenerateSpirv();
+
+    File.WriteAllBytes("C:\\Users\\kafia\\source\\repos\\SoftTouch.Spirv\\shader.spv", bytes); ;
 
     var x = 0;
 }
 
 
+static void ParseWorking()
+{
+    var path = @"C:\Users\kafia\source\repos\SoftTouch.Spirv\working1-6.spv";
+
+    var bytes = File.ReadAllBytes(path);
+
+    var buffer = WordBuffer.Parse(bytes);
+    var extInst = buffer[1];
+    LiteralString.Parse(extInst.Operands);
+    var tmp = 0;
+}
+
 CreateShader();
+
+ParseWorking();

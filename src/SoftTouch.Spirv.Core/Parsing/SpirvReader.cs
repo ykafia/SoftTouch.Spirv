@@ -27,7 +27,7 @@ public ref struct SpirvReader
         var data = MemoryOwner<int>.Allocate(byteCode.Length / 4, AllocationMode.Clear);
         var span = MemoryMarshal.Cast<byte, int>(byteCode.AsSpan());
         span.CopyTo(data.Span);
-        var reader = new SpirvReader(data);
+        var reader = new SpirvReader(data,true);
         var list = new List<OwnedInstruction>(reader.Count);
         foreach(var instruction in reader)
         {

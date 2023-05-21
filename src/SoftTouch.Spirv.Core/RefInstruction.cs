@@ -6,7 +6,6 @@ namespace SoftTouch.Spirv.Core;
 
 public ref struct RefInstruction
 {
-
     public int CountOfWords { get; init; }
     public Op OpCode { get; init; }
     public int? ResultId { get; set; }
@@ -14,6 +13,8 @@ public ref struct RefInstruction
     public Span<int> Operands { get; init; }
     public Memory<int>? Slice { get; init; }
     public int OwnerIndex { get; set; }
+
+    public Span<int> Words { get; init; }
 
     /// <summary>
     /// Word Count is the high-order 16 bits of word 0 of the instruction, holding its total WordCount. 
@@ -47,7 +48,8 @@ public ref struct RefInstruction
             ResultType = resultType,
             Operands = words[index..],
             OwnerIndex = ownerIndex,
-            Slice = owner
+            Slice = owner,
+            Words = words
         };
     }
     public static RefInstruction ParseRef(Span<int> words)
@@ -69,7 +71,8 @@ public ref struct RefInstruction
             OpCode = op,
             ResultId = result,
             ResultType = resultType,
-            Operands = words[index..]
+            Operands = words[index..],
+            Words = words
         };
     }
     
@@ -87,7 +90,7 @@ public ref struct RefInstruction
                 OpCode = OpCode,
                 ResultId = ResultId,
                 ResultType = ResultType,
-                Operands = Slice.Value
+                Operands = Slice.Value[OwnerIndex..(OwnerIndex+CountOfWords)]
             };
             return true;
         }

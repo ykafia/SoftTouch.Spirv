@@ -115,6 +115,37 @@ public partial class WordBuffer
         //}
     }
 
+
+    public byte[] GenerateSpirv()
+    {
+        var output = new byte[BufferLength*4 + 5*4];
+        var span = output.AsSpan();
+        var ints = MemoryMarshal.Cast<byte,int>(span);
+        var instructionWords = ints[5..];
+
+        var header = new SpirvHeader(new SpirvVersion(1,6), 0, bound.End);
+        header.WriteTo(ints[0..5]);
+        var id = 0;
+        var enumerator = GetEnumerator();
+        while (enumerator.MoveNext())
+        {
+            var curr = enumerator.Current;
+            curr.Words.CopyTo(instructionWords.Slice(id, curr.Words.Length));
+            id += curr.Words.Length;
+        }
+
+        //Span<byte> tmp = stackalloc byte[4];
+        //for(int i = 0; i < ints.Length; i++ )
+        //{
+        //    var tmpSlice = span.Slice(i * 4, 4);
+        //    tmpSlice.CopyTo(tmp);
+        //    tmp.Reverse();
+        //    tmp.CopyTo(tmpSlice);
+        //}
+        return output;
+    }
+
+
     internal static int GetWordLength<T>(T? value)
     {
         if (value is null) return 0;

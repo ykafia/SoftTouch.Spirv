@@ -34,35 +34,50 @@ public ref struct OrderedEnumerator
     {
         if (!started)
         {
+            var wid = 0;
+            var count = wbuff.Count;
+            var currentGroup = GetGroupOrder(0);
+            for (int i = 0; i < count && wid < instructionWords.Length; i++)
+            {
+                wid += instructionWords[wid] >> 16;
+                if (wid >= instructionWords.Length)
+                    break;
+                if (GetGroupOrder(wid) < currentGroup)
+                {
+                    currentGroup = GetGroupOrder(wid);
+                    index = i;
+                    wordIndex = wid;
+                }
+            }
             started = true;
             return true;
         }
         else
         {
-            var previousGroup = GetGroupOrder(wordIndex);
-            var groupOffset = 0;
-            var sizeToStep = instructionWords[wordIndex] >> 16;
-            var offset = 1;
-            if (wordIndex + sizeToStep >= instructionWords.Length)
-                return false;
-
-            while (GetGroupOrder(wordIndex + sizeToStep) != previousGroup + groupOffset)
+            
+            var count = wbuff.Count;
+            var currentGroup = GetGroupOrder(wordIndex);
+            for (int groupOffset = 0; groupOffset < 14; groupOffset++)
             {
-                sizeToStep += instructionWords[wordIndex + sizeToStep] >> 16;
-                offset += 1;
-                if(wordIndex + sizeToStep >= instructionWords.Length)
+                var wid = 0;
+                for (int i = 0; i < count; i++)
                 {
-                    groupOffset += 1;
-                    offset = 1;
-                    sizeToStep = instructionWords[wordIndex] >> 16;
+                    if (wid >= instructionWords.Length)
+                        break;
+                    var g = GetGroupOrder(wid);
+                    if (GetGroupOrder(wid) == currentGroup + groupOffset && i != index)
+                    {
+                        if (!(groupOffset == 0 && i < index))
+                        {
+                            index = i;
+                            wordIndex = wid;
+                            return true;
+                        }
+                    }
+                    wid += instructionWords[wid] >> 16;
                 }
             }
-            wordIndex += sizeToStep;
-            index += offset;
-
-            if (wordIndex >= instructionWords.Length)
-                return false;
-            return true;
+            return false;
         }
 
     }

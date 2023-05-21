@@ -12,7 +12,7 @@ public struct Bound
     public int Start { get; }
     public int End { get; private set; }
 
-    public Bound(int start = 0)
+    public Bound(int start = 1)
     {
         Start = start;
         End = start;

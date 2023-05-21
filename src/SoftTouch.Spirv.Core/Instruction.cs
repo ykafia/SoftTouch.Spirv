@@ -19,6 +19,8 @@ public partial struct Instruction
     public int? ResultType => Buffer[Index].ResultType;
     public Span<int> Operands => Buffer[Index].Operands;
 
+    public Span<int> Words => Buffer[Index].Words;
+
     public Instruction(WordBuffer buffer, int index)
     {
         Buffer = buffer;

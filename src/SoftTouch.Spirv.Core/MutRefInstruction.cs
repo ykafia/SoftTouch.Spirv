@@ -55,6 +55,7 @@ public ref struct MutRefInstruction
     public void AddString(LiteralString value)
     {
         value.WriteTo(Words[_index..(_index+value.WordLength)]);
+        LiteralString.Parse(Words[1..]);
         _index += value.WordLength;
     }
     public void Add(Span<IdRef> values)
@@ -91,6 +92,8 @@ public ref struct MutRefInstruction
                 AddInt(i);
             else if (value is LiteralInteger li)
                 AddInt(li);
+            else if (value is IdRef id)
+                AddInt(id);
             else if (value is float f)
                 AddFloat(f);
             else if (value is LiteralFloat lf)
