@@ -35,10 +35,11 @@ public ref struct RefInstruction
         int? resultType = null!;
 
         var info = InstructionInfo.GetInfo(op);
-        if (info.HasResult)
-            result = words[++index];
         if (info.HasResultType)
             resultType = words[++index];
+        if (info.HasResult)
+            result = words[++index];
+        
 
         return new RefInstruction()
         {
@@ -60,11 +61,12 @@ public ref struct RefInstruction
         int? resultType = null!;
 
         var info = InstructionInfo.GetInfo(op);
-        if (info.HasResult)
-            result = words[++index];
+
         if (info.HasResultType)
             resultType = words[++index];
-
+        if (info.HasResult)
+            result = words[++index];
+        
         return new RefInstruction()
         {
             CountOfWords = words[0] >> 16,

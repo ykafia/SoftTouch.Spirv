@@ -35,8 +35,10 @@ public partial class InstructionInfo
 
         foreach(var e in Enum.GetValues<Op>().Where(x => x.ToString().StartsWith("OpDecorate")))
             OrderGroup[(e,null)] = 9;
-        
-        foreach(var e in Enum.GetValues<Op>().Where(x => x.ToString().StartsWith("OpType") || x.ToString().StartsWith("OpConstant") || x.ToString().StartsWith("OpSpec")))
+        foreach (var e in Enum.GetValues<Op>().Where(x => x.ToString().StartsWith("OpMemberDecorate")))
+            OrderGroup[(e, null)] = 9;
+
+        foreach (var e in Enum.GetValues<Op>().Where(x => x.ToString().StartsWith("OpType") || x.ToString().StartsWith("OpConstant") || x.ToString().StartsWith("OpSpec")))
             OrderGroup[(e,null)] = 10;
         
         foreach(var e in Enum.GetValues<StorageClass>().Where(x => x != StorageClass.Function))

@@ -1,3 +1,4 @@
+using SoftTouch.Spirv.Core;
 using SoftTouch.Spirv.Core.Parsing;
 using System.Drawing;
 using System.Numerics;
@@ -6,13 +7,13 @@ using System.Numerics;
 namespace SoftTouch.Spirv.Core;
 
 
-public struct LiteralFloat : ISpirvElement, IFromSpirv<LiteralFloat>
+public struct LiteralFloat : ISpirvElement, IFromSpirv<LiteralFloat>, ILiteralNumber
 {
     // internal static Dictionary<Half, LiteralFloat> CacheHalf { get; } = new();
     // internal static Dictionary<float, LiteralFloat> CacheFloat { get; } = new();
     // internal static Dictionary<double, LiteralFloat> CacheDouble { get; } = new();
 
-    public long Words { get; set;  }
+    public long Words { get; init; }
     int size;
 
     public int WordCount => size / 32;
@@ -26,7 +27,7 @@ public struct LiteralFloat : ISpirvElement, IFromSpirv<LiteralFloat>
     }
     public LiteralFloat(float value)
     {
-        Words = BitConverter.SingleToInt32Bits(value);;
+        Words = BitConverter.SingleToInt32Bits(value); ;
         // CacheFloat.Add(value, this);
         size = sizeof(float) * 8;
     }
@@ -54,16 +55,16 @@ public struct LiteralFloat : ISpirvElement, IFromSpirv<LiteralFloat>
 
 
     public static implicit operator LiteralFloat(Half value) => new LiteralFloat(value);
-    public static implicit operator LiteralFloat(float value) => new LiteralFloat(value); 
+    public static implicit operator LiteralFloat(float value) => new LiteralFloat(value);
     public static implicit operator LiteralFloat(double value) => new LiteralFloat(value);
     public static implicit operator LiteralInteger(LiteralFloat value) => new LiteralInteger(value.Words);
 
 
-    
+
     public bool TryCast(out Half value)
     {
         short bits = (short)(Words & 0X000000FF);
-        if(size == 32)
+        if (size == 32)
         {
             value = BitConverter.Int16BitsToHalf(bits);
             return true;
@@ -81,7 +82,7 @@ public struct LiteralFloat : ISpirvElement, IFromSpirv<LiteralFloat>
             (int)(Words >> 32),
             (int)(Words & 0X0000FFFF)
         };
-        if(size == 32)
+        if (size == 32)
         {
             value = BitConverter.Int32BitsToSingle(span[1]);
             return true;
@@ -94,7 +95,7 @@ public struct LiteralFloat : ISpirvElement, IFromSpirv<LiteralFloat>
     }
     public bool TryCast(out double value)
     {
-        if(size == 64)
+        if (size == 64)
         {
             value = BitConverter.Int64BitsToDouble(Words);
             return true;
@@ -105,7 +106,7 @@ public struct LiteralFloat : ISpirvElement, IFromSpirv<LiteralFloat>
             return false;
         }
     }
-    
+
 
 
     public void Write(ref SpirvWriter writer)
@@ -115,7 +116,7 @@ public struct LiteralFloat : ISpirvElement, IFromSpirv<LiteralFloat>
             (int)(Words >> 32),
             (int)(Words & 0X00FF)
         };
-        if(size < 64)
+        if (size < 64)
             writer.Write(span[1]);
         else
             writer.Write(span);

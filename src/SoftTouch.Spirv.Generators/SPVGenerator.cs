@@ -75,22 +75,7 @@ namespace SoftTouch.Spirv.Generators
             if (opname == "OpConstant")
             {
                 code
-                    .AppendLine("public Instruction AddOpConstant(IdResultType? resultType, LiteralInteger value)")
-                    .AppendLine("{")
-                    .Indent()
-                        .AppendLine("var resultId = bound.Next();")
-                        .AppendLine("var wordLength = 1 + 1 + GetWordLength(resultType) + GetWordLength(resultId) + value.WordCount;")
-                        .AppendLine("var mutInstruction = new MutRefInstruction(stackalloc int[wordLength]);")
-                        .AppendLine("mutInstruction.OpCode = Op.OpConstant;")
-                        .AppendLine("mutInstruction.Add(resultType);")
-                        .AppendLine("mutInstruction.Add(resultId);")
-                        .AppendLine("mutInstruction.Add(value);")
-                        .AppendLine("return Add(mutInstruction);")
-                    .Dedent()
-                    .AppendLine("}");
-
-                code
-                    .AppendLine("public Instruction AddOpConstant(IdResultType? resultType, LiteralFloat value)")
+                    .AppendLine("public Instruction AddOpConstant<T>(IdResultType? resultType, T value) where T : ILiteralNumber")
                     .AppendLine("{")
                     .Indent()
                         .AppendLine("var resultId = bound.Next();")
@@ -103,26 +88,12 @@ namespace SoftTouch.Spirv.Generators
                         .AppendLine("return Add(mutInstruction);")
                     .Dedent()
                     .AppendLine("}");
+
             }
             else if (opname == "OpSpecConstant")
             {
                 code
-                    .AppendLine("public Instruction AddOpSpecConstant(IdResultType? resultType, LiteralInteger value)")
-                    .AppendLine("{")
-                    .Indent()
-                        .AppendLine("var resultId = bound.Next();")
-                        .AppendLine("var wordLength = 1 + GetWordLength(resultType) + GetWordLength(resultId) + value.WordCount;")
-                        .AppendLine("var mutInstruction = new MutRefInstruction(stackalloc int[wordLength]);")
-                        .AppendLine("mutInstruction.OpCode = Op.OpSpecConstant;")
-                        .AppendLine("mutInstruction.Add(resultType);")
-                        .AppendLine("mutInstruction.Add(resultId);")
-                        .AppendLine("mutInstruction.Add(value);")
-                        .AppendLine("return Add(mutInstruction);")
-                    .Dedent()
-                    .AppendLine("}");
-
-                code
-                    .AppendLine("public Instruction AddOpSpecConstant(IdResultType? resultType, LiteralFloat value)")
+                    .AppendLine("public Instruction AddOpSpecConstant<T>(IdResultType? resultType, T value) where T : ILiteralNumber")
                     .AppendLine("{")
                     .Indent()
                         .AppendLine("var resultId = bound.Next();")
