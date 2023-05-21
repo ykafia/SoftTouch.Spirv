@@ -2,17 +2,18 @@ using CommunityToolkit.HighPerformance.Buffers;
 using SoftTouch.Spirv.Core.Parsing;
 using System.Runtime.InteropServices;
 using System.Text;
+using static Spv.Specification;
 
 namespace SoftTouch.Spirv.Core;
 
 
-public struct LiteralString : ISpirvElement
+public struct LiteralString : ISpirvElement, IFromSpirv<LiteralString>
 {
     // internal static Dictionary<string, LiteralString> Cache { get;} = new();
 
     public string Value { get; init; }
 
-    internal int WordLength => (Value.Length / 4) + (HasRest ? 1 : 0);
+    public int WordLength => (Value.Length / 4) + (HasRest ? 1 : 0);
     internal bool HasRest => Value.Length % 4 > 0;
     internal int RestSize => Value.Length % 4;
 
@@ -20,7 +21,29 @@ public struct LiteralString : ISpirvElement
     {
         Value = value;
     }
+    internal LiteralString(Span<int> words)
+    {
+        var chars = MemoryMarshal.Cast<int, char>(words);
+        Value = chars.ToString();
+    }
     public static implicit operator LiteralString(string s) => new LiteralString(s);
+
+
+    public void WriteTo(Span<int> slice)
+    {
+        for (int i = 0; i < Value.Length; i++)
+        {
+            var pos = i / 4;
+            var shift = 8 * (i % 4);
+            slice[pos] |= Value[i] << shift;
+        }
+
+        //Span<byte> bytes = stackalloc byte[WordLength * 4];
+        //Encoding.UTF8.GetBytes(Value.AsSpan(), bytes);
+        //var words = MemoryMarshal.Cast<byte, int>(bytes);
+        //slice.Clear();
+        //words.CopyTo(slice);
+    }
 
     public void Write(ref SpirvWriter writer)
     {
@@ -77,8 +100,32 @@ public struct LiteralString : ISpirvElement
 
     public static string Parse(Span<int> input)
     {
-        var bytes = MemoryMarshal.AsBytes(input);
-        var end = bytes.IndexOf((byte)'\0');
-        return Encoding.UTF8.GetString(bytes[..end]);   
+        //Console.WriteLine((Op)input[0]);
+        //foreach (var e in input)
+        //{
+        //    Console.Write((char)(e & 0xFF) + "-");
+        //    Console.Write((char)(e >> 8 & 0xFF) + "-");
+        //    Console.Write((char)(e >> 16 & 0xFF) + "-");
+        //    Console.WriteLine((char)(e >> 24 & 0xFF));
+        //}
+
+        Span<char> chars = stackalloc char[input.Length * 4];
+        for(int i = 0;  i < input.Length; i++)
+        {
+            chars[i * 4] = (char)(input[i] & 0xFF);
+            chars[i * 4 + 1] = (char)(input[i] >> 8 & 0xFF);
+            chars[i * 4 + 2] = (char)(input[i] >> 16 & 0xFF);
+            chars[i * 4 + 3] = (char)(input[i] >> 24 & 0xFF);
+        }
+        var bytes = MemoryMarshal.Cast<int,byte>(input);
+        var result = Encoding.UTF8.GetString(bytes);
+        return Encoding.ASCII.GetString(bytes);   
     }
+
+    public static LiteralString From(Span<int> words)
+    {
+        return new(words);
+    }
+
+    public static LiteralString From(string value) => value;
 }

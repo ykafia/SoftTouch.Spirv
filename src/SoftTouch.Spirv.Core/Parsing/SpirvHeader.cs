@@ -52,6 +52,23 @@ public struct SpirvHeader
         Bound = bound;
         Schema = schema;
     }
+    public SpirvHeader(SpirvVersion version, int generator, int bound, int schema = 0)
+    {
+        MagicNumber = Spv.Specification.MagicNumber;
+        VersionNumber = version;
+        GeneratorMagicNumber = generator;
+        Bound = bound;
+        Schema = schema;
+    }
+
+    public void WriteTo(Span<int> words)
+    {
+        words[0] = unchecked((int)MagicNumber);
+        words[1] = VersionNumber.Version;
+        words[2] = GeneratorMagicNumber;
+        words[3] = Bound;
+        words[4] = Schema;
+    }
 
     public static SpirvHeader Read(Span<int> words)
     {

@@ -1,15 +1,14 @@
-﻿using System;
-using System.Collections;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static Spv.Specification;
+using System.Collections;
 
 namespace SoftTouch.Spirv.Core;
 
 public struct LogicalOperandArray : IList<LogicalOperand>
 {
+
+    public string ClassName { get; init; }
+
     List<LogicalOperand> LogicalOperands { get; }
     public bool HasResult => GetHasResult();
     public bool HasResultType => GetHasResultType();
@@ -18,21 +17,23 @@ public struct LogicalOperandArray : IList<LogicalOperand>
 
     public bool IsReadOnly => false;
 
-    public LogicalOperand this[int index] 
-    {   get => LogicalOperands[index]; 
-        set => LogicalOperands[index] = value; 
+    public LogicalOperand this[int index]
+    {
+        get => LogicalOperands[index];
+        set => LogicalOperands[index] = value;
     }
 
-    public LogicalOperandArray()
+    public LogicalOperandArray(string? className)
     {
+        ClassName = className ?? "Debug";
         LogicalOperands = new();
     }
 
     bool GetHasResult()
     {
-        foreach(var o in LogicalOperands)
+        foreach (var o in LogicalOperands)
         {
-            if(o.Kind == OperandKind.IdResult)
+            if (o.Kind == OperandKind.IdResult)
                 return true;
         }
         return false;
@@ -96,29 +97,5 @@ public struct LogicalOperandArray : IList<LogicalOperand>
     IEnumerator IEnumerable.GetEnumerator()
     {
         return GetEnumerator();
-    }
-}
-
-public partial class InstructionInfo
-{
-    internal static InstructionInfo Instance { get; } = new();
-    Dictionary<Op, LogicalOperandArray> Info = new();
-    InstructionInfo(){}
-
-    internal void Register(Op op, OperandKind? kind, OperandQuantifier? quantifier, string? name = null)
-    {
-        if(Info.TryGetValue(op, out var list))
-        {
-            list.Add(new(kind, quantifier, name));
-        }
-        else
-        {
-            Info.Add(op, new() { new(kind, quantifier, name)});
-        }
-    }
-
-    public static LogicalOperandArray GetInfo(Op op)
-    {
-        return Instance.Info[op];
     }
 }

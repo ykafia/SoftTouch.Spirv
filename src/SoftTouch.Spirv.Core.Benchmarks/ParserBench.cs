@@ -20,14 +20,21 @@ public class ParserBench
 
     public ParserBench()
     {
-        var bytes = File.ReadAllBytes("C:\\Users\\kafia\\source\\repos\\SoftTouch.Spirv\\shader.spv");
-        shader = MemoryOwner<int>.Allocate(bytes.Length / 4);
+        var bytes = File.ReadAllBytes("C:/Users/youness_kafia/Documents/dotnetProjs/SoftTouch.Spirv/shader.spv");
+        shader = MemoryOwner<int>.Allocate(bytes.Length / 4, AllocationMode.Clear);
         MemoryMarshal.Cast<byte, int>(bytes.AsSpan()).CopyTo(shader.Span);
         var reader = new SpirvReader(bytes);
         instructions = new(reader.Count);
+        InstructionInfo.GetInfo(Spv.Specification.Op.OpCapability);
+
     }
 
 
+    [Benchmark]
+    public void MemorySlice()
+    {
+        var slice = shader.Memory[5..];
+    }
     [Benchmark]
     public void Count()
     {
@@ -47,7 +54,7 @@ public class ParserBench
     [Benchmark]
     public void ParseToList()
     {
-        var list = SpirvReader.ParseToList(shader);
-        list.Clear();
+        SpirvReader.ParseToList(shader, instructions);
+        instructions.Clear();
     }
 }

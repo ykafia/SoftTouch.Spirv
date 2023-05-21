@@ -1,70 +1,73 @@
 using CommunityToolkit.HighPerformance.Buffers;
 using SoftTouch.Spirv.Core.Parsing;
 using System.Net.Sockets;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace SoftTouch.Spirv.Core;
 
 using static Spv.Specification;
 
-public partial struct Instruction : IDisposable, ISpirvElement
+public partial struct Instruction
 {
-    public Op OpCode { get; init; }
-    public int? ResultId { get; set; }
-    public int? ResultType { get; set; }
-    public OperandArray? Operands { get; init; }
+    WordBuffer Buffer { get; init; }
+    public int Index { get; init; }
 
-    /// <summary>
-    /// Word Count is the high-order 16 bits of word 0 of the instruction, holding its total WordCount. 
-    /// <br/> If the instruction takes a variable number of operands, Word Count also says "+ variable", after stating the minimum size of the instruction.
-    /// </summary>
-    public int WordCount => 
-        (Operands?.Length ?? 0)
-        + (ResultId.HasValue ? 1 : 0)
-        + (ResultType.HasValue ? 1 : 0);
+    public int CountOfWords => Buffer[Index].WordCount;
+    public Op OpCode => Buffer[Index].OpCode;
+    public int? ResultId => Buffer[Index].ResultId;
+    public int? ResultType => Buffer[Index].ResultType;
+    public Span<int> Operands => Buffer[Index].Operands;
 
+    public Span<int> Words => Buffer[Index].Words;
 
-    public void Dispose()
+    public Instruction(WordBuffer buffer, int index)
     {
-        Operands?.Dispose();
+        Buffer = buffer;
+        Index = index;
     }
 
-    public void Write(scoped ref SpirvWriter writer)
+    public bool Set<T>(string propertyName, scoped in T value)
     {
-        writer.Write(WordCount << 16 | (int)OpCode);
-        if(ResultType is not null)
-            writer.Write(ResultType.Value);
-        if(ResultId is not null)
-            writer.Write(ResultId.Value);
-        if(Operands is not null)
-            writer.Write(Operands.Value.Span);
-    }
-
-
-    public static Instruction Parse(Span<int> words)
-    {
-        var index = 0;
-        var op = (Op)(words[0] & 0xFFFF);
-        int? result = null!;
-        int? resultType = null!;
-
-        var info = InstructionInfo.GetInfo(op);
-        if (info.HasResult)
-            result = words[++index];
-        if (info.HasResultType)
-            resultType = words[++index];
-
-        var operands = new OperandArray(words[index..]);
-
-        return new Instruction()
+        var info = InstructionInfo.GetInfo(OpCode);
+        foreach (var e in info)
         {
-            OpCode = op,
-            ResultId = result,
-            ResultType = resultType,
-            Operands = operands
-        };
+            var kind = e.Kind;
+        }
+
+        if (value is LiteralString s)
+            return false;
+        if (value is int i)
+            return false;
+        return false;   
+
     }
+
+    public static implicit operator IdRef(Instruction i) => new (i.ResultId ?? throw new Exception("Instruction has no result id"));
+    public static implicit operator IdResultType(Instruction i) => new(i.ResultId ?? throw new Exception("Instruction has no result id"));
+
     public override string ToString()
     {
         return OpCode.ToString();
     }
+}
+
+internal static class SpirvOperandExtensions
+{
+    public static T Parse<T>(this ref Span<int> v)
+    {
+        if (v.Length == 1 && typeof(T).IsEnum)
+            return Unsafe.As<int, T>(ref v[0]);
+        if (v.Length == 1 && typeof(T) == typeof(int))
+            return Unsafe.As<int, T>(ref v[0]);
+        if (typeof(T) == typeof(string))
+        {
+            var s = LiteralString.Parse(v);
+            return Unsafe.As<string, T>(ref s);
+        }
+        else
+            throw new ArgumentException("Cannot parse operand");
+    }
+
+
 }

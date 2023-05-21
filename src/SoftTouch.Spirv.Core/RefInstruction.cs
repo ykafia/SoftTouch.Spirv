@@ -1,19 +1,20 @@
-using CommunityToolkit.HighPerformance.Buffers;
-using System.Net.Sockets;
+using static Spv.Specification;
+
 
 namespace SoftTouch.Spirv.Core;
 
-using static Spv.Specification;
 
 public ref struct RefInstruction
 {
-
+    public int CountOfWords { get; init; }
     public Op OpCode { get; init; }
     public int? ResultId { get; set; }
     public int? ResultType { get; set; }
     public Span<int> Operands { get; init; }
     public Memory<int>? Slice { get; init; }
     public int OwnerIndex { get; set; }
+
+    public Span<int> Words { get; init; }
 
     /// <summary>
     /// Word Count is the high-order 16 bits of word 0 of the instruction, holding its total WordCount. 
@@ -41,12 +42,14 @@ public ref struct RefInstruction
 
         return new RefInstruction()
         {
+            CountOfWords = words[0] >> 16,
             OpCode = op,
             ResultId = result,
             ResultType = resultType,
             Operands = words[index..],
             OwnerIndex = ownerIndex,
-            Slice = owner
+            Slice = owner,
+            Words = words
         };
     }
     public static RefInstruction ParseRef(Span<int> words)
@@ -64,18 +67,20 @@ public ref struct RefInstruction
 
         return new RefInstruction()
         {
+            CountOfWords = words[0] >> 16,
             OpCode = op,
             ResultId = result,
             ResultType = resultType,
-            Operands = words[index..]
+            Operands = words[index..],
+            Words = words
         };
     }
-
-    public bool ToOwned(out OwnedInstruction? instruction)
+    
+    public bool ToOwned(out OwnedInstruction instruction)
     {
         if (Slice == null)
         {
-            instruction = null;
+            instruction = new();
             return false;
         }
         else
@@ -85,9 +90,42 @@ public ref struct RefInstruction
                 OpCode = OpCode,
                 ResultId = ResultId,
                 ResultType = ResultType,
-                Operands = Slice.Value
+                Operands = Slice.Value[OwnerIndex..(OwnerIndex+CountOfWords)]
             };
             return true;
+        }
+    }
+
+
+    public void SetResultId(int id)
+    {
+        var info = InstructionInfo.GetInfo(OpCode);
+        
+        if(info.HasResult)
+        {
+            int i = 0;
+            while(info[i].Kind != OperandKind.IdResult){ i+= 1;}
+            Operands[id] = id;
+        }
+    }
+    public void SetResultType(int id)
+    {
+        var info = InstructionInfo.GetInfo(OpCode);
+        
+        if(info.HasResultType)
+        {
+            int i = 0;
+            while(info[i].Kind != OperandKind.IdResultType){ i+= 1;}
+            Operands[id] = id;
+        }
+    }
+    public void ReplaceIdRef(int toReplace, int value)
+    {
+        var info = InstructionInfo.GetInfo(OpCode);
+        for(int i = 0; i < info.Count; i++)
+        {
+            if(info[i].Kind == OperandKind.IdRef && Operands[i] == toReplace)
+                Operands[i] = value;
         }
     }
 

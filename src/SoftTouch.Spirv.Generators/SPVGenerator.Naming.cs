@@ -44,23 +44,34 @@ namespace SoftTouch.Spirv.Generators
                         if (quant.GetString() == "?")
                             parameters.AddUnique(realKind + "? " + ConvertOperandName(name.GetString()));
                         else if (quant.GetString() == "*")
-                            parameters.AddUnique("params " + realKind + "[] values");
+                            parameters.AddUnique("Span<" + realKind + "> values");
                     }
                     else
                     {
                         if (quant.GetString() == "?")
                             parameters.AddUnique(realKind + "? " + ConvertKindToName(kind));
                         else if (quant.GetString() == "*")
-                            parameters.AddUnique("params " + realKind + "[] values");
+                            parameters.AddUnique("Span<" + realKind + "> values");
                     }
                 }
                 else
                 {
                     if (e.TryGetProperty("name", out var name))
                         parameters.AddUnique(realKind + " " + ConvertOperandName(name.GetString()));
-                    else
+                    else if(kind == "IdResult" && opname == "OpExtInst")
                         parameters.AddUnique(realKind + "? " + ConvertKindToName(kind));
+                    else if (kind == "IdResultType" && opname == "OpExtInst")
+                        parameters.AddUnique(realKind + "? " + ConvertKindToName(kind));
+                    else
+                        parameters.AddUnique(realKind + " " + ConvertKindToName(kind));
                 }
+            }
+            if(parameters.Any(x => x.Contains("resultType")) && parameters.Any(x => x.Contains("resultId")))
+            {
+                var resultType = parameters[0];
+                var resultId = parameters[1];
+                parameters[0] = resultId;
+                parameters[1] = resultType;
             }
             return parameters;
         }
@@ -106,19 +117,16 @@ namespace SoftTouch.Spirv.Generators
         {
             return kind switch
             {
-                var x when x.StartsWith("Id") => "int",
-                "LiteralInteger" => "int",
-                "LiteralString" => "string",
+                "LiteralInteger" => "LiteralInteger",
+                "LiteralFloat" => "LiteralFloat",
+                "LiteralString" => "LiteralString",
                 "ImageOperands" => "ImageOperandsMask",
                 "FunctionControl" => "FunctionControlMask",
                 "MemoryAccess" => "MemoryAccessMask",
                 "LoopControl" => "LoopControlMask",
                 "SelectionControl" => "SelectionControlMask",
-                "LiteralExtInstInteger" => "int",
-                "LiteralSpecConstantOpInteger" => "int",
-                "PairIdRefIdRef" => "ValueTuple<int,int>",
-                "PairIdRefLiteralInteger" => "ValueTuple<int,LiteralInteger>",
-                "PairLiteralIntegerIdRef" => "ValueTuple<LiteralInteger,int>",
+                "LiteralExtInstInteger" => "LiteralInteger",
+                "LiteralSpecConstantOpInteger" => "Op",
                 _ => kind
             };
         }
