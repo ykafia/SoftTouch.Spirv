@@ -123,7 +123,7 @@ public partial class WordBuffer
         var ints = MemoryMarshal.Cast<byte,int>(span);
         var instructionWords = ints[5..];
 
-        var header = new SpirvHeader(new SpirvVersion(1,6), 0, bound.End);
+        var header = new SpirvHeader(new SpirvVersion(1,3), 0, bound.End + 1);
         header.WriteTo(ints[0..5]);
         var id = 0;
         var enumerator = GetEnumerator();

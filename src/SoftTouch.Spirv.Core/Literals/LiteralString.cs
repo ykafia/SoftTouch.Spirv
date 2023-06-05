@@ -12,10 +12,11 @@ public struct LiteralString : ISpirvElement, IFromSpirv<LiteralString>
     // internal static Dictionary<string, LiteralString> Cache { get;} = new();
 
     public string Value { get; init; }
+    public int Length => Value.Length + 1;
 
-    public int WordLength => (Value.Length / 4) + (HasRest ? 1 : 0);
-    internal bool HasRest => Value.Length % 4 > 0;
-    internal int RestSize => Value.Length % 4;
+    public int WordLength => (Length / 4) + (HasRest ? 1 : 0);
+    internal bool HasRest => Length % 4 > 0;
+    internal int RestSize => Length % 4;
 
     internal LiteralString(string value)
     {
@@ -31,12 +32,14 @@ public struct LiteralString : ISpirvElement, IFromSpirv<LiteralString>
 
     public void WriteTo(Span<int> slice)
     {
-        for (int i = 0; i < Value.Length; i++)
+        for (int i = 0; i < Length + 1; i++)
         {
             var pos = i / 4;
             var shift = 8 * (i % 4);
-            slice[pos] |= Value[i] << shift;
+            var value = i < Value.Length ? Value[i] : '\0';
+            slice[pos] |=  value << shift;
         }
+        var x = 0;
 
         //Span<byte> bytes = stackalloc byte[WordLength * 4];
         //Encoding.UTF8.GetBytes(Value.AsSpan(), bytes);

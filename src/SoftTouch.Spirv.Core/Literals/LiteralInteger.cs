@@ -1,9 +1,10 @@
+using SoftTouch.Spirv.Core;
 using SoftTouch.Spirv.Core.Parsing;
 
 namespace SoftTouch.Spirv.Core;
 
 
-public struct LiteralInteger : ISpirvElement, IFromSpirv<LiteralInteger>
+public struct LiteralInteger : ISpirvElement, IFromSpirv<LiteralInteger>, ILiteralNumber
 {
 
     // internal static Dictionary<byte, LiteralInteger> CacheByte { get; } = new();

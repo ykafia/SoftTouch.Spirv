@@ -1,10 +1,9 @@
 ﻿// See https://aka.ms/new-console-template for more information
-using SoftTouch.Spirv.Experiments;
+using CommunityToolkit.HighPerformance.Buffers;
 using SoftTouch.Spirv.Core;
 using SoftTouch.Spirv.Core.Parsing;
-using System.Runtime.InteropServices;
-using CommunityToolkit.HighPerformance.Buffers;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using static Spv.Specification;
 // IInstruction nop = new OpNop();
 Console.WriteLine("Hello, world!");
@@ -71,10 +70,13 @@ static void CreateShader()
     var t_int = buffer.AddOpTypeInt(32, 1);
     var t_float4 = buffer.AddOpTypeVector(t_float, 4);
     var t_p_float4_func = buffer.AddOpTypePointer(StorageClass.Function, t_float4);
-    var constant1 = buffer.AddOpConstant(t_float, 5f);
-    var constant2 = buffer.AddOpConstant(t_float, 2f);
-    var constant3 = buffer.AddOpConstant(t_uint, 5);
-    var compositeType = buffer.AddOpConstantComposite(t_float4, stackalloc IdRef[] { constant1, constant1, constant2, constant1 });
+    var constant1 = buffer.AddOpConstant<LiteralFloat>(t_float, 5);
+    var constant2 = buffer.AddOpConstant<LiteralFloat>(t_float, 2);
+    var constant3 = buffer.AddOpConstant<LiteralInteger>(t_uint, 5);
+    var compositeType = buffer.AddOpConstantComposite(
+        t_float4, 
+        stackalloc IdRef[] { constant1, constant1, constant2, constant1 }
+    );
 
     var t_array = buffer.AddOpTypeArray(t_float4, constant3);
 
@@ -85,10 +87,10 @@ static void CreateShader()
 
     var v_struct2 = buffer.AddOpVariable(t_p_struct2, StorageClass.Uniform, null);
 
-    var constant4 = buffer.AddOpConstant(t_int, 1);
+    var constant4 = buffer.AddOpConstant<LiteralInteger>(t_int, 1);
 
     var t_p_uint = buffer.AddOpTypePointer(StorageClass.Uniform, t_uint);
-    var constant5 = buffer.AddOpConstant(t_uint, 0);
+    var constant5 = buffer.AddOpConstant<LiteralInteger>(t_uint, 0);
 
     var t_p_output = buffer.AddOpTypePointer(StorageClass.Output, t_float4);
     var v_output = buffer.AddOpVariable(t_p_output, StorageClass.Output, null);
@@ -96,18 +98,16 @@ static void CreateShader()
     var t_p_input = buffer.AddOpTypePointer(StorageClass.Input, t_float4);
     var v_input = buffer.AddOpVariable(t_p_input, StorageClass.Input, null);
 
-    var constant6 = buffer.AddOpConstant(t_int, 0);
-    var constant7 = buffer.AddOpConstant(t_int, 2);
+    var constant6 = buffer.AddOpConstant<LiteralInteger>(t_int, 0);
+    var constant7 = buffer.AddOpConstant<LiteralInteger>(t_int, 2);
     var t_p_float4_unif = buffer.AddOpTypePointer(StorageClass.Uniform, t_float4);
 
     var v_input_2 = buffer.AddOpVariable(t_p_input, StorageClass.Input, null);
     var t_p_func = buffer.AddOpTypePointer(StorageClass.Function, t_int);
-    var constant8 = buffer.AddOpConstant(t_int, 4);
+    var constant8 = buffer.AddOpConstant<LiteralInteger>(t_int, 4);
     var v_input_3 = buffer.AddOpVariable(t_p_input, StorageClass.Input, null);
 
 
-    buffer.AddOpEntryPoint(ExecutionModel.Fragment, t_p_func, "main", stackalloc IdRef[] { v_output, v_input, v_input_2, v_input_3 });
-    buffer.AddOpExecutionMode(t_p_func, ExecutionMode.OriginLowerLeft);
 
 
     buffer.AddOpDecorate(t_array, Decoration.ArrayStride, 16);
@@ -130,7 +130,10 @@ static void CreateShader()
     buffer.AddOpMemberName(t_struct, 2, "i");
 
 
-    buffer.AddOpFunction(t_void, FunctionControlMask.MaskNone, t_func);
+    var main = buffer.AddOpFunction(t_void, FunctionControlMask.MaskNone, t_func);
+    buffer.AddOpEntryPoint(ExecutionModel.Fragment, main, "main", stackalloc IdRef[] { v_output, v_input, v_input_2, v_input_3 });
+    buffer.AddOpExecutionMode(main, ExecutionMode.OriginLowerLeft);
+
     buffer.AddOpLabel();
     buffer.AddOpReturn();
     buffer.AddOpFunctionEnd();
