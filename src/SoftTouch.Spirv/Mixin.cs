@@ -1,10 +1,8 @@
-using SoftTouch.Spirv.Core;
-
 namespace SoftTouch.Spirv;
 
 
-// TODO: reflect on types, variables and methods
-public abstract class Mixin
+public class Mixin : BaseMixin
 {
-    WordBuffer buffer;
+    public List<VariableData> Variables;
+    public List<MethodData> Methods;
 }
