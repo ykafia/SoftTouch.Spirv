@@ -107,10 +107,10 @@ namespace SoftTouch.Spirv.Generators
                     .Dedent()
                     .AppendLine("}");
             }
-            else if(opname == "OpDecorate")
+            else if(opname.StartsWith("OpDecorate"))
             {
                 code
-                    .AppendLine("public Instruction AddOpDecorate(IdRef target, Decoration decoration, int? additional1 = null, int? additional2 = null, string? additionalString = null)")
+                    .Append("public Instruction Add").Append(opname).AppendLine("(IdRef target, Decoration decoration, int? additional1 = null, int? additional2 = null, string? additionalString = null)")
                     .AppendLine("{")
                     .Indent()
                         .AppendLine("var wordLength = 1 + GetWordLength(target) + GetWordLength(decoration) + GetWordLength(additional1) + GetWordLength(additional2) + GetWordLength(additionalString);")
@@ -125,10 +125,10 @@ namespace SoftTouch.Spirv.Generators
                     .Dedent()
                     .AppendLine("}");
             }
-            else if(opname == "OpMemberDecorate")
+            else if(opname.StartsWith("OpMemberDecorate"))
             {
                 code
-                    .AppendLine("public Instruction AddOpMemberDecorate(IdRef structureType, LiteralInteger member, Decoration decoration, int? additional1 = null, int? additional2 = null, string? additionalString = null)")
+                    .Append("public Instruction Add").Append(opname).AppendLine("(IdRef structureType, LiteralInteger member, Decoration decoration, int? additional1 = null, int? additional2 = null, string? additionalString = null)")
                     .AppendLine("{")
                     .Indent()
                         .AppendLine("var wordLength = 1 + GetWordLength(structureType) + GetWordLength(member) + GetWordLength(decoration) + GetWordLength(additional1) + GetWordLength(additional2) + GetWordLength(additionalString);")
