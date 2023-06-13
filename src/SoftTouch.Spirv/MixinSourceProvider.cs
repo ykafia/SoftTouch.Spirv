@@ -7,8 +7,7 @@ public class MixinSourceProvider
     internal static MixinSourceProvider Instance { get; } = new();
 
     Dictionary<string, Mixin> Mixins;
-    Dictionary<string, List<string>> MixinGraph;
-
+    Dictionary<string, MixinGraph> MixinGraph;
 
     private MixinSourceProvider()
     {
@@ -27,6 +26,6 @@ public class MixinSourceProvider
     }
     public static List<string> GetParentNames(string name)
     {
-        return Instance.MixinGraph[name];
+        return Instance.MixinGraph[name].Names;
     }
 }

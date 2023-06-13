@@ -1,3 +1,5 @@
+using SoftTouch.Spirv.Core;
+
 namespace SoftTouch.Spirv;
 
 
@@ -12,12 +14,4 @@ public enum SpvTypeVariant
     Structure
 }
 
-public enum VariableScope
-{
-    Input,
-    Output,
-    Uniform,
-    Function
-}
-
-public record struct SpirvType(string Name, SpvTypeVariant TypeVariant, VariableScope Scope);
+public record struct SpirvType(string Name, SpvTypeVariant TypeVariant, Instruction instruction);

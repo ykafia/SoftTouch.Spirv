@@ -73,41 +73,25 @@ internal struct MixinList : IList<string>
     }
 }
 
-public struct MixinGraph
+public ref struct MixinEnumerator
 {
     List<string> mixinNames;
-    MixinList list;
+    string current;
 
-    public MixinGraph()
+    public MixinEnumerator(List<string> names)
     {
-        mixinNames = new();
-        list = new();
+        mixinNames = names;
+        current = null!;
     }
 
-    public void Add(string mixin)
-    {
-        mixinNames.Add(mixin);
-        RebuildGraph();
-    }
-    public void Remove(string mixin)
-    {
-        mixinNames.Remove(mixin);
-        RebuildGraph();
-    }
+    public Mixin Current => MixinSourceProvider.Get(current);
 
-    public void RebuildGraph()
+    public bool MoveNext()
     {
-        list.Clear();
-        foreach (var m in mixinNames)
-        {
-            FillMixinHashSet(m);
-        }
-    }
-
-    void FillMixinHashSet(string name)
-    {
-        foreach (var m in MixinSourceProvider.GetParentNames(name))
-            FillMixinHashSet(m);
-        list.Add(name);
+        var enumerator = mixinNames.GetEnumerator();
+        var next = enumerator.MoveNext();
+        if(next) current = enumerator.Current;
+        return next;
     }
 }
+

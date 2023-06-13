@@ -5,8 +5,8 @@ namespace SoftTouch.Spirv;
 
 public partial class Mixin : BaseMixin
 {
+    public MixinGraph Parents;
     public List<SpirvType> Types;
-    public List<string> Parents;
     public List<VariableData> Variables;
     public List<MethodData> Methods;
 
@@ -18,8 +18,11 @@ public partial class Mixin : BaseMixin
         Types = new();
     }
 
-    public void Add(Mixin mixin)
+
+    public MixinEnumerator GetEnumerator() => Parents.GetEnumerator();
+
+    public void AddMixin(string mixin)
     {
-        
+        Parents.Add(mixin);
     }
 }
