@@ -1,16 +1,25 @@
+using System.Runtime.CompilerServices;
+
 namespace SoftTouch.Spirv;
 
 
-public class Mixin : BaseMixin
+public partial class Mixin : BaseMixin
 {
-    public List<Mixin> Mixins;
+    public List<SpirvType> Types;
+    public List<string> Parents;
     public List<VariableData> Variables;
     public List<MethodData> Methods;
 
-    public Mixin()
+    public Mixin(string name, List<string>? parents = null) : base(name)
     {
-        Mixins = new();
+        Parents = parents ?? new();
         Variables = new();
         Methods = new();
+        Types = new();
+    }
+
+    public void Add(Mixin mixin)
+    {
+        
     }
 }
