@@ -15,10 +15,11 @@ public partial class WordBuffer
 {
     public static WordBuffer Parse(byte[] bytes)
     {
-        WordBuffer buffer = new WordBuffer();
+        WordBuffer buffer = new();
         buffer.buffer = MemoryOwner<int>.Allocate(bytes.Length / 4, AllocationMode.Clear);
         var ints = MemoryMarshal.Cast<byte, int>(bytes)[5..];
         ints.CopyTo(buffer.buffer.Span);
         return buffer;
     }
+    
 }

@@ -151,16 +151,22 @@ static void CreateShader()
 
 static void ParseWorking()
 {
-    var path = @"C:\Users\kafia\source\repos\SoftTouch.Spirv\working1-6.spv";
+    var path = @"C:\Users\youness_kafia\Documents\dotnetProjs\SDSLParser\src\SoftTouch.Spirv\working1-6.spv";
 
     var bytes = File.ReadAllBytes(path);
 
     var buffer = WordBuffer.Parse(bytes);
     var extInst = buffer[1];
-    LiteralString.Parse(extInst.Operands);
+    foreach(var o in extInst)
+    {
+        if(o.Kind == OperandKind.LiteralString)
+        {
+            Console.WriteLine(o.To<LiteralString>().Value);
+        }
+    }
     var tmp = 0;
 }
 
-CreateShader();
+// CreateShader();
 
 ParseWorking();

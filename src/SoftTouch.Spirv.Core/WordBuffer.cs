@@ -13,28 +13,20 @@ namespace SoftTouch.Spirv.Core;
 
 public partial class WordBuffer
 {
-
-    // TODO : Generate overloads so that instructions are added with automatic bound
     Bound bound = new();
     internal MemoryOwner<int> buffer;
-    public int BufferLength { get; private set; }
+    public int BufferLength { get; protected set; }
     public Span<int> Span => buffer.Span[..BufferLength];
     public int Count => new SpirvReader(buffer.Memory[..BufferLength]).Count;
-
-    public SortedList<int, SpirvUpdate> Redirection;
 
     public RefInstruction this[int index]
     {
         get
         {
-            var usedIndex = index;
-            if(Redirection.TryGetValue(index, out var redirect) && redirect.Kind == UpdateKind.Replace)
-            {
-                usedIndex = redirect.DataIndex;
-            }
+
             int id = 0;
             int wid = 0;
-            while (id < usedIndex)
+            while (id < index)
             {
                 wid += buffer.Span[wid] >> 16;
                 id++;
@@ -47,13 +39,11 @@ public partial class WordBuffer
     {
         BufferLength = 0;
         buffer = MemoryOwner<int>.Allocate(initialCapacity, AllocationMode.Clear);
-        Redirection = new();
     }
     public WordBuffer(MemoryOwner<int> data)
     {
         buffer = data;
         BufferLength = Count;
-        Redirection = new();
     }
 
     public OrderedEnumerator GetEnumerator() => new(this);

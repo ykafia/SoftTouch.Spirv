@@ -1,3 +1,4 @@
+using SoftTouch.Spirv.Core.Parsing;
 using static Spv.Specification;
 
 
@@ -25,6 +26,8 @@ public ref struct RefInstruction
         + (ResultId.HasValue ? 1 : 0)
         + (ResultType.HasValue ? 1 : 0);
 
+
+    public OperandEnumerator GetEnumerator() => new(this);
 
     public static RefInstruction Parse(Memory<int> owner, int ownerIndex)
     {
@@ -129,6 +132,10 @@ public ref struct RefInstruction
             if(info[i].Kind == OperandKind.IdRef && Operands[i] == toReplace)
                 Operands[i] = value;
         }
+    }
+    public void Offset(int value)
+    {
+        var info = InstructionInfo.GetInfo(OpCode);
     }
 
     public override string ToString()

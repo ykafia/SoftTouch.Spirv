@@ -24,8 +24,16 @@ public struct LiteralString : ISpirvElement, IFromSpirv<LiteralString>
     }
     internal LiteralString(Span<int> words)
     {
-        var chars = MemoryMarshal.Cast<int, char>(words);
-        Value = chars.ToString();
+        Span<char> chars = stackalloc char[words.Length * 4];
+        for (int i = 0; i < words.Length; i++)
+        {
+            chars[i * 4] = (char)(words[i] & 0xFF); 
+            chars[i * 4 + 1] = (char)(words[i] >> 8 & 0xFF); 
+            chars[i * 4 + 2] = (char)(words[i] >> 16 & 0xFF); 
+            chars[i * 4 + 3] = (char)(words[i] >> 24 & 0xFF); 
+        };
+        var real = chars[..chars.IndexOf('\0')];
+        Value = real.ToString();
     }
     public static implicit operator LiteralString(string s) => new LiteralString(s);
 
