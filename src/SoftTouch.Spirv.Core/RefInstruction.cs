@@ -135,7 +135,8 @@ public ref struct RefInstruction
     }
     public void Offset(int value)
     {
-        var info = InstructionInfo.GetInfo(OpCode);
+        foreach(var o in this)
+            o.OffsetIdRef(value);
     }
 
     public override string ToString()

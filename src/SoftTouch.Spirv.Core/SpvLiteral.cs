@@ -12,6 +12,12 @@ public ref struct SpvLiteral
         Words = words;
     }
 
+    public void OffsetIdRef(int offset)
+    {
+        if(Kind == OperandKind.IdRef)
+            Words[0] += offset;
+    }
+
     public T To<T>() where T : IFromSpirv<T>
     {
         return T.From(Words);
