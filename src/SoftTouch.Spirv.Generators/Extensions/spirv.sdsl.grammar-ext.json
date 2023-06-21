@@ -2,13 +2,18 @@
   "instructions" : [
     {
       "opname" : "OpNop",
-      "class"  : "Miscellaneous",
-      "opcode" : 0
+      "class"  : "Miscellaneous"
     },
     {
-      "opname" : "OpSDSLMixinExtImport",
+      "opname" : "OpSDSLMixinName",
       "class"  : "Miscellaneous",
-      "opcode" : 1,
+      "operands" : [
+        { "kind" : "LiteralString" }
+      ]
+    },
+    {
+      "opname" : "OpSDSLMixinExt",
+      "class"  : "Miscellaneous",
       "operands" : [
         { "kind" : "LiteralString" }
       ]

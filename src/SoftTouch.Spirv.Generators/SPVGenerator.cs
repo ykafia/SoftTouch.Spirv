@@ -43,6 +43,7 @@ namespace SoftTouch.Spirv.Generators
         {
 
             CreateInfo(context);
+            CreateSDSLOp(context);
 
             var code = new CodeWriter();
 

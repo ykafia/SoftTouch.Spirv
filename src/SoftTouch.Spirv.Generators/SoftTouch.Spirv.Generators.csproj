@@ -14,6 +14,7 @@
 
 	<ItemGroup>
 		<EmbeddedResource Include="..\..\submodules\SPIRV-Headers\include\spirv\unified1\spirv.core.grammar.json" />
+		<EmbeddedResource Include=".\Extensions\spirv.sdsl.grammar-ext.json" />
 		<EmbeddedResource Include="..\..\submodules\SPIRV-Headers\include\spirv\unified1\extinst.glsl.std.450.grammar.json" />
 		<EmbeddedResource Include="..\..\submodules\SPIRV-Headers\include\spirv\unified1\extinst.opencl.std.100.grammar.json" />
 		<EmbeddedResource Include="..\..\submodules\SPIRV-Headers\include\spirv\unified1\extinst.spv-amd-gcn-shader.grammar.json" />

@@ -9,6 +9,7 @@ using System.IO;
 using System.Reflection;
 using System.Text.Json;
 using System.Security.Claims;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace SoftTouch.Spirv.Generators
 {
@@ -18,7 +19,25 @@ namespace SoftTouch.Spirv.Generators
         {
             var code = new CodeWriter();
             // TODO : syntax tree something
-            // context.Compilation.SyntaxTrees.Where(tree => tree.GetRoot());
+            var members = context
+                .Compilation
+                .SyntaxTrees
+                .First(t => t.GetRoot().DescendantNodes().OfType<ClassDeclarationSyntax>().Any(x => x.Identifier.Text == "Specification"))
+                .GetRoot()
+                .DescendantNodes()
+                .OfType<ClassDeclarationSyntax>()
+                .First()
+                .DescendantNodes()
+                .OfType<EnumDeclarationSyntax>()
+                .First(x => x.Identifier.Text == "Op")
+                .DescendantNodes()
+                .OfType<EnumMemberDeclarationSyntax>();
+            var lastnum = int.Parse(members.Last().EqualsValue.Value.GetText().ToString());
+            
+            var content = string.Join("\n",
+                new[]{lastnum}
+            );
+            context.AddSource("nodes.g.cs", content);
         }
     }
 }
