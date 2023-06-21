@@ -7,7 +7,7 @@ public ref struct WordBufferReader
 {
     WordBuffer buffer;
 
-    MemoryOwner<int> data => buffer.buffer;
+    MemoryOwner<int> data => buffer.Buffer;
 
     
 }

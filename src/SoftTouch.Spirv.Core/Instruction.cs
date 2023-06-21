@@ -13,6 +13,8 @@ public partial struct Instruction
     WordBuffer Buffer { get; init; }
     public int Index { get; init; }
 
+    int offset;
+
     public int CountOfWords => Buffer[Index].WordCount;
     public Op OpCode => Buffer[Index].OpCode;
     public int? ResultId => Buffer[Index].ResultId;
@@ -21,27 +23,14 @@ public partial struct Instruction
 
     public Span<int> Words => Buffer[Index].Words;
 
-    public Instruction(WordBuffer buffer, int index)
+    public Instruction(WordBuffer buffer, int index, int offset = 0)
     {
         Buffer = buffer;
         Index = index;
+        this.offset = offset;
     }
 
-    public bool Set<T>(string propertyName, scoped in T value)
-    {
-        var info = InstructionInfo.GetInfo(OpCode);
-        foreach (var e in info)
-        {
-            var kind = e.Kind;
-        }
-
-        if (value is LiteralString s)
-            return false;
-        if (value is int i)
-            return false;
-        return false;   
-
-    }
+    public OperandEnumerator GetEnumerator() => new(RefInstruction.ParseRef(Words));
 
     public static implicit operator IdRef(Instruction i) => new (i.ResultId ?? throw new Exception("Instruction has no result id"));
     public static implicit operator IdResultType(Instruction i) => new(i.ResultId ?? throw new Exception("Instruction has no result id"));

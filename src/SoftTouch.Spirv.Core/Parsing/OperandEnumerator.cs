@@ -7,15 +7,17 @@ public ref struct OperandEnumerator
     readonly LogicalOperandArray logicalOperands;
     int wid;
     int oid;
+    int refOffset;
     public OperandEnumerator(RefInstruction instruction)
     {
         this.instruction = instruction;
         logicalOperands = InstructionInfo.GetInfo(instruction.OpCode);
         oid = -1;
         wid = 1;
+        refOffset = instruction.IdRefOffset;
     }
 
-    public SpvLiteral Current => ParseCurrent();
+    public SpvOperand Current => ParseCurrent();
 
     public bool MoveNext()
     {
@@ -114,6 +116,10 @@ public ref struct OperandEnumerator
             {
                 return false;
             }
+            else if(logOp.Quantifier == OperandQuantifier.One)
+            {
+                wid += 1;
+            }
             else if (logOp.Quantifier == OperandQuantifier.ZeroOrOne && wid < instruction.Words.Length - 1)
                 wid += 1;
             else if (logOp.Quantifier == OperandQuantifier.ZeroOrOne && wid == instruction.Words.Length - 1)
@@ -131,7 +137,7 @@ public ref struct OperandEnumerator
 
     }
 
-    public SpvLiteral ParseCurrent()
+    public SpvOperand ParseCurrent()
     {
         var logOp = logicalOperands[oid];
         if (logOp.Kind == OperandKind.LiteralString)
@@ -140,11 +146,11 @@ public ref struct OperandEnumerator
             while (!instruction.Words[twid].HasEndString())
                 twid += 1;
             twid += 1;
-            var result = new SpvLiteral(OperandKind.LiteralString, instruction.Words[wid..twid]);
+            var result = new SpvOperand(OperandKind.LiteralString, instruction.Words[wid..twid]);
 
             return result;
         }
-        else return new(logOp.Kind.Value, instruction.Words[wid..(wid + 1)]);
+        else return new(logOp.Kind.Value, instruction.Words[wid..(wid + 1)], instruction.IdRefOffset);
     }
 
 }

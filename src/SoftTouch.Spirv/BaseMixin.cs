@@ -9,9 +9,9 @@ public class BaseMixin
     public string Name { get; set; }
     internal WordBuffer Buffer { get; }
 
-    public BaseMixin(string name, WordBuffer? buffer = null)
+    public BaseMixin(string name, WordBuffer? buffer = null, int offset = 0)
     {
         Name = name;
-        Buffer = buffer ?? new();
+        Buffer = buffer ?? new(32,offset);
     }
 }

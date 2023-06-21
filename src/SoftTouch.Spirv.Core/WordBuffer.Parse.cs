@@ -11,14 +11,14 @@ using static Spv.Specification;
 
 namespace SoftTouch.Spirv.Core;
 
-public partial class WordBuffer
+public partial struct WordBuffer
 {
     public static WordBuffer Parse(byte[] bytes)
     {
         WordBuffer buffer = new();
-        buffer.buffer = MemoryOwner<int>.Allocate(bytes.Length / 4, AllocationMode.Clear);
+        buffer.Buffer = MemoryOwner<int>.Allocate(bytes.Length / 4, AllocationMode.Clear);
         var ints = MemoryMarshal.Cast<byte, int>(bytes)[5..];
-        ints.CopyTo(buffer.buffer.Span);
+        ints.CopyTo(buffer.Buffer.Span);
         return buffer;
     }
     

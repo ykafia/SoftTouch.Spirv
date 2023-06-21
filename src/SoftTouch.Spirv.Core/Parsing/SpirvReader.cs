@@ -95,4 +95,13 @@ public ref struct SpirvReader
         }
         return count;
     }
+
+    public int ComputeBound()
+    {
+        var result = 0;
+        foreach(var e in this)
+            if(e.ResultId != null && e.ResultId > result)
+                result = e.ResultId.Value;
+        return result;
+    }
 }

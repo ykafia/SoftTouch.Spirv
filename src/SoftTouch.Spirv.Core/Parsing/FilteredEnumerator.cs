@@ -14,7 +14,7 @@ public ref struct FilteredEnumerator
     int wordIndex;
     bool started;
     WordBuffer buffer;
-    readonly Span<int> instructionWords => buffer.buffer.Span;
+    readonly Span<int> instructionWords => buffer.Buffer.Span;
 
     string? classFilter;
     Op? filter1;
@@ -112,7 +112,7 @@ public ref struct FilteredEnumerator
     public RefInstruction ParseCurrentInstruction()
     {
         var wordNumber = instructionWords[wordIndex] >> 16;
-        return RefInstruction.Parse(buffer.buffer.Memory, wordIndex);
+        return RefInstruction.Parse(buffer.Buffer.Memory, wordIndex);
     }
 
     internal enum FilterType

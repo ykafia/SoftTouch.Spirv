@@ -18,7 +18,7 @@ public ref struct OrderedEnumerator
     WordBuffer wbuff;
 
     readonly Span<int> instructionWords => wbuff.Span;
-    Memory<int> memorySlice => wbuff.buffer.Memory;
+    Memory<int> memorySlice => wbuff.Buffer.Memory;
 
     public OrderedEnumerator(WordBuffer buffer)
     {

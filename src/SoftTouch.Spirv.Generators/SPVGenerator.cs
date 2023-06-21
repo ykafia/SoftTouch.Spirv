@@ -50,7 +50,7 @@ namespace SoftTouch.Spirv.Generators
             .AppendLine("using static Spv.Specification;")
             .AppendLine("namespace SoftTouch.Spirv.Core;")
             .AppendLine("")
-            .AppendLine("public partial class WordBuffer")
+            .AppendLine("public partial struct WordBuffer")
             .AppendLine("{")
             .Indent();
 

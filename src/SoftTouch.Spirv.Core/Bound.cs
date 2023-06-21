@@ -9,17 +9,19 @@ namespace SoftTouch.Spirv.Core;
 
 public struct Bound
 {
-    public int Start { get; }
-    public int End { get; private set; }
+    public int VirtualOffset { get; set; }
+    public int Offset { get; }
+    public int Count { get; private set; }
 
-    public Bound(int start = 1)
+    public Bound(int virtualOffset = 0)
     {
-        Start = start;
-        End = start;
+        Offset = 1;
+        VirtualOffset = virtualOffset;
+        Count = 1;
     }
 
     public int Next()
     {
-        return ++End;
+        return ++Count;
     }
 }

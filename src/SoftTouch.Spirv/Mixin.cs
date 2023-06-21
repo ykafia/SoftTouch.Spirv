@@ -1,17 +1,23 @@
 using System.Runtime.CompilerServices;
+using SoftTouch.Spirv.Core;
 
 namespace SoftTouch.Spirv;
 
-
-public partial class Mixin : BaseMixin
+public partial struct Mixin
 {
+
+    public string Name { get; set; }
+    internal WordBuffer Buffer { get; }
+
     public MixinGraph Parents;
     public List<SpirvType> Types;
     public List<VariableData> Variables;
     public List<MethodData> Methods;
 
-    public Mixin(string name, List<string>? parents = null) : base(name)
+    public Mixin(string name, WordBuffer wordBuffer, List<string>? parents = null)
     {
+        Name = name;
+        Buffer = wordBuffer;
         Parents = parents ?? new();
         Variables = new();
         Methods = new();

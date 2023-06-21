@@ -11,51 +11,61 @@ using static Spv.Specification;
 
 namespace SoftTouch.Spirv.Core;
 
-public partial class WordBuffer
+public partial struct WordBuffer
 {
-    Bound bound = new();
-    internal MemoryOwner<int> buffer;
-    public int BufferLength { get; protected set; }
-    public Span<int> Span => buffer.Span[..BufferLength];
-    public int Count => new SpirvReader(buffer.Memory[..BufferLength]).Count;
+    Bound bound;
+    public MemoryOwner<int> Buffer { get; private set; }
+    public int BufferLength { get; private set; }
+    public Span<int> Span => Buffer.Span[..BufferLength];
+    public Memory<int> Memory => Buffer.Memory[..BufferLength];
+    public int Count => new SpirvReader(Buffer.Memory[..BufferLength]).Count;
+    public int VirtualOffset { get => bound.VirtualOffset; set => bound.VirtualOffset = value; }
 
     public RefInstruction this[int index]
     {
         get
         {
-
             int id = 0;
             int wid = 0;
             while (id < index)
             {
-                wid += buffer.Span[wid] >> 16;
+                wid += Buffer.Span[wid] >> 16;
                 id++;
             }
-            return RefInstruction.ParseRef(buffer.Span.Slice(wid, buffer.Span[wid] >> 16));
+            return RefInstruction.ParseRef(Buffer.Span.Slice(wid, Buffer.Span[wid] >> 16), bound.Offset);
         }
     }
-
-    public WordBuffer(int initialCapacity = 32)
+    public WordBuffer()
     {
         BufferLength = 0;
-        buffer = MemoryOwner<int>.Allocate(initialCapacity, AllocationMode.Clear);
+        bound = new(0);
+        Buffer = MemoryOwner<int>.Allocate(32, AllocationMode.Clear);
     }
-    public WordBuffer(MemoryOwner<int> data)
+
+    public WordBuffer(int initialCapacity = 32, int offset = 0)
     {
-        buffer = data;
-        BufferLength = Count;
+        BufferLength = 0;
+        bound = new(offset);
+        Buffer = MemoryOwner<int>.Allocate(initialCapacity, AllocationMode.Clear);
+    }
+
+    internal WordBuffer(Span<int> words)
+    {
+        Buffer = MemoryOwner<int>.Allocate(words.Length, AllocationMode.Clear);
+        words.CopyTo(Buffer.Span);
+        BufferLength = new SpirvReader(Buffer.Memory,false).Count;
+        bound = new();
     }
 
     public OrderedEnumerator GetEnumerator() => new(this);
 
-
     public void Expand(int size)
     {
-        if (buffer.Length < BufferLength + size)
+        if (Buffer.Length < BufferLength + size)
         {
             var tmp = MemoryOwner<int>.Allocate((int)BitOperations.RoundUpToPowerOf2((uint)(BufferLength + size)), AllocationMode.Clear);
-            buffer.Span.CopyTo(tmp.Span);
-            buffer = tmp;
+            Buffer.Span.CopyTo(tmp.Span);
+            Buffer = tmp;
             BufferLength += size;
         }
         else
@@ -64,56 +74,26 @@ public partial class WordBuffer
     internal void Insert(int start, Span<int> words)
     {
         Expand(words.Length);
-        var slice = buffer.Span[start..(BufferLength-words.Length)];
-        slice.CopyTo(buffer.Span[(start + words.Length)..]);
-        words.CopyTo(buffer.Span.Slice(start, words.Length));
+        var slice = Buffer.Span[start..(BufferLength - words.Length)];
+        slice.CopyTo(Buffer.Span[(start + words.Length)..]);
+        words.CopyTo(Buffer.Span.Slice(start, words.Length));
     }
 
     internal Instruction Add(MutRefInstruction instruction)
     {
         Insert(BufferLength, instruction.Words);
         return new(this, Count - 1);
-        //int group = 0;
-        //if (instruction.OpCode == Op.OpVariable)
-        //    group = InstructionInfo.GetGroupOrder(instruction.OpCode, (StorageClass)instruction.Words[3]);
-        //else
-        //    group = InstructionInfo.GetGroupOrder(instruction.OpCode);
-
-        //if (group == 13)
-        //{
-        //    Insert(BufferLength, instruction.Words);
-        //    return new(this, Count - 1);
-        //}
-        //else
-        //{
-
-        //    var index = 0;
-        //    var wIndex = 0;
-        //    while (InstructionInfo.GetGroupOrder((Op)(buffer.Span[wIndex] & 0xFF), ((Op)(buffer.Span[wIndex] & 0xFF)) == Op.OpVariable ? (StorageClass)buffer.Span[wIndex+3] : null) <= group)
-        //    {
-        //        wIndex += buffer.Span[wIndex] >> 16;
-        //        index += 1;
-        //        if(wIndex >= BufferLength)
-        //        {
-        //            Insert(BufferLength, instruction.Words);
-        //            return new(this, Count - 1);
-        //        }
-
-        //    }
-        //    Insert(wIndex, instruction.Words);
-        //    return new(this, index);
-        //}
     }
 
 
     public byte[] GenerateSpirv()
     {
-        var output = new byte[BufferLength*4 + 5*4];
+        var output = new byte[BufferLength * 4 + 5 * 4];
         var span = output.AsSpan();
-        var ints = MemoryMarshal.Cast<byte,int>(span);
+        var ints = MemoryMarshal.Cast<byte, int>(span);
         var instructionWords = ints[5..];
 
-        var header = new SpirvHeader(new SpirvVersion(1,3), 0, bound.End + 1);
+        var header = new SpirvHeader(new SpirvVersion(1, 3), 0, bound.Count + 1);
         header.WriteTo(ints[0..5]);
         var id = 0;
         var enumerator = GetEnumerator();
@@ -123,15 +103,6 @@ public partial class WordBuffer
             curr.Words.CopyTo(instructionWords.Slice(id, curr.Words.Length));
             id += curr.Words.Length;
         }
-
-        //Span<byte> tmp = stackalloc byte[4];
-        //for(int i = 0; i < ints.Length; i++ )
-        //{
-        //    var tmpSlice = span.Slice(i * 4, 4);
-        //    tmpSlice.CopyTo(tmp);
-        //    tmp.Reverse();
-        //    tmp.CopyTo(tmpSlice);
-        //}
         return output;
     }
 
