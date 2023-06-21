@@ -1,0 +1,35 @@
+{  
+  "instructions" : [
+    {
+      "opname" : "OpNop",
+      "class"  : "Miscellaneous",
+      "opcode" : 0
+    },
+    {
+      "opname" : "OpSDSLMixinExtImport",
+      "class"  : "Miscellaneous",
+      "opcode" : 1,
+      "operands" : [
+        { "kind" : "LiteralString" }
+      ]
+    },
+    {
+      "opname" : "OpSDSLMixinVariableImport",
+      "class"  : "Miscellaneous",
+      "opcode" : 1,
+      "operands" : [
+        { "kind" : "IdResult" },
+        { "kind" : "LiteralString" },
+        { "kind" : "LiteralString" }
+      ]
+    },
+    {
+      "opname" : "OpUndef",
+      "class"  : "Miscellaneous",
+      "opcode" : 1,
+      "operands" : [
+        { "kind" : "IdResult" }
+      ]
+    }
+  ]
+}

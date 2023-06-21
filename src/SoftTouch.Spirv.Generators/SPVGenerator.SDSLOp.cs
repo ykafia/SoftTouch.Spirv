@@ -12,14 +12,13 @@ using System.Security.Claims;
 
 namespace SoftTouch.Spirv.Generators
 {
-
-    
-
     public partial class SPVGenerator
     {
-        public void CreateOperandReflection(GeneratorExecutionContext context)
+        public void CreateSDSLOp(GeneratorExecutionContext context)
         {
-            
+            var code = new CodeWriter();
+            // TODO : syntax tree something
+            // context.Compilation.SyntaxTrees.Where(tree => tree.GetRoot());
         }
     }
 }
