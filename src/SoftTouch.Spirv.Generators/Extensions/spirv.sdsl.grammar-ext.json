@@ -1,39 +1,54 @@
-{  
-  "instructions" : [
+{
+  "instructions": [
     {
-      "opname" : "OpNop",
-      "class"  : "Miscellaneous"
-    },
-    {
-      "opname" : "OpSDSLMixinName",
-      "class"  : "Miscellaneous",
-      "operands" : [
-        { "kind" : "LiteralString" }
+      "opname": "OpSDSLMixinName",
+      "class": "Miscellaneous",
+      "operands": [
+        {
+          "kind": "LiteralString",
+          "name": "mixinName"
+        }
       ]
     },
     {
-      "opname" : "OpSDSLMixinExt",
-      "class"  : "Miscellaneous",
-      "operands" : [
-        { "kind" : "LiteralString" }
+      "opname": "OpSDSLMixinOffset",
+      "class": "Miscellaneous",
+      "operands": [
+        {
+          "kind": "LiteralInteger",
+          "name": "mixinName"
+        }
       ]
     },
     {
-      "opname" : "OpSDSLMixinVariableImport",
-      "class"  : "Miscellaneous",
-      "opcode" : 1,
-      "operands" : [
-        { "kind" : "IdResult" },
-        { "kind" : "LiteralString" },
-        { "kind" : "LiteralString" }
+      "opname": "OpSDSLMixinInherit",
+      "class": "Miscellaneous",
+      "operands": [
+        {
+          "kind": "IdResult"
+        },
+        {
+          "kind": "LiteralString",
+          "name": "mixinName"
+        }
       ]
     },
     {
-      "opname" : "OpUndef",
-      "class"  : "Miscellaneous",
-      "opcode" : 1,
-      "operands" : [
-        { "kind" : "IdResult" }
+      "opname": "OpSDSLMixinVariable",
+      "class": "Miscellaneous",
+      "opcode": 1,
+      "operands": [
+        {
+          "kind": "IdResult"
+        },
+        {
+          "kind": "IdRef",
+          "name": "mixinId"
+        },
+        {
+          "kind": "LiteralString",
+          "name" : "variableName"
+        }
       ]
     }
   ]

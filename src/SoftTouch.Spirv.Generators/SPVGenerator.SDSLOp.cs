@@ -10,6 +10,7 @@ using System.Reflection;
 using System.Text.Json;
 using System.Security.Claims;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.CSharp;
 
 namespace SoftTouch.Spirv.Generators
 {
@@ -17,6 +18,8 @@ namespace SoftTouch.Spirv.Generators
     {
         public void CreateSDSLOp(GeneratorExecutionContext context)
         {
+            var cu = SyntaxFactory.CompilationUnit();
+            // cu.NormalizeWhitespace();
             var code = new CodeWriter();
             // TODO : syntax tree something
             var members = context
@@ -31,13 +34,26 @@ namespace SoftTouch.Spirv.Generators
                 .OfType<EnumDeclarationSyntax>()
                 .First(x => x.Identifier.Text == "Op")
                 .DescendantNodes()
-                .OfType<EnumMemberDeclarationSyntax>();
-            var lastnum = int.Parse(members.Last().EqualsValue.Value.GetText().ToString());
+                .OfType<EnumMemberDeclarationSyntax>()
+                .ToDictionary(x => x.Identifier.Text, x => int.Parse(x.EqualsValue.Value.GetText().ToString()));
+            var lastnum = members.Last().Value;
+            foreach(var e in spirvSDSL.RootElement.GetProperty("instructions").EnumerateArray().Select(x => x.GetProperty("opname").GetString()))
+                members.Add(e, ++lastnum);
+
+            code
+                .AppendLine("namespace SoftTouch.Spirv.Core;")
+                .AppendLine("")
+                .AppendLine("public enum SDSLOp")
+                .AppendLine("{")
+                .Indent();
+            foreach(var e in members)
+                code.Append(e.Key).Append(" = ").Append(e.Value).AppendLine(",");
+            code
+                .Dedent()
+                .AppendLine("}");
             
-            var content = string.Join("\n",
-                new[]{lastnum}
-            );
-            context.AddSource("nodes.g.cs", content);
+            
+            context.AddSource("SDSLOp.gen.cs", code.ToString());
         }
     }
 }

@@ -37,6 +37,10 @@ namespace SoftTouch.Spirv.Generators
             {
                 GenerateInfo(instruction, code);
             }
+            foreach (var instruction in spirvSDSL.RootElement.GetProperty("instructions").EnumerateArray().ToList())
+            {
+                GenerateInfo(instruction, code);
+            }
             code
             .AppendLine("Instance.InitOrder();")
             .Dedent()
@@ -66,7 +70,7 @@ namespace SoftTouch.Spirv.Generators
                         if(!hasQuant)
                         {
                             code
-                                .Append("Instance.Register(Op.")
+                                .Append("Instance.Register(SDSLOp.")
                                 .Append(opname)
                                 .Append(", OperandKind.")
                                 .Append(kindJson.GetString())
@@ -79,7 +83,7 @@ namespace SoftTouch.Spirv.Generators
                         {
                             var quant = quantifierJson.GetString();
                             code
-                                .Append("Instance.Register(Op.")
+                                .Append("Instance.Register(SDSLOp.")
                                 .Append(opname)
                                 .Append(", OperandKind.")
                                 .Append(kindJson.GetString())
@@ -95,7 +99,7 @@ namespace SoftTouch.Spirv.Generators
             }
             else
             {
-                code.Append("Instance.Register(Op.").Append(opname).AppendLine(", null, null, \"Debug\");");
+                code.Append("Instance.Register(SDSLOp.").Append(opname).AppendLine(", null, null, \"Debug\");");
             }
         }
 

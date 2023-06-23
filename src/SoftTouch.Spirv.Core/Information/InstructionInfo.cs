@@ -13,10 +13,10 @@ namespace SoftTouch.Spirv.Core;
 public partial class InstructionInfo
 {
     public static InstructionInfo Instance { get; } = new();
-    Dictionary<Op, LogicalOperandArray> Info = new();
+    Dictionary<SDSLOp, LogicalOperandArray> Info = new();
     InstructionInfo(){}
 
-    internal void Register(Op op, OperandKind? kind, OperandQuantifier? quantifier, string? name = null, string? spvClass = null)
+    internal void Register(SDSLOp op, OperandKind? kind, OperandQuantifier? quantifier, string? name = null, string? spvClass = null)
     {
         if(Info.TryGetValue(op, out var list))
         {
@@ -28,7 +28,7 @@ public partial class InstructionInfo
         }
     }
 
-    public static LogicalOperandArray GetInfo(Op op)
+    public static LogicalOperandArray GetInfo(SDSLOp op)
     {
         return Instance.Info[op];
     }

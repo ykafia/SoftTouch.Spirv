@@ -40,7 +40,7 @@ public struct LiteralString : ISpirvElement, IFromSpirv<LiteralString>
 
     public void WriteTo(Span<int> slice)
     {
-        for (int i = 0; i < Length + 1; i++)
+        for (int i = 0; i < Length; i++)
         {
             var pos = i / 4;
             var shift = 8 * (i % 4);

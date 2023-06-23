@@ -8,7 +8,7 @@ using static Spv.Specification;
 public struct OwnedInstruction
 {
 
-    public Op OpCode { get; init; }
+    public SDSLOp OpCode { get; init; }
     public int? ResultId { get; set; }
     public int? ResultType { get; set; }
     public Memory<int> Operands { get; init; }
@@ -26,7 +26,7 @@ public struct OwnedInstruction
     public static void Parse(in Memory<int> words, out OwnedInstruction instruction)
     {
         var index = 0;
-        var op = (Op)(words.Span[0] & 0xFFFF);
+        var op = (SDSLOp)(words.Span[0] & 0xFFFF);
         var wordLength = words.Span[0] >> 16;
         int? result = null!;
         int? resultType = null!;

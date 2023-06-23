@@ -16,7 +16,7 @@ public partial struct Instruction
     int offset;
 
     public int CountOfWords => Buffer[Index].WordCount;
-    public Op OpCode => Buffer[Index].OpCode;
+    public SDSLOp OpCode => Buffer[Index].OpCode;
     public int? ResultId => Buffer[Index].ResultId;
     public int? ResultType => Buffer[Index].ResultType;
     public Span<int> Operands => Buffer[Index].Operands;

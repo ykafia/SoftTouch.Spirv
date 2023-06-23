@@ -17,10 +17,10 @@ public ref struct FilteredEnumerator
     readonly Span<int> instructionWords => buffer.Buffer.Span;
 
     string? classFilter;
-    Op? filter1;
-    Op? filter2;
-    Op? filter3;
-    Op? filter4;
+    SDSLOp? filter1;
+    SDSLOp? filter2;
+    SDSLOp? filter3;
+    SDSLOp? filter4;
 
     FilterType filterType;
 
@@ -33,7 +33,7 @@ public ref struct FilteredEnumerator
         classFilter = classFilt;
         filterType = FilterType.ClassName;
     }
-    public FilteredEnumerator(WordBuffer buff, Op filt1)
+    public FilteredEnumerator(WordBuffer buff, SDSLOp filt1)
     {
         started = false;
         wordIndex = 0;
@@ -41,7 +41,7 @@ public ref struct FilteredEnumerator
         filter1 = filt1;
         filterType = FilterType.Op1;
     }
-    public FilteredEnumerator(WordBuffer buff, Op filt1, Op filt2)
+    public FilteredEnumerator(WordBuffer buff, SDSLOp filt1, SDSLOp filt2)
     {
         started = false;
         wordIndex = 0;
@@ -50,7 +50,7 @@ public ref struct FilteredEnumerator
         filter2 = filt2;
         filterType = FilterType.Op2;
     }
-    public FilteredEnumerator(WordBuffer buff, Op filt1, Op filt2, Op filt3)
+    public FilteredEnumerator(WordBuffer buff, SDSLOp filt1, SDSLOp filt2, SDSLOp filt3)
     {
         started = false;
         wordIndex = 0;
@@ -60,7 +60,7 @@ public ref struct FilteredEnumerator
         filter3 = filt3;
         filterType = FilterType.Op3;
     }
-    public FilteredEnumerator(WordBuffer buff, Op filt1, Op filt2, Op filt3, Op filt4)
+    public FilteredEnumerator(WordBuffer buff, SDSLOp filt1, SDSLOp filt2, SDSLOp filt3, SDSLOp filt4)
     {
         started = false;
         wordIndex = 0;
@@ -74,7 +74,7 @@ public ref struct FilteredEnumerator
 
     public RefInstruction Current => ParseCurrentInstruction();
 
-    bool Matches(Op toCheck)
+    bool Matches(SDSLOp toCheck)
     {
         return filterType switch 
         {
@@ -96,7 +96,7 @@ public ref struct FilteredEnumerator
         else
         {
             var sizeToStep = instructionWords[wordIndex] >> 16;
-            while(!Matches((Op)(instructionWords[wordIndex + sizeToStep] & 0xFFFF)) && wordIndex + sizeToStep < instructionWords.Length)
+            while(!Matches((SDSLOp)(instructionWords[wordIndex + sizeToStep] & 0xFFFF)) && wordIndex + sizeToStep < instructionWords.Length)
             {
                 sizeToStep += instructionWords[wordIndex + sizeToStep] >> 16;
             }

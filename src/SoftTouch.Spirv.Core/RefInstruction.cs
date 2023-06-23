@@ -8,7 +8,7 @@ namespace SoftTouch.Spirv.Core;
 public ref struct RefInstruction
 {
     public int CountOfWords { get; init; }
-    public Op OpCode { get; init; }
+    public SDSLOp OpCode { get; init; }
     public int? ResultId { get; set; }
     public int? ResultType { get; set; }
     public Span<int> Operands { get; init; }
@@ -33,7 +33,7 @@ public ref struct RefInstruction
     {
         var words = owner.Span.Slice(ownerIndex, owner.Span[ownerIndex] >> 16);
         var index = 0;
-        var op = (Op)(words[0] & 0xFFFF);
+        var op = (SDSLOp)(words[0] & 0xFFFF);
         int? result = null!;
         int? resultType = null!;
 
@@ -59,7 +59,7 @@ public ref struct RefInstruction
     public static RefInstruction ParseRef(Span<int> words, int offset = 0)
     {
         var index = 0;
-        var op = (Op)(words[0] & 0xFFFF);
+        var op = (SDSLOp)(words[0] & 0xFFFF);
         int? result = null!;
         int? resultType = null!;
 

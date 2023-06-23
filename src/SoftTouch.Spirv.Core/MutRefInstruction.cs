@@ -1,5 +1,4 @@
 using System.Runtime.CompilerServices;
-using static Spv.Specification;
 
 namespace SoftTouch.Spirv.Core;
 
@@ -7,9 +6,9 @@ namespace SoftTouch.Spirv.Core;
 public ref struct MutRefInstruction
 {
     public Span<int> Words { get;}
-    public Op OpCode 
+    public SDSLOp OpCode 
     {
-        get => (Op)(Words[0] & 0xFF); 
+        get => (SDSLOp)(Words[0] & 0xFF); 
         set { unchecked { Words[0] = (Words[0] & (int)0xFFFF0000) | (int)value;}}
     }
     public int WordCount

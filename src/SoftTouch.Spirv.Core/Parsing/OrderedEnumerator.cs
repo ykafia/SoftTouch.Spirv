@@ -84,8 +84,8 @@ public ref struct OrderedEnumerator
 
     int GetGroupOrder(int wid)
     {
-        var op = (Op)(instructionWords[wid] & 0xFF);
-        return InstructionInfo.GetGroupOrder(op, op == Op.OpVariable ? (StorageClass)instructionWords[wid + 3] : null);
+        var op = (SDSLOp)(instructionWords[wid] & 0xFFFF);
+        return InstructionInfo.GetGroupOrder(op, op == SDSLOp.OpVariable ? (StorageClass)instructionWords[wid + 3] : null);
     }
 
 
