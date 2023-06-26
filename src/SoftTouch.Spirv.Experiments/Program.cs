@@ -16,7 +16,7 @@ static void ParseShader()
 {
     Console.WriteLine(Unsafe.SizeOf<Memory<int>>());
 
-    InstructionInfo.GetInfo(Op.OpCapability);
+    InstructionInfo.GetInfo(SDSLOp.OpCapability);
 
     var shader = File.ReadAllBytes("../../shader.spv");
 

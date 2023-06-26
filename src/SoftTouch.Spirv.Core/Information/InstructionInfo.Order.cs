@@ -16,7 +16,10 @@ public partial class InstructionInfo
 
     void InitOrder()
     {
+        OrderGroup[(SDSLOp.OpSDSLMixinName, null)] = 0;
         OrderGroup[(SDSLOp.OpCapability, null)] = 0;
+        OrderGroup[(SDSLOp.OpSDSLMixinOffset, null)] = 0;
+        OrderGroup[(SDSLOp.OpSDSLMixinInherit, null)] = 0;
         OrderGroup[(SDSLOp.OpExtension, null)] = 1;
         OrderGroup[(SDSLOp.OpExtInstImport, null)] = 2;
         OrderGroup[(SDSLOp.OpMemoryModel, null)] = 3;
@@ -29,6 +32,7 @@ public partial class InstructionInfo
             OrderGroup[(e,null)] = 6;
 
         OrderGroup[(SDSLOp.OpName, null)] = 7;
+        OrderGroup[(SDSLOp.OpSDSLMixinVariable, null)] = 7;
         OrderGroup[(SDSLOp.OpMemberName, null)] = 7;
 
         OrderGroup[(SDSLOp.OpModuleProcessed, null)] = 8;

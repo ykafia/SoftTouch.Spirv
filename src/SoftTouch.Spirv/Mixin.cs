@@ -7,14 +7,14 @@ public partial struct Mixin
 {
 
     public string Name { get; set; }
-    internal WordBuffer Buffer { get; }
+    internal SortedWordBuffer Buffer { get; }
 
     public MixinGraph Parents;
     public List<SpirvType> Types;
     public List<VariableData> Variables;
     public List<MethodData> Methods;
 
-    public Mixin(string name, WordBuffer wordBuffer, List<string>? parents = null)
+    public Mixin(string name, SortedWordBuffer wordBuffer, List<string>? parents = null)
     {
         Name = name;
         Buffer = wordBuffer;
