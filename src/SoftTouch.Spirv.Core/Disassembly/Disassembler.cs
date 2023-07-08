@@ -13,6 +13,15 @@ public class Disassembler
         debugNames = new();
     }
 
+    public string Disassemble(Span<int> memory)
+    {
+        var words = MagicNumber == memory[0] ?
+            memory[5..] : memory;
+        
+        var wbuff = new WordBuffer(words);
+        return Disassemble(wbuff);
+    }
+
     public string Disassemble(Memory<int> memory)
     {
         var words = MagicNumber == memory.Span[0] ?

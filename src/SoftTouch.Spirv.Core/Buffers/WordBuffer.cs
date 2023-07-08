@@ -11,7 +11,7 @@ using static Spv.Specification;
 
 namespace SoftTouch.Spirv.Core;
 
-public partial struct WordBuffer
+public partial struct WordBuffer : ISpirvBuffer
 {
     Bound bound;
     public MemoryOwner<int> Buffer { get; private set; }

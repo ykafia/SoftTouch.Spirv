@@ -8,10 +8,12 @@ using System.Threading.Tasks;
 
 namespace SoftTouch.Spirv.Core;
 
-public readonly struct SortedWordBuffer
+public readonly struct SortedWordBuffer : ISpirvBuffer
 {
     readonly MemoryOwner<int> words;
-
+    public Span<int> Span => words.Span;
+    public Memory<int> Memory => words.Memory;
+    
     public RefInstruction this[int index]
     {
         get

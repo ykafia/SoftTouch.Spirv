@@ -20,52 +20,58 @@ public struct LiteralInteger : ISpirvElement, IFromSpirv<LiteralInteger>, ILiter
     public int Size { get; init; }
     public int WordCount => Size / 32;
 
-    internal LiteralInteger(sbyte value)
+    public LiteralInteger(sbyte value)
     {
         Words = 0 | value;
         // CacheSByte.Add(value, this);
         Size = sizeof(sbyte) * 8;
     }
-    internal LiteralInteger(byte value)
+    public LiteralInteger(byte value)
     {
         Words = 0 | value;
         // CacheByte.Add(value, this);
         Size = sizeof(byte) * 8;
     }
 
-    internal LiteralInteger(short value)
+    public LiteralInteger(short value)
     {
         Words = 0 | value;
         // CacheInt.Add(value, this);
         Size = sizeof(short) * 8;
     }
-    internal LiteralInteger(ushort value)
+    public LiteralInteger(ushort value)
     {
         Words = 0 | value;
         // CacheUInt.Add(value, this);
         Size = sizeof(ushort) * 8;
     }
 
-    internal LiteralInteger(int value)
+    public LiteralInteger(int value)
     {
         Words = 0 | value;
         // CacheInt.Add(value, this);
         Size = sizeof(int) * 8;
     }
-    internal LiteralInteger(uint value)
+    public LiteralInteger(int? value)
+    {
+        Words = 0 | value ?? 0;
+        // CacheInt.Add(value, this);
+        Size = sizeof(int) * 8;
+    }
+    public LiteralInteger(uint value)
     {
         Words = 0 | value;
         // CacheUInt.Add(value, this);
         Size = sizeof(uint) * 8;
 
     }
-    internal LiteralInteger(long value)
+    public LiteralInteger(long value)
     {
         Words = 0 | value;
         // CacheLong.Add(value, this);
         Size = sizeof(long) * 8;
     }
-    internal LiteralInteger(ulong value)
+    public LiteralInteger(ulong value)
     {
         Words = (long)value;
         // CacheULong.Add(value, this);
@@ -73,7 +79,7 @@ public struct LiteralInteger : ISpirvElement, IFromSpirv<LiteralInteger>, ILiter
 
     }
 
-    internal LiteralInteger(Span<int> value)
+    public LiteralInteger(Span<int> value)
     {
         if(value.Length == 2)
         {
@@ -93,6 +99,7 @@ public struct LiteralInteger : ISpirvElement, IFromSpirv<LiteralInteger>, ILiter
     public static implicit operator LiteralInteger(ushort value) => new LiteralInteger(value);
     public static implicit operator LiteralInteger(short value) => new LiteralInteger(value);
     public static implicit operator LiteralInteger(int value) => new LiteralInteger(value);
+    public static implicit operator LiteralInteger(int? value) => new LiteralInteger(value);
     public static implicit operator LiteralInteger(uint value) => new LiteralInteger(value);
     public static implicit operator LiteralInteger(long value) => new LiteralInteger(value);
     public static implicit operator LiteralInteger(ulong value) => new LiteralInteger(value);

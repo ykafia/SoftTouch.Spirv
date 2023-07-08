@@ -18,7 +18,7 @@ public class MixinSourceProvider
     public static void Register(Mixin mixin)
     {
         Instance.Mixins.Add(mixin.Name, mixin);
-        Instance.MixinGraph.Add(mixin.Name, mixin.Parents);
+        Instance.MixinGraph.Add(mixin.Name, mixin.Parents.ToList());
     }
     public static Mixin Get(string name)
     {

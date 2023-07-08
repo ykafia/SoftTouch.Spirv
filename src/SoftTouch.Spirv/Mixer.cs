@@ -5,19 +5,34 @@ namespace SoftTouch.Spirv;
 
 public partial class Mixer
 {
-    public Mixin? Module { get; protected set; }
-    public Mixer() { }
+    // public Mixin? Module { get; protected set; }
+    MixinGraph mixins;
+    public string Name { get; init; }
+    WordBuffer buffer;
 
-    public Mixer Create(string name)
+    public Mixer(string name)
     {
-        Module = new(name, new(), null);
+        Name = name;
+        buffer = new();
+        buffer.AddOpSDSLMixinName(Name);
+        mixins = new();
+    }
+
+    public void Build()
+    {
+        throw new NotImplementedException();
+    }
+
+    public Mixer Inherit(string mixin)
+    {
+        mixins.Add(mixin);
+        buffer.AddOpSDSLMixinInherit(mixin);
         return this;
     }
-    public Mixin? Get() => Module;
 
-    public Mixer With(string mixin)
+    public override string ToString()
     {
-        Module?.Parents.Add(mixin);
-        return this;
+        var dis = new Disassembler();
+        return dis.Disassemble(buffer);
     }
 }

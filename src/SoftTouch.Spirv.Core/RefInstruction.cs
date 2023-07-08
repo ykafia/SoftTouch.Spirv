@@ -7,6 +7,10 @@ namespace SoftTouch.Spirv.Core;
 
 public ref struct RefInstruction
 {
+
+    public static RefInstruction Empty => new() { Words = Span<int>.Empty, Operands = Span<int>.Empty };
+
+
     public int CountOfWords { get; init; }
     public SDSLOp OpCode { get; init; }
     public int? ResultId { get; set; }
@@ -16,6 +20,9 @@ public ref struct RefInstruction
     public int OwnerIndex { get; set; }
     public int IdRefOffset { get; set; }
     public Span<int> Words { get; init; }
+
+
+    public bool IsEmpty => Words == Span<int>.Empty;
 
     /// <summary>
     /// Word Count is the high-order 16 bits of word 0 of the instruction, holding its total WordCount. 
@@ -81,7 +88,7 @@ public ref struct RefInstruction
             IdRefOffset = offset
         };
     }
-    
+
 
     public bool ToOwned(out OwnedInstruction instruction)
     {

@@ -5,6 +5,19 @@ public struct MixinGraph
     public List<string> Names { get; private set; }
     internal MixinList DistinctNames { get; private set; }
 
+    public int Count => GetCount();
+
+    public Mixin this[int index]
+    {
+        get
+        {
+            var enumerator = GetEnumerator();
+            for (int i = 0; i < index; i++)
+                enumerator.MoveNext();
+            return enumerator.Current;
+        }
+    }
+
     public MixinGraph()
     {
         Names = new();
@@ -19,7 +32,7 @@ public struct MixinGraph
     public static implicit operator MixinGraph(List<string> names) => new(names);
 
     public MixinEnumerator GetEnumerator() => new(DistinctNames.AsList());
-    
+
     public void Add(string mixin)
     {
         Names.Add(mixin);
@@ -45,5 +58,13 @@ public struct MixinGraph
         foreach (string m in MixinSourceProvider.GetParentNames(name))
             FillMixinHashSet(m);
         DistinctNames.Add(name);
+    }
+    int GetCount()
+    {
+        int count = 0;
+        var e = GetEnumerator();
+        while (e.MoveNext())
+            count += 1;
+        return count;
     }
 }

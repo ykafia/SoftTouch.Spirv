@@ -40,23 +40,3 @@ public partial struct Instruction
         return OpCode.ToString();
     }
 }
-
-internal static class SpirvOperandExtensions
-{
-    public static T Parse<T>(this ref Span<int> v)
-    {
-        if (v.Length == 1 && typeof(T).IsEnum)
-            return Unsafe.As<int, T>(ref v[0]);
-        if (v.Length == 1 && typeof(T) == typeof(int))
-            return Unsafe.As<int, T>(ref v[0]);
-        if (typeof(T) == typeof(string))
-        {
-            var s = LiteralString.Parse(v);
-            return Unsafe.As<string, T>(ref s);
-        }
-        else
-            throw new ArgumentException("Cannot parse operand");
-    }
-
-
-}

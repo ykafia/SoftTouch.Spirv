@@ -131,12 +131,18 @@ static void CreateShader()
 
 
     var main = buffer.AddOpFunction(t_void, FunctionControlMask.MaskNone, t_func);
-    buffer.AddOpEntryPoint(ExecutionModel.Fragment, main, "main", stackalloc IdRef[] { v_output, v_input, v_input_2, v_input_3 });
+    buffer.AddOpEntryPoint(ExecutionModel.Fragment, main, "PSMain", stackalloc IdRef[] { v_output, v_input, v_input_2, v_input_3 });
     buffer.AddOpExecutionMode(main, ExecutionMode.OriginLowerLeft);
 
     buffer.AddOpLabel();
     buffer.AddOpReturn();
     buffer.AddOpFunctionEnd();
+
+    var main2 = buffer.AddOpFunction(t_void, FunctionControlMask.MaskNone, t_func);
+    buffer.AddOpEntryPoint(ExecutionModel.Vertex, main, "VSMain", stackalloc IdRef[] { v_output, v_input, v_input_2, v_input_3 });
+    
+    
+    
     var list = new List<Instruction>(buffer.Count);
     foreach(var e in buffer)
         list.Add(e);
