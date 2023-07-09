@@ -58,6 +58,11 @@ public partial class InstructionInfo
         OrderGroup[(SDSLOp.OpVariable,StorageClass.Function)] = 13;
     }
 
+    public static int GetGroupOrder(RefInstruction instruction)
+    {
+        return GetGroupOrder(instruction.OpCode, instruction.OpCode == SDSLOp.OpVariable ? instruction.Operands[3] : null);
+    }
+
     public static int GetGroupOrder(SDSLOp op, StorageClass? sc = null)
     {
         return Instance.OrderGroup[(op, sc)];

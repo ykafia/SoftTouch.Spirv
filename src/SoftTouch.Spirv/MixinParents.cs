@@ -13,36 +13,23 @@ public ref struct MixinParents
         this.mixin = mixin;
     }
 
-    public ParentEnumerator GetEnumerator() => new(mixin.Instructions.GetEnumerator());
+    public FilteredEnumerator<SortedWordBuffer> GetEnumerator() => new(mixin.Buffer,SDSLOp.OpSDSLMixinInherit);
 
-    public ref struct ParentEnumerator
+    public int GetCount()
     {
-        InstructionEnumerator enumerator;
-
-        public ParentEnumerator(InstructionEnumerator enumerator)
-        {
-            this.enumerator = enumerator;
-        }
-
-        public RefInstruction Current => enumerator.Current;
-        
-        public bool MoveNext()
-        {
-            var result = true;
-            while(enumerator.Current.OpCode != SDSLOp.OpSDSLMixinInherit)
-            {
-                result = enumerator.MoveNext();
-            }
-            return result;
-        }
+        var result = 0;
+        foreach(var p in this)
+            result += 1;
+        return result;
     }
-
     public List<string> ToList()
     {
+        if(GetCount() == 0)
+            return new();
         var result = new List<string>(4);
-        foreach(var e in this)
+        foreach (var e in this)
         {
-            foreach(var name in e)
+            foreach (var name in e)
             {
                 result.Add(name.To<LiteralString>().Value);
             }

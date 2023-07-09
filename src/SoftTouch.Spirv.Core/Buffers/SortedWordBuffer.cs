@@ -10,9 +10,12 @@ namespace SoftTouch.Spirv.Core;
 
 public readonly struct SortedWordBuffer : ISpirvBuffer
 {
+    public static readonly SortedWordBuffer Empty = new ();
+
     readonly MemoryOwner<int> words;
     public Span<int> Span => words.Span;
     public Memory<int> Memory => words.Memory;
+    public bool IsEmpty => words == MemoryOwner<int>.Empty;
     
     public RefInstruction this[int index]
     {
@@ -27,6 +30,11 @@ public readonly struct SortedWordBuffer : ISpirvBuffer
     }
 
     public InstructionEnumerator GetEnumerator() => new(words.Span, words.Memory);
+
+    public SortedWordBuffer()
+    {
+        words = MemoryOwner<int>.Empty;
+    }
 
     public SortedWordBuffer(WordBuffer buffer)
     {

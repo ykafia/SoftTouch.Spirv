@@ -71,6 +71,13 @@ public partial struct WordBuffer : ISpirvBuffer
         else
             BufferLength += size;
     }
+
+    public void Insert(RefInstruction instruction)
+    {
+        instruction.CopyTo(Buffer.Span[BufferLength..(BufferLength + instruction.WordCount)]);
+        BufferLength += instruction.WordCount;
+    }
+
     internal void Insert(int start, Span<int> words)
     {
         Expand(words.Length);

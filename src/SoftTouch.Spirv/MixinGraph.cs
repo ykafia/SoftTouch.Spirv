@@ -1,9 +1,18 @@
 namespace SoftTouch.Spirv;
 
+
+public record struct MixinGraphInstructions(MixinGraph Graph)
+{
+    public MixinInstructionEnumerator GetEnumerator() => new(Graph);
+}
+
+
 public struct MixinGraph
 {
     public List<string> Names { get; private set; }
     internal MixinList DistinctNames { get; private set; }
+
+    public MixinGraphInstructions Instructions => new(this);
 
     public int Count => GetCount();
 
@@ -11,6 +20,8 @@ public struct MixinGraph
     {
         get
         {
+            if(index >= Count)
+                throw new IndexOutOfRangeException();
             var enumerator = GetEnumerator();
             for (int i = 0; i < index; i++)
                 enumerator.MoveNext();
@@ -31,34 +42,34 @@ public struct MixinGraph
 
     public static implicit operator MixinGraph(List<string> names) => new(names);
 
-    public MixinEnumerator GetEnumerator() => new(DistinctNames.AsList());
+    public MixinEnumerator GetEnumerator() => new(Names);
 
     public void Add(string mixin)
     {
         Names.Add(mixin);
-        RebuildGraph();
+        // RebuildGraph();
     }
     public void Remove(string mixin)
     {
         Names.Remove(mixin);
-        RebuildGraph();
+        // RebuildGraph();
     }
 
-    public void RebuildGraph()
-    {
-        DistinctNames.Clear();
-        foreach (var m in Names)
-        {
-            FillMixinHashSet(m);
-        }
-    }
+    // public void RebuildGraph()
+    // {
+    //     DistinctNames.Clear();
+    //     foreach (var m in Names)
+    //     {
+    //         FillMixinHashSet(m);
+    //     }
+    // }
 
-    void FillMixinHashSet(string name)
-    {
-        foreach (string m in MixinSourceProvider.GetParentNames(name))
-            FillMixinHashSet(m);
-        DistinctNames.Add(name);
-    }
+    // void FillMixinHashSet(string name)
+    // {
+    //     foreach (string m in MixinSourceProvider.GetParentNames(name))
+    //         FillMixinHashSet(m);
+    //     DistinctNames.Add(name);
+    // }
     int GetCount()
     {
         int count = 0;

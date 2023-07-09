@@ -11,8 +11,12 @@ public ref struct RefInstruction
     public static RefInstruction Empty => new() { Words = Span<int>.Empty, Operands = Span<int>.Empty };
 
 
-    public int CountOfWords { get; init; }
-    public SDSLOp OpCode { get; init; }
+    /// <summary>
+    /// Word Count is the high-order 16 bits of word 0 of the instruction, holding its total WordCount. 
+    /// <br/> If the instruction takes a variable number of operands, Word Count also says "+ variable", after stating the minimum size of the instruction.
+    /// </summary>
+    public int WordCount => Words[0] >> 16;
+    public SDSLOp OpCode => (SDSLOp)(Words[0] & 0xFFFF);
     public int? ResultId { get; set; }
     public int? ResultType { get; set; }
     public Span<int> Operands { get; init; }
@@ -24,14 +28,7 @@ public ref struct RefInstruction
 
     public bool IsEmpty => Words == Span<int>.Empty;
 
-    /// <summary>
-    /// Word Count is the high-order 16 bits of word 0 of the instruction, holding its total WordCount. 
-    /// <br/> If the instruction takes a variable number of operands, Word Count also says "+ variable", after stating the minimum size of the instruction.
-    /// </summary>
-    public int WordCount =>
-        Operands.Length
-        + (ResultId.HasValue ? 1 : 0)
-        + (ResultType.HasValue ? 1 : 0);
+
 
 
     public OperandEnumerator GetEnumerator() => new(this);
@@ -53,8 +50,6 @@ public ref struct RefInstruction
 
         return new RefInstruction()
         {
-            CountOfWords = words[0] >> 16,
-            OpCode = op,
             ResultId = result,
             ResultType = resultType,
             Operands = words[index..],
@@ -65,7 +60,7 @@ public ref struct RefInstruction
     }
     public static RefInstruction ParseRef(Span<int> words, int offset = 0)
     {
-        var index = 0;
+        var index = 1;
         var op = (SDSLOp)(words[0] & 0xFFFF);
         int? result = null!;
         int? resultType = null!;
@@ -79,8 +74,6 @@ public ref struct RefInstruction
 
         return new RefInstruction()
         {
-            CountOfWords = words[0] >> 16,
-            OpCode = op,
             ResultId = result,
             ResultType = resultType,
             Operands = words[index..],
@@ -104,7 +97,7 @@ public ref struct RefInstruction
                 OpCode = OpCode,
                 ResultId = ResultId,
                 ResultType = ResultType,
-                Operands = Slice.Value[OwnerIndex..(OwnerIndex + CountOfWords)]
+                Operands = Slice.Value[OwnerIndex..(OwnerIndex + WordCount)]
             };
             return true;
         }
@@ -142,10 +135,12 @@ public ref struct RefInstruction
                 Operands[i] = value;
         }
     }
-    public void Offset(int value)
+    public void CopyTo(Span<int> destination)
     {
-        foreach (var o in this)
-            o.OffsetIdRef(value);
+        Words.CopyTo(destination);
+        var refi = new RefInstruction() { Words = destination};
+        foreach(var o in refi)
+            o.OffsetIdRef(IdRefOffset);
     }
 
     public override string ToString()
