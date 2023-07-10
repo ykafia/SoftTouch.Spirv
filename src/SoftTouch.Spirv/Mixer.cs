@@ -42,7 +42,8 @@ public partial class Mixer
             {
                 while (InstructionInfo.GetGroupOrder(mixinsEnum.Current) <= InstructionInfo.GetGroupOrder(bufferEnum.Current.AsRef()))
                 {
-                    final.Insert(mixinsEnum.Current);
+                    if((int)mixinsEnum.Current.OpCode < (int)SDSLOp.OpSDSLMixinName)
+                        final.Insert(mixinsEnum.Current);
                     if (!mixinsEnum.MoveNext())
                         break;
                 }
@@ -50,7 +51,7 @@ public partial class Mixer
             final.Insert(bufferEnum.Current.AsRef(boundOffset));
         }
         if(hasAny)
-            while(mixinsEnum.MoveNext())
+            while(mixinsEnum.MoveNext() && mixinsEnum.Current.OpCode < SDSLOp.OpSDSLMixinName)
                 final.Insert(mixinsEnum.Current);
             
         MixinSourceProvider.Register(new(Name, new(final)));

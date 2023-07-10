@@ -42,7 +42,7 @@ public ref struct MixinInstructionEnumerator
                 {
                     var offset = 1;
                     var instruction = Mixins[lastMixin].Instructions[lastIndex + offset];
-                    while (lastIndex + offset < count && instruction.IsEmpty)
+                    while (lastIndex + offset < count && (instruction.IsEmpty || instruction.OpCode >= SDSLOp.OpSDSLMixinName))
                     {
                         offset += 1;
                     }
