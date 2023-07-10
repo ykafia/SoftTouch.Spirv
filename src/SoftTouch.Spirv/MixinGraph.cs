@@ -23,8 +23,7 @@ public struct MixinGraph
             if(index >= Count)
                 throw new IndexOutOfRangeException();
             var enumerator = GetEnumerator();
-            for (int i = 0; i < index; i++)
-                enumerator.MoveNext();
+            for (int i = 0; enumerator.MoveNext() && i < index; i++){}
             return enumerator.Current;
         }
     }

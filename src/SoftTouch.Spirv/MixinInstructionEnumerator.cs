@@ -41,11 +41,12 @@ public ref struct MixinInstructionEnumerator
                 while (lastMixin < count)
                 {
                     var offset = 1;
-                    while (lastIndex + offset < count && Mixins[lastMixin].Instructions[lastIndex + offset].IsEmpty)
+                    var instruction = Mixins[lastMixin].Instructions[lastIndex + offset];
+                    while (lastIndex + offset < count && instruction.IsEmpty)
                     {
                         offset += 1;
                     }
-                    if (!Mixins[lastMixin].Instructions[lastIndex + offset].IsEmpty)
+                    if (!instruction.IsEmpty && InstructionInfo.GetGroupOrder(instruction) == currentGroup)
                     {
                         lastIndex += offset;
                         return true;

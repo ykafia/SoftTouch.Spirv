@@ -76,22 +76,16 @@ internal struct MixinList : IList<string>
 public ref struct MixinEnumerator
 {
     List<string> mixinNames;
-    string current;
+    List<string>.Enumerator enumerator;
 
     public MixinEnumerator(List<string> names)
     {
         mixinNames = names;
-        current = null!;
+        enumerator = mixinNames.GetEnumerator();
     }
 
-    public Mixin Current => MixinSourceProvider.Get(current);
+    public Mixin Current => MixinSourceProvider.Get(enumerator.Current);
 
-    public bool MoveNext()
-    {
-        var enumerator = mixinNames.GetEnumerator();
-        var next = enumerator.MoveNext();
-        if(next) current = enumerator.Current;
-        return next;
-    }
+    public bool MoveNext() => enumerator.MoveNext();
 }
 

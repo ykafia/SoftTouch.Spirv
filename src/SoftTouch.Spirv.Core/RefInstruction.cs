@@ -60,7 +60,7 @@ public ref struct RefInstruction
     }
     public static RefInstruction ParseRef(Span<int> words, int offset = 0)
     {
-        var index = 1;
+        var index = 0;
         var op = (SDSLOp)(words[0] & 0xFFFF);
         int? result = null!;
         int? resultType = null!;

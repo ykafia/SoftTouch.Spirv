@@ -30,44 +30,29 @@ public partial class Mixer
         var final = new WordBuffer(length);
         var bufferEnum = buffer.GetEnumerator();
         var mixinsEnum = mixins.Instructions.GetEnumerator();
+        var hasAny = mixinsEnum.MoveNext();
+        foreach(var e in mixins.Instructions)
+        {
+            Console.WriteLine(e.OpCode);
+        }
         
         while(bufferEnum.MoveNext())
         {
-            if (mixinsEnum.MoveNext())
+            if (hasAny)
             {
-                while (InstructionInfo.GetGroupOrder(mixinsEnum.Current) <= InstructionInfo.GetGroupOrder(bufferEnum.Current))
+                while (InstructionInfo.GetGroupOrder(mixinsEnum.Current) <= InstructionInfo.GetGroupOrder(bufferEnum.Current.AsRef()))
                 {
                     final.Insert(mixinsEnum.Current);
                     if (!mixinsEnum.MoveNext())
                         break;
                 }
             }
+            final.Insert(bufferEnum.Current.AsRef(boundOffset));
         }
-        while(mixinsEnum.MoveNext())
-            final.Insert(mixinsEnum.Current)
+        if(hasAny)
+            while(mixinsEnum.MoveNext())
+                final.Insert(mixinsEnum.Current);
             
-        
-
-        // var notEmpty = bufferEnum.MoveNext();
-        // foreach(var instruction in mixins.Instructions)
-        // {
-
-        // if(notEmpty)
-        // {
-        //     while(
-        //         // InstructionInfo.GetGroupOrder(bufferEnum.Current.OpCode) < InstructionInfo.GetGroupOrder(instruction.OpCode)
-        //         &&
-        //         bufferEnum.MoveNext() 
-        //         )
-        //     {
-        //         final.Insert(bufferEnum.Current.AsRef(boundOffset));
-        //     }
-        // }
-        // else
-        // final.Insert(instruction);
-        // }
-        foreach (var instruction in buffer)
-            final.Insert(instruction.AsRef(boundOffset));
         MixinSourceProvider.Register(new(Name, new(final)));
         return MixinSourceProvider.Get(Name);
     }

@@ -60,7 +60,7 @@ public partial class InstructionInfo
 
     public static int GetGroupOrder(RefInstruction instruction)
     {
-        return GetGroupOrder(instruction.OpCode, instruction.OpCode == SDSLOp.OpVariable ? instruction.Operands[3] : null);
+        return GetGroupOrder(instruction.OpCode, instruction.OpCode == SDSLOp.OpVariable ? (StorageClass)instruction.Words[3] : null);
     }
 
     public static int GetGroupOrder(SDSLOp op, StorageClass? sc = null)

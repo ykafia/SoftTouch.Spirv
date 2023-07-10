@@ -15,7 +15,9 @@ public readonly struct SortedWordBuffer : ISpirvBuffer
     readonly MemoryOwner<int> words;
     public Span<int> Span => words.Span;
     public Memory<int> Memory => words.Memory;
+    public int Count => new SpirvReader(words).Count;
     public bool IsEmpty => words == MemoryOwner<int>.Empty;
+    
     
     public RefInstruction this[int index]
     {

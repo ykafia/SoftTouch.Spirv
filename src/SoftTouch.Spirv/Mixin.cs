@@ -17,12 +17,11 @@ public ref struct MixinInstructions
     {
         get
         {
-            var e = GetEnumerator();
-            int tmp = 0;
-            while (e.MoveNext() || tmp < index)
-                tmp += 1;
-            if (tmp < index) return RefInstruction.Empty;
-            else return e.Current;
+            var count = mixin.Buffer.Count;
+            if(index >= count) return RefInstruction.Empty;
+            var enumerator = GetEnumerator();
+            for(int i = 0; enumerator.MoveNext() && i < index; i++);
+            return enumerator.Current;
         }
     }
 

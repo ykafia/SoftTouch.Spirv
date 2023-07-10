@@ -53,7 +53,7 @@ public partial struct WordBuffer : ISpirvBuffer
     {
         Buffer = MemoryOwner<int>.Allocate(words.Length, AllocationMode.Clear);
         words.CopyTo(Buffer.Span);
-        BufferLength = new SpirvReader(Buffer.Memory,false).Count;
+        BufferLength = words.Length;
         bound = new();
     }
 
