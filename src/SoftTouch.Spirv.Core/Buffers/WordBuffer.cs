@@ -71,11 +71,24 @@ public partial struct WordBuffer : ISpirvBuffer
         else
             BufferLength += size;
     }
+    public void DirectExpand(int size)
+    {
+        if (Buffer.Length < BufferLength + size)
+        {
+            var tmp = MemoryOwner<int>.Allocate(BufferLength + size, AllocationMode.Clear);
+            Buffer.Span.CopyTo(tmp.Span);
+            Buffer = tmp;
+            BufferLength += size;
+        }
+        else
+            BufferLength += size;
+    }
 
     public void Insert(RefInstruction instruction)
     {
-        instruction.CopyTo(Buffer.Span[BufferLength..(BufferLength + instruction.WordCount)]);
-        BufferLength += instruction.WordCount;
+        var pos = BufferLength;
+        DirectExpand(instruction.WordCount);
+        instruction.CopyTo(Buffer.Span[pos..(pos + instruction.WordCount)]);
     }
 
     internal void Insert(int start, Span<int> words)

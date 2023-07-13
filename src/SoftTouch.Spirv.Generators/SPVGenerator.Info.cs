@@ -99,7 +99,7 @@ namespace SoftTouch.Spirv.Generators
             }
             else
             {
-                code.Append("Instance.Register(SDSLOp.").Append(opname).AppendLine(", null, null, \"Debug\");");
+                code.Append("Instance.Register(SDSLOp.").Append(opname).AppendLine(", OperandKind.None, null, \"Debug\");");
             }
         }
 

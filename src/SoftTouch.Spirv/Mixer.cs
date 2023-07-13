@@ -20,20 +20,29 @@ public partial class Mixer
 
     public Mixin Build()
     {
+        buffer.AddOpSDSLMixinEnd();
+        foreach(var e in mixins.Instructions)
+        {
+            Console.WriteLine(e.ToString());
+        }
         var length = buffer.BufferLength;
+        Console.WriteLine(length);
+
         var boundOffset = 0;
         foreach (var m in mixins)
         {
             length += m.Buffer.Span.Length;
+            Console.WriteLine(m);
             boundOffset += m.Bound;
         }
         var final = new WordBuffer(length);
         var bufferEnum = buffer.GetEnumerator();
         var mixinsEnum = mixins.Instructions.GetEnumerator();
         var hasAny = mixinsEnum.MoveNext();
+        
         foreach(var e in mixins.Instructions)
         {
-            Console.WriteLine(e.OpCode);
+            Console.WriteLine(e.ToString());
         }
         
         while(bufferEnum.MoveNext())
@@ -42,8 +51,7 @@ public partial class Mixer
             {
                 while (InstructionInfo.GetGroupOrder(mixinsEnum.Current) <= InstructionInfo.GetGroupOrder(bufferEnum.Current.AsRef()))
                 {
-                    if((int)mixinsEnum.Current.OpCode < (int)SDSLOp.OpSDSLMixinName)
-                        final.Insert(mixinsEnum.Current);
+                    final.Insert(mixinsEnum.Current);
                     if (!mixinsEnum.MoveNext())
                         break;
                 }

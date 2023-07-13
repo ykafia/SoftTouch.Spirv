@@ -39,4 +39,41 @@ public ref struct SpvOperand
         }
         return T.From(Words);
     }
+
+    public override string ToString()
+    {
+        return Kind switch 
+        {
+            OperandKind.LiteralString => To<LiteralString>().Value,
+            OperandKind.IdRef => $"%{Words[0] + Offset}",
+            OperandKind.IdResultType => $"%{Words[0] + Offset}",
+            OperandKind.PairLiteralIntegerIdRef => $"{Words[0]} %{Words[0] + Offset}",
+            OperandKind.MemoryAccess => $"{ToEnum<Spv.Specification.MemoryAccessMask>()}",
+            OperandKind.MemoryModel => $"{ToEnum<Spv.Specification.MemoryModel>()}",
+            OperandKind.MemorySemantics => $"{ToEnum<Spv.Specification.MemorySemanticsMask>()}",
+            OperandKind.AccessQualifier => $"{ToEnum<Spv.Specification.AccessQualifier>()}",
+            OperandKind.AddressingModel => $"{ToEnum<Spv.Specification.AddressingModel>()}",
+            OperandKind.BuiltIn => $"{ToEnum<Spv.Specification.BuiltIn>()}",
+            OperandKind.Capability => $"{ToEnum<Spv.Specification.Capability>()}",
+            OperandKind.Decoration => $"{ToEnum<Spv.Specification.Decoration>()}",
+            OperandKind.Dim => $"{ToEnum<Spv.Specification.Dim>()}",
+            OperandKind.ExecutionMode => $"{ToEnum<Spv.Specification.ExecutionMode>()}",
+            OperandKind.ExecutionModel => $"{ToEnum<Spv.Specification.ExecutionModel>()}",
+            OperandKind.FPFastMathMode => $"{ToEnum<Spv.Specification.FPFastMathModeMask>()}",
+            OperandKind.FPRoundingMode => $"{ToEnum<Spv.Specification.FPRoundingMode>()}",
+            OperandKind.FragmentShadingRate => $"{ToEnum<Spv.Specification.FragmentShadingRateMask>()}",
+            OperandKind.FunctionControl => $"{ToEnum<Spv.Specification.FunctionControlMask>()}",
+            OperandKind.FunctionParameterAttribute => $"{ToEnum<Spv.Specification.FunctionParameterAttribute>()}",
+            OperandKind.GroupOperation => $"{ToEnum<Spv.Specification.GroupOperation>()}",
+            OperandKind.ImageChannelDataType => $"{ToEnum<Spv.Specification.ImageChannelDataType>()}",
+            OperandKind.ImageChannelOrder => $"{ToEnum<Spv.Specification.ImageChannelOrder>()}",
+            OperandKind.ImageFormat => $"{ToEnum<Spv.Specification.ImageFormat>()}",
+            OperandKind.ImageOperands => $"{ToEnum<Spv.Specification.ImageOperandsMask>()}",
+            OperandKind.KernelEnqueueFlags => $"{ToEnum<Spv.Specification.KernelEnqueueFlags>()}",
+            OperandKind.KernelProfilingInfo => $"{ToEnum<Spv.Specification.KernelProfilingInfoMask>()}",
+            OperandKind.LinkageType => $"{ToEnum<Spv.Specification.LinkageType>()}",
+            OperandKind.None => "",
+            _ => Words[0].ToString()
+        };
+    }
 }

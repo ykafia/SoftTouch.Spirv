@@ -11,6 +11,10 @@
       ]
     },
     {
+      "opname": "OpSDSLMixinEnd",
+      "class": "Miscellaneous"
+    },
+    {
       "opname": "OpSDSLMixinOffset",
       "class": "Miscellaneous",
       "operands": [
@@ -24,9 +28,6 @@
       "opname": "OpSDSLMixinInherit",
       "class": "Miscellaneous",
       "operands": [
-        {
-          "kind": "IdResult"
-        },
         {
           "kind": "LiteralString",
           "name": "mixinName"

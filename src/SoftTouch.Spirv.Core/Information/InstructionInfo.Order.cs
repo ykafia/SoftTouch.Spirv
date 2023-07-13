@@ -56,6 +56,7 @@ public partial class InstructionInfo
         foreach(var e in Enum.GetValues<SDSLOp>().Except(OrderGroup.Keys.Select(x => x.Item1)))
             OrderGroup[(e,null)] = 13;
         OrderGroup[(SDSLOp.OpVariable,StorageClass.Function)] = 13;
+        OrderGroup[(SDSLOp.OpSDSLMixinEnd,null)] = 14;
     }
 
     public static int GetGroupOrder(RefInstruction instruction)

@@ -150,6 +150,7 @@ public ref struct OperandEnumerator
 
             return result;
         }
+        else if(logOp.Kind == OperandKind.None) return new(logOp.Kind.Value, Span<int>.Empty, instruction.IdRefOffset);
         else return new(logOp.Kind.Value, instruction.Words[wid..(wid + 1)], instruction.IdRefOffset);
     }
 

@@ -1,3 +1,4 @@
+using System.Text;
 using SoftTouch.Spirv.Core.Parsing;
 using static Spv.Specification;
 
@@ -145,6 +146,12 @@ public ref struct RefInstruction
 
     public override string ToString()
     {
-        return OpCode.ToString();
+        var builder = new StringBuilder();
+        builder.Append(OpCode).Append(' ');
+        foreach(var o in this)
+        {
+            builder.Append(o.ToString()).Append(' ');
+        }
+        return builder.ToString();
     }
 }
