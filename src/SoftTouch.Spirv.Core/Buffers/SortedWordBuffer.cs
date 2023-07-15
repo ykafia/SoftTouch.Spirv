@@ -47,5 +47,6 @@ public readonly struct SortedWordBuffer : ISpirvBuffer
             item.Words.CopyTo(words.Span[tmpLength..(tmpLength + item.CountOfWords)]);
             tmpLength += item.CountOfWords;
         }
+        buffer.Dispose();
     }
 }

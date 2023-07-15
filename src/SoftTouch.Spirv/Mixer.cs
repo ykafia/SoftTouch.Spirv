@@ -21,48 +21,8 @@ public partial class Mixer
     public Mixin Build()
     {
         buffer.AddOpSDSLMixinEnd();
-        foreach(var e in mixins.Instructions)
-        {
-            Console.WriteLine(e.ToString());
-        }
-        var length = buffer.BufferLength;
-        Console.WriteLine(length);
-
-        var boundOffset = 0;
-        foreach (var m in mixins)
-        {
-            length += m.Buffer.Span.Length;
-            Console.WriteLine(m);
-            boundOffset += m.Bound;
-        }
-        var final = new WordBuffer(length);
-        var bufferEnum = buffer.GetEnumerator();
-        var mixinsEnum = mixins.Instructions.GetEnumerator();
-        var hasAny = mixinsEnum.MoveNext();
-        
-        foreach(var e in mixins.Instructions)
-        {
-            Console.WriteLine(e.ToString());
-        }
-        
-        while(bufferEnum.MoveNext())
-        {
-            if (hasAny)
-            {
-                while (InstructionInfo.GetGroupOrder(mixinsEnum.Current) <= InstructionInfo.GetGroupOrder(bufferEnum.Current.AsRef()))
-                {
-                    final.Insert(mixinsEnum.Current);
-                    if (!mixinsEnum.MoveNext())
-                        break;
-                }
-            }
-            final.Insert(bufferEnum.Current.AsRef(boundOffset));
-        }
-        if(hasAny)
-            while(mixinsEnum.MoveNext() && mixinsEnum.Current.OpCode < SDSLOp.OpSDSLMixinName)
-                final.Insert(mixinsEnum.Current);
-            
-        MixinSourceProvider.Register(new(Name, new(final)));
+        // TODO : do some validation here
+        MixinSourceProvider.Register(new(Name, new(buffer)));
         return MixinSourceProvider.Get(Name);
     }
 

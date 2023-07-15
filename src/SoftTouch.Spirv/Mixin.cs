@@ -5,28 +5,7 @@ using SoftTouch.Spirv.Core.Parsing;
 namespace SoftTouch.Spirv;
 
 
-public ref struct MixinInstructions
-{
-    Mixin mixin;
-    public MixinInstructions(Mixin mixin)
-    {
-        this.mixin = mixin;
-    }
 
-    public RefInstruction this[int index]
-    {
-        get
-        {
-            var count = mixin.Buffer.Count;
-            if(index >= count) return RefInstruction.Empty;
-            var enumerator = GetEnumerator();
-            for(int i = 0; enumerator.MoveNext() && i < index; i++);
-            return enumerator.Current;
-        }
-    }
-
-    public InstructionEnumerator GetEnumerator() => mixin.Buffer.GetEnumerator();
-}
 
 
 public partial struct Mixin
@@ -38,6 +17,7 @@ public partial struct Mixin
 
     internal SortedWordBuffer Buffer { get; }
     public MixinInstructions Instructions => new(this);
+    public FullMixinInstructions FullInstructions => new(this);
     public MixinParents Parents => new(this);
 
     public bool IsEmpty => Buffer.IsEmpty;
@@ -50,6 +30,17 @@ public partial struct Mixin
         foreach (var i in Instructions)
             Bound = i.ResultId ?? 0;
     }
+
+    public string Disassemble()
+    {
+        var words = new WordBuffer();
+        foreach(var e in FullInstructions)
+        {
+            words.Insert(e);
+        }
+        return new Core.Disassembler().Disassemble(words);
+    }
+
 
     public override string ToString()
     {

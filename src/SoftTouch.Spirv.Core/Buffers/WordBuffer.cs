@@ -145,6 +145,8 @@ public partial struct WordBuffer : ISpirvBuffer
             _ => throw new NotImplementedException()
         };
     }
+
+    public void Dispose() => Buffer.Dispose();
     internal static int GetWordLength(Span<int> values) => values.Length;
     internal static int GetWordLength(Span<LiteralInteger> values) => values.Length * values[0].WordCount;
     internal static int GetWordLength(Span<LiteralFloat> values) => values.Length * values[0].WordCount;
