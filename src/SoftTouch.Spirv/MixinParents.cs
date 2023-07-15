@@ -34,6 +34,7 @@ public struct ParentList
     internal void Expand()
     {
         var r = MemoryOwner<string>.Allocate((int)BitOperations.RoundUpToPowerOf2((uint)Length + 1),AllocationMode.Clear);
+        _owner.Span.CopyTo(r.Span);
         _owner.Dispose();
         _owner = r;
     }

@@ -34,11 +34,15 @@ public struct FullMixinInstructions
 
         public bool MoveNext()
         {
-            if(enumerator.MoveNext())
+            if (enumerator.MoveNext())
+            {
+                var current = enumerator.Current;
                 return true;
+            }
             else
             {
-                graphFinished = false;
+                var current = self.Current;
+                graphFinished = true;
                 return self.MoveNext();
             }
         }

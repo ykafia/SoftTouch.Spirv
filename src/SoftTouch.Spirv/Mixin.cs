@@ -38,7 +38,7 @@ public partial struct Mixin
         {
             words.Insert(e);
         }
-        return new Core.Disassembler().Disassemble(words);
+        return new Core.Disassembler().Disassemble(new UnsortedWordBuffer(words));
     }
 
 
