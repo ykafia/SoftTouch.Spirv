@@ -12,15 +12,15 @@ public ref struct MixinInstructionEnumerator
 
     InstructionEnumerator lastEnumerator;
     int lastMixin;
-    int boundOffset;
+    public int BoundOffset { get; set; }
 
     public MixinInstructionEnumerator(MixinGraph mixins)
     {
         Mixins = mixins;
         lastMixin = -1;
-        boundOffset = -1;
+        BoundOffset = -1;
     }
-    public RefInstruction Current => lastEnumerator.Current with { IdRefOffset = boundOffset };
+    public RefInstruction Current => lastEnumerator.Current with { IdRefOffset = BoundOffset };
     public bool MoveNext()
     {
         var count = Mixins.Count;
@@ -29,7 +29,7 @@ public ref struct MixinInstructionEnumerator
         else if (lastMixin == -1)
         {
             lastMixin = 0;
-            boundOffset = 0;
+            BoundOffset = 0;
             lastEnumerator = Mixins[lastMixin].Buffer.GetEnumerator();
             return lastEnumerator.MoveNext();
         }
@@ -41,6 +41,7 @@ public ref struct MixinInstructionEnumerator
                     return true;
                 else
                 {
+                    BoundOffset += Mixins[lastMixin].Bound;
                     lastMixin += 1;
                     if (lastMixin < count)
                         lastEnumerator = Mixins[lastMixin].Buffer.GetEnumerator();

@@ -35,13 +35,10 @@ public struct FullMixinInstructions
         public bool MoveNext()
         {
             if (enumerator.MoveNext())
-            {
-                var current = enumerator.Current;
                 return true;
-            }
             else
             {
-                var current = self.Current;
+                self.BoundOffset = enumerator.BoundOffset;
                 graphFinished = true;
                 return self.MoveNext();
             }

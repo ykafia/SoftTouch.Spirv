@@ -28,7 +28,8 @@ public partial struct Mixin
         Name = name;
         Buffer = wordBuffer;
         foreach (var i in Instructions)
-            Bound = i.ResultId ?? 0;
+            if(i.ResultId != null && i.ResultId > Bound)
+                Bound = i.ResultId.Value;
     }
 
     public string Disassemble()
