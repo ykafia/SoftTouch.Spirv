@@ -10,7 +10,7 @@ using static Spv.Specification;
 namespace SoftTouch.Spirv.Core.Parsing;
 
 public ref struct FilteredEnumerator<T>
-    where T : struct, ISpirvBuffer
+    where T : ISpirvBuffer
 {
     int wordIndex;
     bool started;

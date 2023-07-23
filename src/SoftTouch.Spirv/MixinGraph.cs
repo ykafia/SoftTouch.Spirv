@@ -7,7 +7,7 @@ public record struct MixinGraphInstructions(MixinGraph Graph)
 }
 
 
-public struct MixinGraph
+public class MixinGraph
 {
     public ParentList Names { get; private set; }
     internal MixinList DistinctNames { get; private set; }
@@ -60,9 +60,12 @@ public struct MixinGraph
 
     void FillMixinHashSet(string name)
     {
-        foreach(var m in MixinSourceProvider.GetMixinGraph(name))
-            FillMixinHashSet(m.Name);
-        DistinctNames.Add(name);
+        if(MixinSourceProvider.TryGetMixinGraph(name, out var graph) && graph != null)
+        {
+            foreach (var m in graph)
+                FillMixinHashSet(m.Name);
+            DistinctNames.Add(name);
+        }
     }
     int GetCount()
     {

@@ -28,4 +28,8 @@ public class MixinSourceProvider
     {
         return Instance.MixinGraph[name];
     }
+    public static bool TryGetMixinGraph(string name, out MixinGraph? graph)
+    {
+        return Instance.MixinGraph.TryGetValue(name, out graph);
+    }
 }

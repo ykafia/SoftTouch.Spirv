@@ -18,11 +18,7 @@ public ref struct SpvOperand
 
     public void OffsetIdRef(int offset)
     {
-        if (Kind == OperandKind.IdRef)
-            Words[0] += offset;
-        else if(Kind == OperandKind.IdResult)
-            Words[0] += offset;
-        else if(Kind == OperandKind.IdResultType)
+        if(Kind == OperandKind.IdResult)
             Words[0] += offset;
     }
     public T ToEnum<T>() where T : Enum

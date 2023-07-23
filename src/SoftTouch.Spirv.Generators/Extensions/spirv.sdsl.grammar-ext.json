@@ -35,9 +35,22 @@
       ]
     },
     {
+      "opname": "OpSDSLIdOffset",
+      "class": "Miscellaneous",
+      "operands": [
+        {
+          "kind": "IdRef",
+          "name": "id"
+        },
+        {
+          "kind": "LiteralInteger",
+          "name": "offset"
+        }
+      ]
+    },
+    {
       "opname": "OpSDSLMixinVariable",
       "class": "Miscellaneous",
-      "opcode": 1,
       "operands": [
         {
           "kind": "IdResult"

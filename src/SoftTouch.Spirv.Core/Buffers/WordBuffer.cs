@@ -11,15 +11,15 @@ using static Spv.Specification;
 
 namespace SoftTouch.Spirv.Core;
 
-public partial struct WordBuffer : ISpirvBuffer
+public partial class WordBuffer : ISpirvBuffer
 {
-    Bound bound;
+    public Bound Bound { get; private set; }
     public MemoryOwner<int> Buffer { get; private set; }
     public int BufferLength { get; private set; }
     public Span<int> Span => Buffer.Span[..BufferLength];
     public Memory<int> Memory => Buffer.Memory[..BufferLength];
     public int Count => new SpirvReader(Buffer.Memory[..BufferLength]).Count;
-    public int VirtualOffset { get => bound.VirtualOffset; set => bound.VirtualOffset = value; }
+
 
     public RefInstruction this[int index]
     {
@@ -32,20 +32,20 @@ public partial struct WordBuffer : ISpirvBuffer
                 wid += Buffer.Span[wid] >> 16;
                 id++;
             }
-            return RefInstruction.ParseRef(Buffer.Span.Slice(wid, Buffer.Span[wid] >> 16), bound.Offset);
+            return RefInstruction.ParseRef(Buffer.Span.Slice(wid, Buffer.Span[wid] >> 16), Bound.Offset);
         }
     }
     public WordBuffer()
     {
         BufferLength = 0;
-        bound = new(0);
+        Bound = new();
         Buffer = MemoryOwner<int>.Allocate(32, AllocationMode.Clear);
     }
 
     public WordBuffer(int initialCapacity = 32, int offset = 0)
     {
         BufferLength = 0;
-        bound = new(offset);
+        Bound = new() { Offset = offset };
         Buffer = MemoryOwner<int>.Allocate(initialCapacity, AllocationMode.Clear);
     }
 
@@ -54,10 +54,22 @@ public partial struct WordBuffer : ISpirvBuffer
         Buffer = MemoryOwner<int>.Allocate(words.Length, AllocationMode.Clear);
         words.CopyTo(Buffer.Span);
         BufferLength = words.Length;
-        bound = new();
+        Bound = new();
     }
 
     public OrderedEnumerator GetEnumerator() => new(this);
+
+
+    public int GetNextId()
+    {
+        Bound = Bound with { Count = Bound.Count + 1 };
+        return Bound.Count + Bound.Offset;
+    }
+    public void SetBoundOffset(int offset)
+    {
+        Bound = Bound with { Offset = offset };
+    }
+
 
     public void Expand(int size)
     {
@@ -113,7 +125,7 @@ public partial struct WordBuffer : ISpirvBuffer
         var ints = MemoryMarshal.Cast<byte, int>(span);
         var instructionWords = ints[5..];
 
-        var header = new SpirvHeader(new SpirvVersion(1, 3), 0, bound.Count + 1);
+        var header = new SpirvHeader(new SpirvVersion(1, 3), 0, Bound.Count + 1);
         header.WriteTo(ints[0..5]);
         var id = 0;
         var enumerator = GetEnumerator();

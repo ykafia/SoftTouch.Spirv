@@ -5,62 +5,105 @@ namespace SoftTouch.Spirv;
 
 public partial class Mixer
 {
-    public IdRef GetOrCreateBaseType(string type)
+    public RefInstruction GetOrCreateBaseType(string type)
     {
         var matched = MatchesBaseType(type);
-        if (matched is null) return -1;
+        if (matched is null) return RefInstruction.Empty;
         else
         {
-            return matched switch
+            if (matched.Value.IsScalar)
             {
-                { BaseType: "sbyte", IsScalar: true } => FindScalarType(type) ?? buffer.AddOpTypeInt(8, 1),
-                { BaseType: "byte", IsScalar: true } => FindScalarType(type) ?? buffer.AddOpTypeInt(8, 0),
-                { BaseType: "short", IsScalar: true } => FindScalarType(type) ?? buffer.AddOpTypeInt(16, 1),
-                { BaseType: "ushort", IsScalar: true } => FindScalarType(type) ?? buffer.AddOpTypeInt(16, 0),
-                { BaseType: "int", IsScalar: true } => FindScalarType(type) ?? buffer.AddOpTypeInt(32, 1),
-                { BaseType: "uint", IsScalar: true } => FindScalarType(type) ?? buffer.AddOpTypeInt(32, 0),
-                { BaseType: "long", IsScalar: true } => FindScalarType(type) ?? buffer.AddOpTypeInt(64, 1),
-                { BaseType: "ulong", IsScalar: true } => FindScalarType(type) ?? buffer.AddOpTypeInt(64, 0),
-                { BaseType: "half", IsScalar: true } => FindScalarType(type) ?? buffer.AddOpTypeFloat(16),
-                { BaseType: "float", IsScalar: true } => FindScalarType(type) ?? buffer.AddOpTypeFloat(32),
-                { BaseType: "double", IsScalar: true } => FindScalarType(type) ?? buffer.AddOpTypeFloat(64),
-                { IsVector: true } =>  FindVectorType(matched.Value) ?? buffer.AddOpTypeVector(GetOrCreateBaseType(matched?.BaseType!), new(matched?.Row)),
-                { IsMatrix: true } =>  FindMatrixType(matched.Value) ?? buffer.AddOpTypeMatrix(GetOrCreateBaseType(matched?.BaseType! + matched?.Row), new(matched?.Col)),
-                _ => throw new NotImplementedException()
-            };
+                var found = FindScalarType(type);
+                if (!found.IsEmpty)
+                    return found;
+                else return matched switch
+                {
+                    { BaseType: "sbyte" } => buffer.AddOpTypeInt(8, 1).AsRef(),
+                    { BaseType: "byte" } => buffer.AddOpTypeInt(8, 0).AsRef(),
+                    { BaseType: "short" } => buffer.AddOpTypeInt(16, 1).AsRef(),
+                    { BaseType: "ushort" } => buffer.AddOpTypeInt(16, 0).AsRef(),
+                    { BaseType: "int" } => buffer.AddOpTypeInt(32, 1).AsRef(),
+                    { BaseType: "uint" } => buffer.AddOpTypeInt(32, 0).AsRef(),
+                    { BaseType: "long" } => buffer.AddOpTypeInt(64, 1).AsRef(),
+                    { BaseType: "ulong" } => buffer.AddOpTypeInt(64, 0).AsRef(),
+                    { BaseType: "half" } => buffer.AddOpTypeFloat(16).AsRef(),
+                    { BaseType: "float" } => buffer.AddOpTypeFloat(32).AsRef(),
+                    { BaseType: "double" } => buffer.AddOpTypeFloat(64).AsRef(),
+                    _ => throw new NotImplementedException()
+                };
+            }
+            else if (matched.Value.IsVector)
+            {
+                var found = FindVectorType(matched.Value);
+                if (!found.IsEmpty)
+                    return found;
+                else
+                {
+                    var b = GetOrCreateBaseType(matched?.BaseType!);
+                    return buffer.AddOpTypeVector(b.ResultId ?? -1, new(matched?.Row)).AsRef();
+                }
+            }
+            else if (matched.Value.IsMatrix)
+            {
+                var found = FindMatrixType(matched.Value);
+                if (!found.IsEmpty)
+                    return found;
+                else return buffer.AddOpTypeMatrix(GetOrCreateBaseType(matched?.BaseType! + matched?.Row).ResultId ?? -1, new(matched?.Row)).AsRef();
+            }
+            else
+                throw new NotImplementedException();
+            
         }
     }
 
-    internal IdRef? FindMatrixType(in TypeMatch type)
+    internal RefInstruction FindMatrixType(in TypeMatch type)
     {
         var baseType = FindVectorType(type with {Col = null});
-        if(baseType == null)
-            return null;
-        var enumerator = new FilteredEnumerator<WordBuffer>(buffer, SDSLOp.OpTypeMatrix);
+        if(baseType.IsEmpty)
+            return RefInstruction.Empty;
+
+        var enumerator = new MixinFilteredInstructionEnumerator(mixins, SDSLOp.OpTypeMatrix);
 
         while (enumerator.MoveNext())
         {
-            if(enumerator.Current.Words[2] == baseType.Value.Value && enumerator.Current.Words[3] == type.Col)
-                return enumerator.Current.ResultId;
+            if (enumerator.Current.Words[2] == baseType.Words[2] && enumerator.Current.Words[3] == type.Col)
+                return enumerator.Current;
         }
-        return null;
+
+        var self = new FilteredEnumerator<WordBuffer>(buffer, SDSLOp.OpTypeMatrix);
+
+        while (self.MoveNext())
+        {
+            if(self.Current.Words[2] == baseType.Words[2] && self.Current.Words[3] == type.Col)
+                return self.Current;
+        }
+        return RefInstruction.Empty;
     }
-    internal IdRef? FindVectorType(in TypeMatch type)
+    internal RefInstruction FindVectorType(in TypeMatch type)
     {
         var baseType = FindScalarType(type.BaseType);
-        if(baseType == null)
-            return null;
-        var enumerator = new FilteredEnumerator<WordBuffer>(buffer, SDSLOp.OpTypeVector);
+        if(baseType.IsEmpty)
+            return baseType;
+
+        var enumerator = new MixinFilteredInstructionEnumerator(mixins, SDSLOp.OpTypeVector);
 
         while (enumerator.MoveNext())
         {
-            if(enumerator.Current.Words[2] == baseType && enumerator.Current.Words[3] == type.Row)
-                return enumerator.Current.ResultId;
+            if (enumerator.Current.Words[2] == baseType.Words[2] && enumerator.Current.Words[3] == type.Row)
+                return enumerator.Current;
         }
-        return null;
+
+        var self = new FilteredEnumerator<WordBuffer>(buffer, SDSLOp.OpTypeVector);
+
+        while (self.MoveNext())
+        {
+            if (self.Current.Words[2] == baseType.Words[2] && self.Current.Words[3] == type.Row)
+                return self.Current;
+        }
+        return RefInstruction.Empty;
     }
 
-    internal IdRef? FindScalarType(string type)
+    internal RefInstruction FindScalarType(string type)
     {
         (SDSLOp Filter, int? Width, int? Sign) filterData = type switch
         {
@@ -80,7 +123,7 @@ public partial class Mixer
             "double" => (SDSLOp.OpTypeFloat, 64, null),
             _ => throw new Exception("Type not known")
         };
-        var enumerator = new FilteredEnumerator<WordBuffer>(buffer, filterData.Filter);
+        var enumerator = new MixinFilteredInstructionEnumerator(mixins, filterData.Filter);
 
         while (enumerator.MoveNext())
         {
@@ -89,9 +132,20 @@ public partial class Mixer
                 || (filterData.Width is not null && filterData.Sign is null && enumerator.Current.Words[2] == filterData.Width)
                 || (filterData.Width is not null && filterData.Sign is not null && enumerator.Current.Words[2] == filterData.Width && enumerator.Current.Words[3] == filterData.Sign)
             )
-                return enumerator.Current.ResultId;
+                return enumerator.Current;
         }
-        return null;
+        var self = new FilteredEnumerator<WordBuffer>(buffer, filterData.Filter);
+
+        while (self.MoveNext())
+        {
+            if (
+                (filterData.Width is null)
+                || (filterData.Width is not null && filterData.Sign is null && self.Current.Words[2] == filterData.Width)
+                || (filterData.Width is not null && filterData.Sign is not null && self.Current.Words[2] == filterData.Width && self.Current.Words[3] == filterData.Sign)
+            )
+                return self.Current;
+        }
+        return RefInstruction.Empty;
     }
 
     static string[] types = { "bool", "sbyte", "byte", "short", "ushort", "int", "uint", "long", "ulong", "half", "float", "double" };

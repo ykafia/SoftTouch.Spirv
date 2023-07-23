@@ -58,7 +58,7 @@ namespace SoftTouch.Spirv.Generators
             .AppendLine("using static Spv.Specification;")
             .AppendLine("namespace SoftTouch.Spirv.Core;")
             .AppendLine("")
-            .AppendLine("public partial struct WordBuffer")
+            .AppendLine("public sealed partial class WordBuffer")
             .AppendLine("{")
             .Indent();
 
@@ -88,7 +88,7 @@ namespace SoftTouch.Spirv.Generators
                     .AppendLine("public Instruction AddOpConstant<T>(IdResultType? resultType, T value) where T : ILiteralNumber")
                     .AppendLine("{")
                     .Indent()
-                        .AppendLine("var resultId = bound.Next();")
+                        .AppendLine("var resultId = GetNextId();")
                         .AppendLine("var wordLength = 1 + GetWordLength(resultType) + GetWordLength(resultId) + value.WordCount;")
                         .AppendLine("var mutInstruction = new MutRefInstruction(stackalloc int[wordLength]);")
                         .AppendLine("mutInstruction.OpCode = SDSLOp.OpConstant;")
@@ -106,7 +106,7 @@ namespace SoftTouch.Spirv.Generators
                     .AppendLine("public Instruction AddOpSpecConstant<T>(IdResultType? resultType, T value) where T : ILiteralNumber")
                     .AppendLine("{")
                     .Indent()
-                        .AppendLine("var resultId = bound.Next();")
+                        .AppendLine("var resultId = GetNextId();")
                         .AppendLine("var wordLength = 1 + GetWordLength(resultType) + GetWordLength(resultId) + value.WordCount;")
                         .AppendLine("var mutInstruction = new MutRefInstruction(stackalloc int[wordLength]);")
                         .AppendLine("mutInstruction.OpCode = SDSLOp.OpSpecConstant;")
@@ -180,7 +180,7 @@ namespace SoftTouch.Spirv.Generators
                     .Indent();
                 if(hasResultId)
                 {
-                    code.AppendLine("var resultId = bound.Next();");
+                    code.AppendLine("var resultId = GetNextId();");
                 }
                 code.Append("var wordLength = 1").Append(parameterNames.Any() ? " + " : "").Append(string.Join(" + ", parameterNames.Select(x => $"GetWordLength({x})"))).AppendLine(";");
                 code.AppendLine("var mutInstruction = new MutRefInstruction(stackalloc int[wordLength]);");
@@ -248,7 +248,7 @@ namespace SoftTouch.Spirv.Generators
                     .AppendLine(")")
                     .AppendLine("{")
                     .Indent()
-                        .AppendLine("var resultId = bound.Next();")
+                        .AppendLine("var resultId = GetNextId();")
                         .Append("Span<IdRef> refs = stackalloc IdRef[]{").Append(string.Join(", ", other)).AppendLine("};")
                         .Append("return AddOpExtInst(")
                             .Append("set, ")

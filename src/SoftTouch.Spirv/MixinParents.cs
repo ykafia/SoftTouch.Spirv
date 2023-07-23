@@ -6,12 +6,12 @@ using SoftTouch.Spirv.Core.Parsing;
 namespace SoftTouch.Spirv;
 
 
-public struct ParentList
+public class ParentList
 {
     MemoryOwner<string> _owner;
     public int Length { get; private set; }
 
-    public readonly string this[int index] => _owner.Span[index];
+    public string this[int index] => _owner.Span[index];
 
     public ParentList()
     {
@@ -39,7 +39,7 @@ public struct ParentList
         _owner = r;
     }
 
-    public readonly Enumerator GetEnumerator() => new(this);
+    public Enumerator GetEnumerator() => new(this);
 
     public ref struct Enumerator
     {
@@ -50,6 +50,7 @@ public struct ParentList
         public Enumerator(ParentList parentList)
         {
             this.parentList = parentList;
+            index = -1;
         }
 
         public bool MoveNext()
@@ -58,7 +59,7 @@ public struct ParentList
         }
     }
 
-    public readonly void Dispose() => _owner.Dispose();
+    public void Dispose() => _owner.Dispose();
 }
 
 

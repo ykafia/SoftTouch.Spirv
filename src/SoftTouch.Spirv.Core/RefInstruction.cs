@@ -18,8 +18,8 @@ public ref struct RefInstruction
     /// </summary>
     public int WordCount => Words[0] >> 16;
     public SDSLOp OpCode => (SDSLOp)(Words[0] & 0xFFFF);
-    public int? ResultId { get; set; }
-    public int? ResultType { get; set; }
+    public int? ResultId { get; set; };
+    public int? ResultType { get; set; };
     public Span<int> Operands { get; init; }
     public Memory<int>? Slice { get; init; }
     public int OwnerIndex { get; set; }

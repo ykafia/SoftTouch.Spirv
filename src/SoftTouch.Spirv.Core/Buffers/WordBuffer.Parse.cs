@@ -11,7 +11,7 @@ using static Spv.Specification;
 
 namespace SoftTouch.Spirv.Core;
 
-public partial struct WordBuffer
+public partial class WordBuffer
 {
     public static WordBuffer Parse(byte[] bytes)
     {

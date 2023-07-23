@@ -10,7 +10,12 @@ public partial class Mixer
     public string Name { get; init; }
     WordBuffer buffer;
 
-    public Mixer(string name)
+    public static Inheritance Create(string name)
+    {
+        return new(new(name));
+    }
+
+    private Mixer(string name)
     {
         Name = name;
         buffer = new();
