@@ -71,6 +71,7 @@ public partial class WordBuffer : ISpirvBuffer
     }
 
 
+
     public void Expand(int size)
     {
         if (Buffer.Length < BufferLength + size)

@@ -8,6 +8,12 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <Compile Remove="Reflect\**" />
+	  <EmbeddedResource Remove="Reflect\**" />
+	  <None Remove="Reflect\**" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<Compile Include="../../submodules/SPIRV-Headers/include/spirv/unified1/spirv.cs" />
 		<!--<None Include="../../submodules/SPIRV-Headers/include/spirv/unified1/spirv.core.grammar.json" />-->
 	</ItemGroup>
@@ -18,10 +24,6 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\SoftTouch.Spirv.Generators\SoftTouch.Spirv.Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <Folder Include="Reflect\" />
 	</ItemGroup>
 
 </Project>

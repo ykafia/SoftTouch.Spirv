@@ -18,8 +18,8 @@ public ref struct RefInstruction
     /// </summary>
     public int WordCount => Words[0] >> 16;
     public SDSLOp OpCode => (SDSLOp)(Words[0] & 0xFFFF);
-    public int? ResultId { get; set; };
-    public int? ResultType { get; set; };
+    public int? ResultId { get; init; }
+    public int? ResultType { get; init; }
     public Span<int> Operands { get; init; }
     public Memory<int>? Slice { get; init; }
     public int OwnerIndex { get; set; }
@@ -142,6 +142,23 @@ public ref struct RefInstruction
         var refi = new RefInstruction() { Words = destination};
         foreach(var o in refi)
             o.OffsetIdRef(IdRefOffset);
+    }
+
+
+    int? GetResultId()
+    {
+        var info = InstructionInfo.GetInfo(OpCode);
+        var index = -1;
+        index += info.HasResult ? 1 : 0;
+        if(index == -1)
+            return null;
+        index += info.HasResultType ? 1 : 0;
+        return Words[index + 1];
+    }
+    int? GetResultType()
+    {
+        var info = InstructionInfo.GetInfo(OpCode);
+        return info.HasResultType ? Words[1] : null;
     }
 
     public override string ToString()
