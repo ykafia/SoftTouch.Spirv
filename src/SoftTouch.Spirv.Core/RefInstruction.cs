@@ -23,7 +23,7 @@ public ref struct RefInstruction
     public Span<int> Operands { get; init; }
     public Memory<int>? Slice { get; init; }
     public int OwnerIndex { get; set; }
-    public int IdRefOffset { get; set; }
+    public int ResultIdReplacement { get; set; }
     public Span<int> Words { get; init; }
 
 
@@ -79,7 +79,7 @@ public ref struct RefInstruction
             ResultType = resultType,
             Operands = words[index..],
             Words = words,
-            IdRefOffset = offset
+            ResultIdReplacement = offset
         };
     }
 
@@ -141,7 +141,7 @@ public ref struct RefInstruction
         Words.CopyTo(destination);
         var refi = new RefInstruction() { Words = destination};
         foreach(var o in refi)
-            o.OffsetIdRef(IdRefOffset);
+            o.ReplaceIdResult(ResultIdReplacement);
     }
 
 

@@ -21,7 +21,7 @@ public ref struct SortedMixinInstructionEnumerator
         lastMixin = -1;
         boundOffset = -1;
     }
-    public RefInstruction Current => Mixins[lastMixin].Instructions[lastIndex] with { IdRefOffset = boundOffset };
+    public RefInstruction Current => Mixins[lastMixin].Instructions[lastIndex] with { ResultIdReplacement = boundOffset };
     public bool MoveNext()
     {
         if (Mixins.Count == 0)

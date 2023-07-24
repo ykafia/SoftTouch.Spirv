@@ -16,10 +16,10 @@ public ref struct SpvOperand
         Offset = idRefOffset;
     }
 
-    public void OffsetIdRef(int offset)
+    public void ReplaceIdResult(int replacement)
     {
-        if(Kind == OperandKind.IdResult)
-            Words[0] += offset;
+        if(Kind == OperandKind.IdResult && replacement > 0)
+            Words[0] = replacement;
     }
     public T ToEnum<T>() where T : Enum
     {

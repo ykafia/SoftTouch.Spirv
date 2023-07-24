@@ -16,7 +16,7 @@ public ref struct InstructionEnumerator
     readonly Span<int> instructionWords;
     Memory<int>? memorySlice;
 
-    public int BoundOffset { get; set; }
+    public int ResultIdReplacement { get; set; }
 
     public InstructionEnumerator(Span<int> words, Memory<int>? slice = null)
     {
@@ -24,7 +24,7 @@ public ref struct InstructionEnumerator
         wordIndex = 0;
         instructionWords = words;
         memorySlice = slice;
-        BoundOffset = 0;
+        ResultIdReplacement = 0;
     }
 
     public RefInstruction Current => ParseCurrentInstruction();
@@ -53,9 +53,9 @@ public ref struct InstructionEnumerator
         var wordNumber = instructionWords[wordIndex] >> 16;
         if (memorySlice is not null)
         {
-            return RefInstruction.Parse(memorySlice.Value, wordIndex) with { IdRefOffset = BoundOffset };
+            return RefInstruction.Parse(memorySlice.Value, wordIndex) with { ResultIdReplacement = ResultIdReplacement };
         }
         else
-            return RefInstruction.ParseRef(instructionWords.Slice(wordIndex, wordNumber)) with { IdRefOffset = BoundOffset };
+            return RefInstruction.ParseRef(instructionWords.Slice(wordIndex, wordNumber)) with { ResultIdReplacement = ResultIdReplacement };
     }
 }

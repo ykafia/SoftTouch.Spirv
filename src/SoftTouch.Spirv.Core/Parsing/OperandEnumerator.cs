@@ -14,7 +14,7 @@ public ref struct OperandEnumerator
         logicalOperands = InstructionInfo.GetInfo(instruction.OpCode);
         oid = -1;
         wid = 1;
-        refOffset = instruction.IdRefOffset;
+        refOffset = instruction.ResultIdReplacement;
     }
 
     public SpvOperand Current => ParseCurrent();
@@ -150,8 +150,8 @@ public ref struct OperandEnumerator
 
             return result;
         }
-        else if(logOp.Kind == OperandKind.None) return new(logOp.Kind.Value, Span<int>.Empty, instruction.IdRefOffset);
-        else return new(logOp.Kind.Value, instruction.Words[wid..(wid + 1)], instruction.IdRefOffset);
+        else if(logOp.Kind == OperandKind.None) return new(logOp.Kind.Value, Span<int>.Empty, instruction.ResultIdReplacement);
+        else return new(logOp.Kind.Value, instruction.Words[wid..(wid + 1)], instruction.ResultIdReplacement);
     }
 
 }

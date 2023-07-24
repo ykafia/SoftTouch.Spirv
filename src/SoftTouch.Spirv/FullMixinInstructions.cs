@@ -22,6 +22,7 @@ public struct FullMixinInstructions
         MixinInstructionEnumerator enumerator;
         InstructionEnumerator self;
 
+
         public RefInstruction Current => graphFinished ? self.Current : enumerator.Current;
 
         public Enumerator(Mixin mixin)
@@ -38,8 +39,11 @@ public struct FullMixinInstructions
                 return true;
             else
             {
-                self.BoundOffset = enumerator.BoundOffset;
-                graphFinished = true;
+                if (!graphFinished)
+                {
+                    self.ResultIdReplacement = -1;
+                    graphFinished = true;
+                }
                 return self.MoveNext();
             }
         }

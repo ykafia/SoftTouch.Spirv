@@ -14,6 +14,7 @@ public partial struct Mixin
 
     public string Name { get; init; }
     public int Bound { get; init; }
+    public int ResultIdCount { get; init; }
 
     internal SortedWordBuffer Buffer { get; }
     public MixinInstructions Instructions => new(this);
@@ -27,9 +28,18 @@ public partial struct Mixin
     {
         Name = name;
         Buffer = wordBuffer;
+        ResultIdCount = 0;
+        Bound = 0;
         foreach (var i in Instructions)
-            if(i.ResultId != null && i.ResultId > Bound)
-                Bound = i.ResultId.Value;
+        {
+            if (i.ResultId != null)
+            {
+                ResultIdCount += 1;
+                if(i.ResultId > Bound)
+                    Bound = i.ResultId.Value;
+            }
+        }
+        Console.WriteLine($"Created {Name} with Bound of {Bound} and nb of id {ResultIdCount}");
     }
 
     public string Disassemble()

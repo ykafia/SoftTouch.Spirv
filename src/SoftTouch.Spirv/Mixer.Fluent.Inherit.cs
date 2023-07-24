@@ -25,7 +25,7 @@ public partial class Mixer
             {
                 // We add the offset
 
-                offset += m.Bound;
+                offset += m.ResultIdCount;
 
                 // And remove part of the offset since Ids have already been offsetted when they were created with inherited mixins
                 //var maxParents = 0;
