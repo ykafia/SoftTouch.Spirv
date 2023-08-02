@@ -5,20 +5,20 @@ namespace SoftTouch.Spirv;
 
 public partial class Mixer
 {
-    public ref struct Inheritance
+    public ref struct Function
     {
         Mixer mixer;
-        public Inheritance(Mixer mixer)
+        public Function(Mixer mixer)
         {
             this.mixer = mixer;
         }
 
-        public Inheritance Inherit(string name)
+        public Function Inherit(string name)
         {
             mixer.Inherit(name);
             return this;
         }
-        public Mixer FinishInherit()
+        public Mixer FinishFunction()
         {
             return mixer;
         }

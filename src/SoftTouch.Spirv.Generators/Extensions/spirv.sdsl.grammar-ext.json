@@ -35,16 +35,19 @@
       ]
     },
     {
-      "opname": "OpSDSLIdOffset",
+      "opname": "OpSDSLImportIdRef",
       "class": "Miscellaneous",
       "operands": [
         {
-          "kind": "IdRef",
-          "name": "id"
+          "kind": "IdResult"
+        },
+        {
+          "kind": "LiteralString",
+          "name": "mixinName"
         },
         {
           "kind": "LiteralInteger",
-          "name": "offset"
+          "name": "id"
         }
       ]
     },

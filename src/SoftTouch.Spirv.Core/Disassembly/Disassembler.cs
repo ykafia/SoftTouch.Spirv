@@ -56,7 +56,7 @@ public class Disassembler
             dis.AppendLiteral(Enum.GetName(e.OpCode) ?? "Op.OpNop");
             foreach (var o in e)
             {
-                Append(o, dis);
+                Append(o, dis); 
             }
             dis.AppendLine();
         }
@@ -157,7 +157,7 @@ public class Disassembler
         else if (o.Kind == OperandKind.RayQueryCandidateIntersectionType)
             dis.Append(o.ToEnum<RayQueryCandidateIntersectionType>());
         else if (o.Kind == OperandKind.IdResultType)
-            dis.AppendInt(o.To<IdResultType>());
+            dis.Append(o.To<IdResultType>());
         else if (o.Kind == OperandKind.IdMemorySemantics)
             dis.AppendInt(o.To<IdMemorySemantics>());
         else if (o.Kind == OperandKind.IdScope)
@@ -174,6 +174,8 @@ public class Disassembler
             dis.Append(o.To<PairIdRefLiteralInteger>());
         else if (o.Kind == OperandKind.PairIdRefIdRef)
             dis.Append(o.To<PairIdRefIdRef>());
+        else if (o.Kind == OperandKind.LiteralContextDependentNumber)
+            dis.AppendLiteral(o.To<LiteralInteger>());
     }
 }
 

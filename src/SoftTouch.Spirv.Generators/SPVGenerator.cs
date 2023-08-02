@@ -48,7 +48,6 @@ namespace SoftTouch.Spirv.Generators
 
         public void Execute(GeneratorExecutionContext context)
         {
-
             CreateInfo(context);
             CreateSDSLOp(context);
 

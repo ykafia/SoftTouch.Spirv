@@ -1,9 +1,9 @@
 namespace SoftTouch.Spirv;
 
 
-public record struct MixinGraphInstructions(MixinGraph Graph)
+public record struct MixinGraphInstructions(MixinGraph Graph, bool Offseted = false)
 {
-    public MixinInstructionEnumerator GetEnumerator() => new(Graph);
+    public MixinInstructionEnumerator GetEnumerator() => new(Graph, Offseted);
 }
 
 
@@ -12,6 +12,7 @@ public class MixinGraph
     public ParentList Names { get; private set; }
     internal MixinList DistinctNames { get; private set; }
 
+    public MixinGraphInstructions OffsettedInstructions => new(this,true);
     public MixinGraphInstructions Instructions => new(this);
 
     public int Count => GetCount();

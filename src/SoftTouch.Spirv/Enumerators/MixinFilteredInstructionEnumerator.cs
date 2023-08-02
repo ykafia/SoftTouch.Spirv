@@ -47,7 +47,7 @@ public ref struct MixinFilteredInstructionEnumerator
         filter3 = f3;
         filter4 = f4;
     }
-    public RefInstruction Current => enumerator.Current;
+    public MixinRefInstruction Current => enumerator.Current;
     public bool MoveNext()
     {
         while(enumerator.MoveNext())

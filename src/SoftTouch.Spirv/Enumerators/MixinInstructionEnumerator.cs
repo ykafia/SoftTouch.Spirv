@@ -14,13 +14,17 @@ public ref struct MixinInstructionEnumerator
     int lastMixin;
     public int MixinResultId { get; set; }
 
-    public MixinInstructionEnumerator(MixinGraph mixins)
+    bool offsetted;
+
+    public MixinInstructionEnumerator(MixinGraph mixins, bool offsetted)
     {
         Mixins = mixins;
         lastMixin = -1;
         MixinResultId = -1;
+        this.offsetted = offsetted;
     }
-    public RefInstruction Current => lastEnumerator.Current with { ResultIdReplacement = MixinResultId };
+    public MixinRefInstruction Current => new(Mixins[lastMixin].Name , offsetted ? lastEnumerator.Current with { ResultIdReplacement = MixinResultId } : lastEnumerator.Current);
+    
     public bool MoveNext()
     {
         var count = Mixins.Count;

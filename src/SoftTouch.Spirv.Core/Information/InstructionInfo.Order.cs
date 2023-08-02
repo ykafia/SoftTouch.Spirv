@@ -20,6 +20,7 @@ public partial class InstructionInfo
         OrderGroup[(SDSLOp.OpCapability, null)] = 0;
         OrderGroup[(SDSLOp.OpSDSLMixinOffset, null)] = 0;
         OrderGroup[(SDSLOp.OpSDSLMixinInherit, null)] = 0;
+        OrderGroup[(SDSLOp.OpSDSLImportIdRef, null)] = 1;
         OrderGroup[(SDSLOp.OpExtension, null)] = 1;
         OrderGroup[(SDSLOp.OpExtInstImport, null)] = 2;
         OrderGroup[(SDSLOp.OpMemoryModel, null)] = 3;

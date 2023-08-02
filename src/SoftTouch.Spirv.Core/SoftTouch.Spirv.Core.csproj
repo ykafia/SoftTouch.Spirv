@@ -8,12 +8,6 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <Compile Remove="Reflect\**" />
-	  <EmbeddedResource Remove="Reflect\**" />
-	  <None Remove="Reflect\**" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<Compile Include="../../submodules/SPIRV-Headers/include/spirv/unified1/spirv.cs" />
 		<!--<None Include="../../submodules/SPIRV-Headers/include/spirv/unified1/spirv.core.grammar.json" />-->
 	</ItemGroup>

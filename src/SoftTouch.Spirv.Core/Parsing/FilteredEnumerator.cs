@@ -92,6 +92,14 @@ public ref struct FilteredEnumerator<T>
         if (!started)
         {
             started = true;
+            var sizeToStep = 0;
+            while (wordIndex + sizeToStep < instructionWords.Length && !Matches((SDSLOp)(instructionWords[wordIndex + sizeToStep] & 0xFFFF)))
+            {
+                sizeToStep += instructionWords[wordIndex + sizeToStep] >> 16;
+            }
+            wordIndex += sizeToStep;
+            if (wordIndex >= instructionWords.Length)
+                return false;
             return true;
         }
         else

@@ -33,12 +33,17 @@ public class DisWriter
         else
             builder.Append(' ', idOffset);
     }
+   
     public void Append<T>(T value) where T : Enum
     {
         var name = Enum.GetName(typeof(T), value);
         builder.Append(' ').Append(name);
     }
     public void Append(IdRef id)
+    {
+        builder.Append(' ').Append('%').Append(id.Value);
+    }
+    public void Append(IdResultType id)
     {
         builder.Append(' ').Append('%').Append(id.Value);
     }

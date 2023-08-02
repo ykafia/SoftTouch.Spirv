@@ -16,6 +16,7 @@ public struct FullMixinInstructions
     
     public ref struct Enumerator
     {
+        Mixin mixin;
         MixinGraph graph;
         bool graphFinished;
 
@@ -23,10 +24,11 @@ public struct FullMixinInstructions
         InstructionEnumerator self;
 
 
-        public RefInstruction Current => graphFinished ? self.Current : enumerator.Current;
+        public MixinRefInstruction Current => graphFinished ? new(mixin.Name, self.Current) : enumerator.Current;
 
         public Enumerator(Mixin mixin)
         {
+            this.mixin = mixin;
             graphFinished = false;
             graph = MixinSourceProvider.GetMixinGraph(mixin.Name);
             enumerator = graph.Instructions.GetEnumerator();

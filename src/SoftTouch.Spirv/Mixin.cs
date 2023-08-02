@@ -39,7 +39,6 @@ public partial struct Mixin
                     Bound = i.ResultId.Value;
             }
         }
-        Console.WriteLine($"Created {Name} with Bound of {Bound} and nb of id {ResultIdCount}");
     }
 
     public string Disassemble()
@@ -47,7 +46,7 @@ public partial struct Mixin
         var words = new WordBuffer();
         foreach(var e in FullInstructions)
         {
-            words.Insert(e);
+            words.Insert(e.Instruction);
         }
         return new Core.Disassembler().Disassemble(new UnsortedWordBuffer(words));
     }

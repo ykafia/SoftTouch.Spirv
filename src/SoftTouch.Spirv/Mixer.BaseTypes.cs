@@ -5,7 +5,7 @@ namespace SoftTouch.Spirv;
 
 public partial class Mixer
 {
-    public RefInstruction GetOrCreateBaseType(string type)
+    public MixinRefInstruction GetOrCreateBaseType(string type)
     {
         var matched = MatchesBaseType(type);
         if (matched is null) return RefInstruction.Empty;
@@ -18,6 +18,7 @@ public partial class Mixer
                     return found;
                 else return matched switch
                 {
+                    { BaseType: "void" } => buffer.AddOpTypeVoid().AsRef(),
                     { BaseType: "sbyte" } => buffer.AddOpTypeInt(8, 1).AsRef(),
                     { BaseType: "byte" } => buffer.AddOpTypeInt(8, 0).AsRef(),
                     { BaseType: "short" } => buffer.AddOpTypeInt(16, 1).AsRef(),
@@ -40,7 +41,13 @@ public partial class Mixer
                 else
                 {
                     var b = GetOrCreateBaseType(matched?.BaseType!);
-                    return buffer.AddOpTypeVector(b.ResultId ?? -1, new(matched?.Row)).AsRef();
+                    if(b.MixinName == "")
+                        return buffer.AddOpTypeVector(b.ResultId ?? -1, new(matched?.Row)).AsRef();
+                    else
+                    {
+                        var imported = buffer.AddOpSDSLImportIdRef(b.MixinName, b.ResultId ?? -1);
+                        return buffer.AddOpTypeVector(imported.ResultId ?? -1, new(matched?.Row)).AsRef();
+                    }
                 }
             }
             else if (matched.Value.IsMatrix)
@@ -48,7 +55,17 @@ public partial class Mixer
                 var found = FindMatrixType(matched.Value);
                 if (!found.IsEmpty)
                     return found;
-                else return buffer.AddOpTypeMatrix(GetOrCreateBaseType(matched?.BaseType! + matched?.Row).ResultId ?? -1, new(matched?.Row)).AsRef();
+                else 
+                {
+                    var b = GetOrCreateBaseType(matched?.BaseType! + matched?.Row);
+                    if (b.MixinName == "")
+                        return buffer.AddOpTypeMatrix(b.ResultId ?? -1, new(matched?.Row)).AsRef();
+                    else
+                    {
+                        var imported = buffer.AddOpSDSLImportIdRef(b.MixinName, b.ResultId ?? -1);
+                        return buffer.AddOpTypeMatrix(imported.ResultId ?? -1, new(matched?.Row)).AsRef();
+                    }
+                }
             }
             else
                 throw new NotImplementedException();
@@ -56,19 +73,19 @@ public partial class Mixer
         }
     }
 
-    internal RefInstruction FindMatrixType(in TypeMatch type)
+    internal MixinRefInstruction FindMatrixType(in TypeMatch type)
     {
         var baseType = FindVectorType(type with {Col = null});
         if(baseType.IsEmpty)
             return RefInstruction.Empty;
 
-        var enumerator = new MixinFilteredInstructionEnumerator(mixins, SDSLOp.OpTypeMatrix);
+        // var enumerator = new MixinFilteredInstructionEnumerator(mixins, SDSLOp.OpTypeMatrix);
 
-        while (enumerator.MoveNext())
-        {
-            if (enumerator.Current.Words[2] == baseType.Words[2] && enumerator.Current.Words[3] == type.Col)
-                return enumerator.Current;
-        }
+        // while (enumerator.MoveNext())
+        // {
+        //     if (enumerator.Current.Words[2] == baseType.Words[2] && enumerator.Current.Words[3] == type.Col)
+        //         return enumerator.Current;
+        // }
 
         var self = new FilteredEnumerator<WordBuffer>(buffer, SDSLOp.OpTypeMatrix);
 
@@ -79,19 +96,19 @@ public partial class Mixer
         }
         return RefInstruction.Empty;
     }
-    internal RefInstruction FindVectorType(in TypeMatch type)
+    internal MixinRefInstruction FindVectorType(in TypeMatch type)
     {
         var baseType = FindScalarType(type.BaseType);
         if(baseType.IsEmpty)
             return baseType;
 
-        var enumerator = new MixinFilteredInstructionEnumerator(mixins, SDSLOp.OpTypeVector);
+        // var enumerator = new MixinFilteredInstructionEnumerator(mixins, SDSLOp.OpTypeVector);
 
-        while (enumerator.MoveNext())
-        {
-            if (enumerator.Current.Words[2] == baseType.Words[2] && enumerator.Current.Words[3] == type.Row)
-                return enumerator.Current;
-        }
+        // while (enumerator.MoveNext())
+        // {
+        //     if (enumerator.Current.Words[2] == baseType.Words[2] && enumerator.Current.Words[3] == type.Row)
+        //         return enumerator.Current;
+        // }
 
         var self = new FilteredEnumerator<WordBuffer>(buffer, SDSLOp.OpTypeVector);
 
@@ -103,11 +120,10 @@ public partial class Mixer
         return RefInstruction.Empty;
     }
 
-    internal RefInstruction FindScalarType(string type)
+    internal MixinRefInstruction FindScalarType(string type)
     {
         (SDSLOp Filter, int? Width, int? Sign) filterData = type switch
         {
-            "function" => (SDSLOp.OpTypeFunction, null, null),
             "void" => (SDSLOp.OpTypeVoid, null, null),
             "bool" => (SDSLOp.OpTypeBool, null, null),
             "byte" => (SDSLOp.OpTypeInt, 8, 0),
@@ -125,15 +141,15 @@ public partial class Mixer
         };
         var enumerator = new MixinFilteredInstructionEnumerator(mixins, filterData.Filter);
 
-        while (enumerator.MoveNext())
-        {
-            if (
-                (filterData.Width is null)
-                || (filterData.Width is not null && filterData.Sign is null && enumerator.Current.Words[2] == filterData.Width)
-                || (filterData.Width is not null && filterData.Sign is not null && enumerator.Current.Words[2] == filterData.Width && enumerator.Current.Words[3] == filterData.Sign)
-            )
-                return enumerator.Current;
-        }
+        // while (enumerator.MoveNext())
+        // {
+        //     if (
+        //         (filterData.Width is null)
+        //         || (filterData.Width is not null && filterData.Sign is null && enumerator.Current.Words[2] == filterData.Width)
+        //         || (filterData.Width is not null && filterData.Sign is not null && enumerator.Current.Words[2] == filterData.Width && enumerator.Current.Words[3] == filterData.Sign)
+        //     )
+        //         return enumerator.Current;
+        // }
         var self = new FilteredEnumerator<WordBuffer>(buffer, filterData.Filter);
 
         while (self.MoveNext())
@@ -182,6 +198,7 @@ public partial class Mixer
 }
 internal record struct TypeMatch(string BaseType, int? Row, int? Col)
 {
+    public bool IsVoid => BaseType == "void";
     public bool IsMatrix => Row != null && Col != null;
     public bool IsVector => Row != null && Col == null;
     public bool IsScalar => Row == null && Col == null;
