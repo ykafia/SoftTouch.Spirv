@@ -15,12 +15,9 @@ public partial class WordBuffer
 {
     public static WordBuffer Parse(byte[] bytes)
     {
-        WordBuffer buffer = new()
-        {
-            Buffer = new(bytes.Length / 4)
-        };
+        WordBuffer buffer = new(bytes.Length / 4);
         var ints = MemoryMarshal.Cast<byte, int>(bytes)[5..];
-        ints.CopyTo(buffer.Buffer.Span);
+        ints.CopyTo(buffer.Span);
         return buffer;
     }
     

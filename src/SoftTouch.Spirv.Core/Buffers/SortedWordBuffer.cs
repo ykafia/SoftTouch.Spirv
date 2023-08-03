@@ -36,7 +36,7 @@ public sealed class SortedWordBuffer : BufferBase<int>, ISpirvBuffer
 
     public SortedWordBuffer(WordBuffer buffer)
     {
-        _owner = MemoryOwner<int>.Allocate(buffer.BufferLength, AllocationMode.Clear);
+        _owner = MemoryOwner<int>.Allocate(buffer.Length, AllocationMode.Clear);
         var tmpLength = 0;
         foreach (var item in buffer)
         {

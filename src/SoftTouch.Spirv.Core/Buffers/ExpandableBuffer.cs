@@ -7,7 +7,6 @@ namespace SoftTouch.Spirv.Core;
 public class ExpandableBuffer<T> : BufferBase<T>
     where T : struct
 {
-    public Span<T>.Enumerator GetEnumerator() => Span.GetEnumerator();
 
     public ExpandableBuffer()
     {

@@ -25,10 +25,10 @@ public sealed partial class WordBuffer : ExpandableBuffer<int>, ISpirvBuffer
             int wid = 0;
             while (id < index)
             {
-                wid += Buffer.Span[wid] >> 16;
+                wid += Span[wid] >> 16;
                 id++;
             }
-            return RefInstruction.ParseRef(Buffer.Span.Slice(wid, Buffer.Span[wid] >> 16), Bound.Offset);
+            return RefInstruction.ParseRef(Span.Slice(wid, Span[wid] >> 16), Bound.Offset);
         }
     }
     public WordBuffer()
@@ -66,29 +66,23 @@ public sealed partial class WordBuffer : ExpandableBuffer<int>, ISpirvBuffer
 
 
 
-    public void Expand(int size) => Buffer.Expand(size);
-
 
     public void Insert(RefInstruction instruction)
     {
-        Insert(Buffer.Count, instruction.Words);
+        Insert(Length, instruction.Words);
     }
 
-    internal void Insert(int start, Span<int> words)
-    {
-        Buffer.Insert(start,words);
-    }
 
     internal Instruction Add(MutRefInstruction instruction)
     {
-        Buffer.Add(instruction.Words);
+        Add(instruction.Words);
         return new(this, Length - 1);
     }
 
 
     public byte[] GenerateSpirv()
     {
-        var output = new byte[BufferLength * 4 + 5 * 4];
+        var output = new byte[Length * 4 + 5 * 4];
         var span = output.AsSpan();
         var ints = MemoryMarshal.Cast<byte, int>(span);
         var instructionWords = ints[5..];
@@ -126,7 +120,6 @@ public sealed partial class WordBuffer : ExpandableBuffer<int>, ISpirvBuffer
         };
     }
 
-    public void Dispose() => Buffer.Dispose();
     internal static int GetWordLength(Span<int> values) => values.Length;
     internal static int GetWordLength(Span<LiteralInteger> values) => values.Length * values[0].WordCount;
     internal static int GetWordLength(Span<LiteralFloat> values) => values.Length * values[0].WordCount;
