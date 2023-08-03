@@ -8,15 +8,11 @@ using System.Threading.Tasks;
 
 namespace SoftTouch.Spirv.Core;
 
-public readonly struct SortedWordBuffer : ISpirvBuffer
+public sealed class SortedWordBuffer : BufferBase<int>, ISpirvBuffer
 {
     public static SortedWordBuffer Empty { get; } = new();
-
-    readonly ExpandableBuffer<int> words;
-    public Span<int> Span => words.Span;
-    public Memory<int> Memory => words.Memory;
-    public int Count => new SpirvReader(words.Memory).Count;
-    public bool IsEmpty => words.Span.IsEmpty;
+    public int InstructionCount => new SpirvReader(Memory).Count;
+    public bool IsEmpty => Span.IsEmpty;
 
 
     public RefInstruction this[int index]
@@ -31,20 +27,20 @@ public readonly struct SortedWordBuffer : ISpirvBuffer
         }
     }
 
-    public InstructionEnumerator GetEnumerator() => new(words.Span, words.Memory);
+    public InstructionEnumerator GetEnumerator() => new(Span, Memory);
 
     public SortedWordBuffer()
     {
-        words = new();
+        _owner = MemoryOwner<int>.Empty;
     }
 
     public SortedWordBuffer(WordBuffer buffer)
     {
-        words = new(buffer.BufferLength);
+        _owner = MemoryOwner<int>.Allocate(buffer.BufferLength, AllocationMode.Clear);
         var tmpLength = 0;
         foreach (var item in buffer)
         {
-            item.Words.CopyTo(words.Span[tmpLength..(tmpLength + item.CountOfWords)]);
+            item.Words.CopyTo(Span[tmpLength..(tmpLength + item.CountOfWords)]);
             tmpLength += item.CountOfWords;
         }
         buffer.Dispose();

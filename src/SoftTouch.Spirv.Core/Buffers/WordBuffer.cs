@@ -11,14 +11,10 @@ using static Spv.Specification;
 
 namespace SoftTouch.Spirv.Core;
 
-public partial class WordBuffer : ISpirvBuffer
+public sealed partial class WordBuffer : ExpandableBuffer<int>, ISpirvBuffer
 {
     public Bound Bound { get; private set; }
-    public ExpandableBuffer<int> Buffer { get; private set; }
-    public int BufferLength => Buffer.Count;
-    public Span<int> Span => Buffer.Span[..BufferLength];
-    public Memory<int> Memory => Buffer.Memory[..BufferLength];
-    public int Count => new SpirvReader(Buffer.Memory[..BufferLength]).Count;
+    public int InstructionCount => new SpirvReader(Memory[..Length]).Count;
 
 
     public RefInstruction this[int index]
@@ -38,19 +34,20 @@ public partial class WordBuffer : ISpirvBuffer
     public WordBuffer()
     {
         Bound = new();
-        Buffer = new();
+        _owner = MemoryOwner<int>.Allocate(32, AllocationMode.Clear);
     }
 
     public WordBuffer(int initialCapacity = 32, int offset = 0)
     {
         Bound = new() { Offset = offset };
-        Buffer = new(initialCapacity);
+        _owner = MemoryOwner<int>.Allocate(initialCapacity, AllocationMode.Clear);
     }
 
     internal WordBuffer(Span<int> words)
     {
-        Buffer = new(words.Length);
-        Buffer.Add(words);
+        _owner = MemoryOwner<int>.Allocate(words.Length, AllocationMode.Clear);
+        Length = words.Length;
+        words.CopyTo(Span);
         Bound = new();
     }
 
@@ -85,7 +82,7 @@ public partial class WordBuffer : ISpirvBuffer
     internal Instruction Add(MutRefInstruction instruction)
     {
         Buffer.Add(instruction.Words);
-        return new(this, Count - 1);
+        return new(this, Length - 1);
     }
 
 

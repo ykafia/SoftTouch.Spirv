@@ -35,7 +35,7 @@ public ref struct OrderedEnumerator
         if (!started)
         {
             var wid = 0;
-            var count = wbuff.Count;
+            var count = wbuff.Length;
             var currentGroup = GetGroupOrder(0);
             for (int i = 0; i < count && wid < instructionWords.Length; i++)
             {
@@ -55,7 +55,7 @@ public ref struct OrderedEnumerator
         else
         {
             
-            var count = wbuff.Count;
+            var count = wbuff.Length;
             var currentGroup = GetGroupOrder(wordIndex);
             for (int groupOffset = 0; groupOffset < 14; groupOffset++)
             {

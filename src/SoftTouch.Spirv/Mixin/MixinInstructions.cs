@@ -16,7 +16,7 @@ public ref struct MixinInstructions
     {
         get
         {
-            var count = mixin.Buffer.Count;
+            var count = mixin.Buffer.Length;
             if(index >= count) return RefInstruction.Empty;
             var enumerator = GetEnumerator();
             for(int i = 0; enumerator.MoveNext() && i < index; i++);
