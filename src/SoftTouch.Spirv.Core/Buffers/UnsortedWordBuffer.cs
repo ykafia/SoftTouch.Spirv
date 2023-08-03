@@ -12,11 +12,11 @@ public readonly struct UnsortedWordBuffer : ISpirvBuffer
 {
     public static readonly SortedWordBuffer Empty = new ();
 
-    readonly MemoryOwner<int> words;
+    readonly ExpandableBuffer<int> words;
     public Span<int> Span => words.Span;
     public Memory<int> Memory => words.Memory;
-    public int Count => new SpirvReader(words).Count;
-    public bool IsEmpty => words == MemoryOwner<int>.Empty;
+    public int Count => new SpirvReader(words.Memory).Count;
+    public bool IsEmpty => words.Span.IsEmpty;
     
     
     public RefInstruction this[int index]
@@ -35,12 +35,12 @@ public readonly struct UnsortedWordBuffer : ISpirvBuffer
 
     public UnsortedWordBuffer()
     {
-        words = MemoryOwner<int>.Empty;
+        words = new();
     }
 
     public UnsortedWordBuffer(WordBuffer buffer)
     {
-        words = MemoryOwner<int>.Allocate(buffer.BufferLength, AllocationMode.Clear);
+        words = new(buffer.BufferLength);
         buffer.Span.CopyTo(words.Span);
         buffer.Dispose();
     }

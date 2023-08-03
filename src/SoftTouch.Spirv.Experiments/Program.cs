@@ -20,17 +20,8 @@ static void ParseShader()
 
     var shader = File.ReadAllBytes("../../shader.spv");
 
-    var data = MemoryOwner<int>.Allocate(shader.Length / 4, AllocationMode.Clear);
-    var slice = data.Memory[..5];
-    var slice2 = data.Memory[5..10];
 
-    var bytes = shader.AsSpan();
-
-    var ints = MemoryMarshal.Cast<byte, int>(bytes);
-
-    ints.CopyTo(data.Span);
-
-    var list = SpirvReader.ParseToList(data);
+    SpirvReader.ParseToList(shader, new(8));
 
     var x = 0;
 }

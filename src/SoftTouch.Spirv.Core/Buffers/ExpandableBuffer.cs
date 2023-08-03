@@ -28,7 +28,7 @@ public class ExpandableBuffer<T>
         Count = 0;
     }
 
-    void Expand(int size)
+    public void Expand(int size)
     {
         if(Count + size > _owner.Length)
         {
@@ -48,8 +48,19 @@ public class ExpandableBuffer<T>
     {
         Expand(items.Length);
         items.CopyTo(_owner.Span[Count..]);
-        Count += 1;
+        Count += items.Length;
     }
+
+    public void Insert(int start, Span<T> words)
+    {
+        Expand(words.Length);
+        var slice = _owner.Span[start..Count];
+        slice.CopyTo(_owner.Span[(start + words.Length)..]);
+        words.CopyTo(_owner.Span.Slice(start, words.Length));
+        Count += words.Length;
+    }
+    
+
     public bool RemoveAt(int index)
     {
         if(index < Count && index > 0)
@@ -60,4 +71,6 @@ public class ExpandableBuffer<T>
         }
         return false;
     }
+
+    public void Dispose() => _owner.Dispose();
 }

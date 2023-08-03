@@ -84,26 +84,7 @@ public ref struct RefInstruction
     }
 
 
-    public bool ToOwned(out OwnedInstruction instruction)
-    {
-        if (Slice == null)
-        {
-            instruction = new();
-            return false;
-        }
-        else
-        {
-            instruction = new()
-            {
-                OpCode = OpCode,
-                ResultId = ResultId,
-                ResultType = ResultType,
-                Operands = Slice.Value[OwnerIndex..(OwnerIndex + WordCount)]
-            };
-            return true;
-        }
-    }
-
+    
 
     public void SetResultId(int id)
     {

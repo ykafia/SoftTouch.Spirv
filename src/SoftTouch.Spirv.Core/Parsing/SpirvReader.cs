@@ -10,52 +10,16 @@ namespace SoftTouch.Spirv.Core.Parsing;
 
 public ref struct SpirvReader
 {
-    public static void ParseToList(byte[] byteCode, List<OwnedInstruction> instructions)
+    public static void ParseToList(byte[] byteCode, List<Instruction> instructions)
     {
-        var data = MemoryOwner<int>.Allocate(byteCode.Length / 4, AllocationMode.Clear);
+        
         var span = MemoryMarshal.Cast<byte, int>(byteCode.AsSpan());
-        span.CopyTo(data.Span);
-        var reader = new SpirvReader(data);
-        foreach (var instruction in reader)
-        {
-            if(instruction.ToOwned(out var owned))
-                instructions.Add(owned);
-        }
+        var data = new WordBuffer(span);
+        foreach (var instruction in data)
+            instructions.Add(instruction);
     }
-    public static List<OwnedInstruction> ParseToList(byte[] byteCode)
-    {
-        var data = MemoryOwner<int>.Allocate(byteCode.Length / 4, AllocationMode.Clear);
-        var span = MemoryMarshal.Cast<byte, int>(byteCode.AsSpan());
-        span.CopyTo(data.Span);
-        var reader = new SpirvReader(data,true);
-        var list = new List<OwnedInstruction>(reader.Count);
-        foreach(var instruction in reader)
-        {
-            if(instruction.ToOwned(out var owned))
-                list.Add(owned);
-        }
-        return list;
-    }
-    public static List<OwnedInstruction> ParseToList(MemoryOwner<int> data)
-    {
-        var reader = new SpirvReader(data);
-        var list = new List<OwnedInstruction>(reader.Count);
-        foreach (var instruction in reader)
-        {
-            if(instruction.ToOwned(out var owned))
-                list.Add(owned);
-        }
-        return list;
-    }
-    public static void ParseToList(MemoryOwner<int> data, List<OwnedInstruction> list)
-    {
-        var reader = new SpirvReader(data);
-        foreach (var instruction in reader)
-        {
-            if(instruction.ToOwned(out var owned))
-                list.Add(owned);
-        }
-    }
+    
+    
 
 
     MemoryOwner<int>? data;

@@ -14,8 +14,8 @@ namespace SoftTouch.Spirv.Core;
 public partial class WordBuffer : ISpirvBuffer
 {
     public Bound Bound { get; private set; }
-    public MemoryOwner<int> Buffer { get; private set; }
-    public int BufferLength { get; private set; }
+    public ExpandableBuffer<int> Buffer { get; private set; }
+    public int BufferLength => Buffer.Count;
     public Span<int> Span => Buffer.Span[..BufferLength];
     public Memory<int> Memory => Buffer.Memory[..BufferLength];
     public int Count => new SpirvReader(Buffer.Memory[..BufferLength]).Count;
@@ -37,23 +37,20 @@ public partial class WordBuffer : ISpirvBuffer
     }
     public WordBuffer()
     {
-        BufferLength = 0;
         Bound = new();
-        Buffer = MemoryOwner<int>.Allocate(32, AllocationMode.Clear);
+        Buffer = new();
     }
 
     public WordBuffer(int initialCapacity = 32, int offset = 0)
     {
-        BufferLength = 0;
         Bound = new() { Offset = offset };
-        Buffer = MemoryOwner<int>.Allocate(initialCapacity, AllocationMode.Clear);
+        Buffer = new(initialCapacity);
     }
 
     internal WordBuffer(Span<int> words)
     {
-        Buffer = MemoryOwner<int>.Allocate(words.Length, AllocationMode.Clear);
-        words.CopyTo(Buffer.Span);
-        BufferLength = words.Length;
+        Buffer = new(words.Length);
+        Buffer.Add(words);
         Bound = new();
     }
 
@@ -72,49 +69,22 @@ public partial class WordBuffer : ISpirvBuffer
 
 
 
-    public void Expand(int size)
-    {
-        if (Buffer.Length < BufferLength + size)
-        {
-            var tmp = MemoryOwner<int>.Allocate((int)BitOperations.RoundUpToPowerOf2((uint)(BufferLength + size)), AllocationMode.Clear);
-            Buffer.Span.CopyTo(tmp.Span);
-            Buffer = tmp;
-            BufferLength += size;
-        }
-        else
-            BufferLength += size;
-    }
-    public void DirectExpand(int size)
-    {
-        if (Buffer.Length < BufferLength + size)
-        {
-            var tmp = MemoryOwner<int>.Allocate(BufferLength + size, AllocationMode.Clear);
-            Buffer.Span.CopyTo(tmp.Span);
-            Buffer = tmp;
-            BufferLength += size;
-        }
-        else
-            BufferLength += size;
-    }
+    public void Expand(int size) => Buffer.Expand(size);
+
 
     public void Insert(RefInstruction instruction)
     {
-        var pos = BufferLength;
-        DirectExpand(instruction.WordCount);
-        instruction.CopyTo(Buffer.Span[pos..(pos + instruction.WordCount)]);
+        Insert(Buffer.Count, instruction.Words);
     }
 
     internal void Insert(int start, Span<int> words)
     {
-        Expand(words.Length);
-        var slice = Buffer.Span[start..(BufferLength - words.Length)];
-        slice.CopyTo(Buffer.Span[(start + words.Length)..]);
-        words.CopyTo(Buffer.Span.Slice(start, words.Length));
+        Buffer.Insert(start,words);
     }
 
     internal Instruction Add(MutRefInstruction instruction)
     {
-        Insert(BufferLength, instruction.Words);
+        Buffer.Add(instruction.Words);
         return new(this, Count - 1);
     }
 

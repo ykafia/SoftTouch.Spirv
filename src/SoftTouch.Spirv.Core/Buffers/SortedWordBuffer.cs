@@ -10,22 +10,22 @@ namespace SoftTouch.Spirv.Core;
 
 public readonly struct SortedWordBuffer : ISpirvBuffer
 {
-    public static readonly SortedWordBuffer Empty = new ();
+    public static SortedWordBuffer Empty { get; } = new();
 
-    readonly MemoryOwner<int> words;
+    readonly ExpandableBuffer<int> words;
     public Span<int> Span => words.Span;
     public Memory<int> Memory => words.Memory;
-    public int Count => new SpirvReader(words).Count;
-    public bool IsEmpty => words == MemoryOwner<int>.Empty;
-    
-    
+    public int Count => new SpirvReader(words.Memory).Count;
+    public bool IsEmpty => words.Span.IsEmpty;
+
+
     public RefInstruction this[int index]
     {
         get
         {
             var enumerator = GetEnumerator();
             int tmp = 0;
-            while(enumerator.MoveNext() && tmp < index)
+            while (enumerator.MoveNext() && tmp < index)
                 tmp += 1;
             return enumerator.Current;
         }
@@ -35,14 +35,14 @@ public readonly struct SortedWordBuffer : ISpirvBuffer
 
     public SortedWordBuffer()
     {
-        words = MemoryOwner<int>.Empty;
+        words = new();
     }
 
     public SortedWordBuffer(WordBuffer buffer)
     {
-        words = MemoryOwner<int>.Allocate(buffer.BufferLength, AllocationMode.Clear);
+        words = new(buffer.BufferLength);
         var tmpLength = 0;
-        foreach( var item in buffer)
+        foreach (var item in buffer)
         {
             item.Words.CopyTo(words.Span[tmpLength..(tmpLength + item.CountOfWords)]);
             tmpLength += item.CountOfWords;
