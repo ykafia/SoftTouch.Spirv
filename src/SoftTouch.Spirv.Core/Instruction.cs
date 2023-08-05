@@ -1,5 +1,6 @@
 using CommunityToolkit.HighPerformance.Buffers;
 using SoftTouch.Spirv.Core.Parsing;
+using SoftTouch.Spirv.Core.Buffers;
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;

@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using static Spv.Specification;
 
-namespace SoftTouch.Spirv.Core;
+namespace SoftTouch.Spirv.Core.Buffers;
 
 public partial class WordBuffer
 {

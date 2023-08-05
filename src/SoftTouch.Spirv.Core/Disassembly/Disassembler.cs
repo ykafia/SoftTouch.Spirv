@@ -1,3 +1,4 @@
+using SoftTouch.Spirv.Core.Buffers;
 using SoftTouch.Spirv.Core.Parsing;
 using static Spv.Specification;
 
@@ -5,12 +6,10 @@ namespace SoftTouch.Spirv.Core;
 
 
 public class Disassembler
-{
-    Dictionary<int, string> debugNames;
-
+{ 
     public Disassembler()
     {
-        debugNames = new();
+        
     }
 
     public string Disassemble(Span<int> memory)
@@ -46,6 +45,7 @@ public class Disassembler
         }
         return dis.ToString();
     }
+
     public string Disassemble(SortedWordBuffer wbuff)
     {
         var dis = new DisWriter(new SpirvReader(wbuff.Memory, wbuff.Span[0] == MagicNumber).ComputeBound());
@@ -57,6 +57,22 @@ public class Disassembler
             foreach (var o in e)
             {
                 Append(o, dis); 
+            }
+            dis.AppendLine();
+        }
+        return dis.ToString();
+    }
+    public string Disassemble(SpirvBuffer wbuff)
+    {
+        var dis = new DisWriter(new SpirvReader(wbuff.Memory, wbuff.Span[0] == MagicNumber).ComputeBound());
+
+        foreach (var e in wbuff)
+        {
+            dis.Append(e.ResultId != null ? new IdResult(e.ResultId.Value) : null);
+            dis.AppendLiteral(Enum.GetName(e.OpCode) ?? "Op.OpNop");
+            foreach (var o in e)
+            {
+                Append(o, dis);
             }
             dis.AppendLine();
         }

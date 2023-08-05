@@ -1,14 +1,8 @@
 ﻿using Microsoft.CodeAnalysis;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Text.Json;
-using System.Security.Claims;
 
 namespace SoftTouch.Spirv.Generators
 {
@@ -55,9 +49,9 @@ namespace SoftTouch.Spirv.Generators
 
             code
             .AppendLine("using static Spv.Specification;")
-            .AppendLine("namespace SoftTouch.Spirv.Core;")
+            .AppendLine("namespace SoftTouch.Spirv.Core.Buffers;")
             .AppendLine("")
-            .AppendLine("public sealed partial class WordBuffer")
+            .AppendLine("public partial class WordBuffer")
             .AppendLine("{")
             .Indent();
 

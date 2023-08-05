@@ -1,4 +1,4 @@
-namespace SoftTouch.Spirv.Core;
+namespace SoftTouch.Spirv.Core.Buffers;
 
 
 public interface ISpirvBuffer

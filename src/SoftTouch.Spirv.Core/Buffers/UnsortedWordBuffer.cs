@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SoftTouch.Spirv.Core;
+namespace SoftTouch.Spirv.Core.Buffers;
 
 public sealed class UnsortedWordBuffer : BufferBase<int>, ISpirvBuffer
 {
@@ -38,7 +38,8 @@ public sealed class UnsortedWordBuffer : BufferBase<int>, ISpirvBuffer
     public UnsortedWordBuffer(WordBuffer buffer)
     {
         _owner = MemoryOwner<int>.Allocate(buffer.Length);
-        buffer.Span.CopyTo(Span);
+        buffer.Span.CopyTo(_owner.Span);
+        Length = buffer.Length;
         buffer.Dispose();
     }
 }

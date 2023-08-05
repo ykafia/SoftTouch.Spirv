@@ -1,6 +1,7 @@
 using System.Numerics;
 using CommunityToolkit.HighPerformance.Buffers;
 using SoftTouch.Spirv.Core;
+using SoftTouch.Spirv.Core.Buffers;
 using SoftTouch.Spirv.Core.Parsing;
 
 namespace SoftTouch.Spirv;

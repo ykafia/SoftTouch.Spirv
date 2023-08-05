@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SoftTouch.Spirv.Core;
+namespace SoftTouch.Spirv.Core.Buffers;
 
 public sealed class SortedWordBuffer : BufferBase<int>, ISpirvBuffer
 {
@@ -37,11 +37,11 @@ public sealed class SortedWordBuffer : BufferBase<int>, ISpirvBuffer
     public SortedWordBuffer(WordBuffer buffer)
     {
         _owner = MemoryOwner<int>.Allocate(buffer.Length, AllocationMode.Clear);
-        var tmpLength = 0;
+        Length = 0;
         foreach (var item in buffer)
         {
-            item.Words.CopyTo(Span[tmpLength..(tmpLength + item.CountOfWords)]);
-            tmpLength += item.CountOfWords;
+            item.Words.CopyTo(_owner.Span[Length..(Length + item.CountOfWords)]);
+            Length += item.CountOfWords;
         }
         buffer.Dispose();
     }

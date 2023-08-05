@@ -1,6 +1,7 @@
 using System.Numerics;
 using System.Security.Cryptography;
 using SoftTouch.Spirv.Core;
+using SoftTouch.Spirv.Core.Buffers;
 
 namespace SoftTouch.Spirv;
 

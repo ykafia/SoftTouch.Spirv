@@ -1,4 +1,5 @@
 using SoftTouch.Spirv.Core;
+using SoftTouch.Spirv.Core.Buffers;
 using static Spv.Specification;
 
 namespace SoftTouch.Spirv;
@@ -81,7 +82,7 @@ public partial class Mixer
             public Function StoreInt(string name, int value)
             {
                 var cst = Mixer.CreateConstant($"cst_{Buffer.Bound}", value);
-                foreach((string n, int id) in variables)
+                foreach((string n, int id) in variables.Span)
                 {
                     if(n == name)
                     {

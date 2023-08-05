@@ -1,7 +1,7 @@
 using System.Numerics;
 using CommunityToolkit.HighPerformance.Buffers;
 
-namespace SoftTouch.Spirv.Core;
+namespace SoftTouch.Spirv.Core.Buffers;
 
 
 public class ExpandableBuffer<T> : BufferBase<T>
