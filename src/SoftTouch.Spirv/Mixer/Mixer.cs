@@ -39,6 +39,7 @@ public partial class Mixer
         buffer.AddOpSDSLMixinEnd();
         // TODO : do some validation here
         MixinSourceProvider.Register(new(Name, new(buffer)));
+        buffer.Dispose();
         return MixinSourceProvider.Get(Name);
     }
 

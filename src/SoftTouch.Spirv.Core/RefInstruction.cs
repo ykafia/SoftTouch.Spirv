@@ -23,7 +23,6 @@ public ref struct RefInstruction
     public Span<int> Operands { get; init; }
     public Memory<int>? Slice { get; init; }
     public int OwnerIndex { get; set; }
-    public int ResultIdReplacement { get; set; }
     public Span<int> Words { get; init; }
 
 
@@ -59,7 +58,7 @@ public ref struct RefInstruction
             Words = words
         };
     }
-    public static RefInstruction ParseRef(Span<int> words, int offset = 0)
+    public static RefInstruction ParseRef(Span<int> words)
     {
         var index = 0;
         var op = (SDSLOp)(words[0] & 0xFFFF);
@@ -77,9 +76,8 @@ public ref struct RefInstruction
         {
             ResultId = result,
             ResultType = resultType,
-            Operands = words[index..],
+            Operands = words[1..],
             Words = words,
-            ResultIdReplacement = offset
         };
     }
 
@@ -117,12 +115,34 @@ public ref struct RefInstruction
                 Operands[i] = value;
         }
     }
-    public void CopyTo(Span<int> destination)
+    //public void CopyTo(Span<int> destination)
+    //{
+    //    Words.CopyTo(destination);
+    //    var refi = new RefInstruction() { Words = destination};
+    //    foreach(var o in refi)
+    //        o.ReplaceIdResult(ResultIdReplacement);
+    //}
+
+    public void OffsetIds(int offset)
     {
-        Words.CopyTo(destination);
-        var refi = new RefInstruction() { Words = destination};
-        foreach(var o in refi)
-            o.ReplaceIdResult(ResultIdReplacement);
+        foreach(var o in this)
+        {
+            if (o.Kind == OperandKind.IdRef)
+                o.Words[0] += offset;
+            else if (o.Kind == OperandKind.IdResult)
+                o.Words[0] += offset;
+            else if (o.Kind == OperandKind.IdResultType)
+                o.Words[0] += offset;
+            else if (o.Kind == OperandKind.PairIdRefLiteralInteger)
+                o.Words[0] += offset;
+            else if (o.Kind == OperandKind.PairLiteralIntegerIdRef)
+                o.Words[1] += offset;
+            else if (o.Kind == OperandKind.PairIdRefIdRef)
+            {
+                o.Words[0] += offset;
+                o.Words[1] += offset;
+            }
+        }
     }
 
 
@@ -139,7 +159,12 @@ public ref struct RefInstruction
     int? GetResultType()
     {
         var info = InstructionInfo.GetInfo(OpCode);
-        return info.HasResultType ? Words[1] : null;
+        var index = -1;
+        index += info.HasResult ? 1 : 0;
+        if (index == -1)
+            return null;
+        index += info.HasResultType ? 1 : 0;
+        return Words[index + 1];
     }
 
     public override string ToString()

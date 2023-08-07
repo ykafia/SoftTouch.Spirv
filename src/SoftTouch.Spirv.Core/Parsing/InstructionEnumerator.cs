@@ -53,9 +53,9 @@ public ref struct InstructionEnumerator
         var wordNumber = instructionWords[wordIndex] >> 16;
         if (memorySlice is not null)
         {
-            return RefInstruction.Parse(memorySlice.Value, wordIndex) with { ResultIdReplacement = ResultIdReplacement };
+            return RefInstruction.Parse(memorySlice.Value, wordIndex);
         }
         else
-            return RefInstruction.ParseRef(instructionWords.Slice(wordIndex, wordNumber)) with { ResultIdReplacement = ResultIdReplacement };
+            return RefInstruction.ParseRef(instructionWords.Slice(wordIndex, wordNumber));
     }
 }

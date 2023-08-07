@@ -23,7 +23,7 @@ public ref struct MixinInstructionEnumerator
         MixinResultId = -1;
         this.offsetted = offsetted;
     }
-    public MixinRefInstruction Current => new(Mixins[lastMixin].Name , offsetted ? lastEnumerator.Current with { ResultIdReplacement = MixinResultId } : lastEnumerator.Current);
+    public MixinRefInstruction Current => new(Mixins[lastMixin].Name , lastEnumerator.Current);
     
     public bool MoveNext()
     {

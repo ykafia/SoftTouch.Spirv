@@ -25,7 +25,7 @@ public class ExpandableBuffer<T> : BufferBase<T>
         if(Length + size > _owner.Length)
         {
             var n = MemoryOwner<T>.Allocate((int)BitOperations.RoundUpToPowerOf2((uint)(Length + size)), AllocationMode.Clear);
-            Span.CopyTo(n.Span);
+            _owner.Span.CopyTo(n.Span);
             _owner = n;
         }
     }

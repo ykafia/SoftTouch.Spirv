@@ -33,7 +33,7 @@ public partial struct Instruction
 
     public OperandEnumerator GetEnumerator() => new(RefInstruction.ParseRef(Words));
 
-    public RefInstruction AsRef(int offset = 0) => RefInstruction.ParseRef(Words, offset);
+    public RefInstruction AsRef(int offset = 0) => RefInstruction.ParseRef(Words);
 
     public static implicit operator IdRef(Instruction i) => new (i.ResultId ?? throw new Exception("Instruction has no result id"));
     public static implicit operator IdResultType(Instruction i) => new(i.ResultId ?? throw new Exception("Instruction has no result id"));

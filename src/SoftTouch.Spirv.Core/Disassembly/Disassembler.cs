@@ -64,9 +64,9 @@ public class Disassembler
     }
     public string Disassemble(SpirvBuffer wbuff)
     {
-        var dis = new DisWriter(new SpirvReader(wbuff.Memory, wbuff.Span[0] == MagicNumber).ComputeBound());
+        var dis = new DisWriter(new SpirvReader(wbuff.InstructionMemory).ComputeBound());
 
-        foreach (var e in wbuff)
+        foreach (var e in wbuff.Instructions)
         {
             dis.Append(e.ResultId != null ? new IdResult(e.ResultId.Value) : null);
             dis.AppendLiteral(Enum.GetName(e.OpCode) ?? "Op.OpNop");

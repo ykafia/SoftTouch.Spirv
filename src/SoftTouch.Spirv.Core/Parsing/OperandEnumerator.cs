@@ -7,14 +7,13 @@ public ref struct OperandEnumerator
     readonly LogicalOperandArray logicalOperands;
     int wid;
     int oid;
-    int refOffset;
+
     public OperandEnumerator(RefInstruction instruction)
     {
         this.instruction = instruction;
         logicalOperands = InstructionInfo.GetInfo(instruction.OpCode);
         oid = -1;
         wid = 1;
-        refOffset = instruction.ResultIdReplacement;
     }
 
     public SpvOperand Current => ParseCurrent();
@@ -24,13 +23,13 @@ public ref struct OperandEnumerator
         if (oid < 0)
         {
             oid = 0;
+            if (instruction.OpCode == SDSLOp.OpNop)
+                return false;
             return true;
         }
         else
         {
-
-
-            if (oid + 1 >= logicalOperands.Count && (wid >= instruction.Words.Length -1))
+            if (oid + 1 >= logicalOperands.Count && (wid >= instruction.Words.Length - 1))
                 return false;
 
             var logOp = logicalOperands[oid];
@@ -40,29 +39,29 @@ public ref struct OperandEnumerator
                     wid += 1;
                 wid += 1;
             }
-            else if ( 
-                    logOp.Kind switch 
+            else if (
+                    logOp.Kind switch
                     {
-                        OperandKind.PairIdRefIdRef 
-                        or OperandKind.PairLiteralIntegerIdRef 
+                        OperandKind.PairIdRefIdRef
+                        or OperandKind.PairLiteralIntegerIdRef
                         or OperandKind.PairIdRefLiteralInteger => true,
                         _ => false
                     }
-                    
+
                     && logOp.Quantifier == OperandQuantifier.One
                 )
             {
                 wid += 2;
             }
-            else if ( 
-                    logOp.Kind switch 
+            else if (
+                    logOp.Kind switch
                     {
-                        OperandKind.PairIdRefIdRef 
-                        or OperandKind.PairLiteralIntegerIdRef 
+                        OperandKind.PairIdRefIdRef
+                        or OperandKind.PairLiteralIntegerIdRef
                         or OperandKind.PairIdRefLiteralInteger => true,
                         _ => false
                     }
-                    
+
                     && logOp.Quantifier == OperandQuantifier.ZeroOrOne
                     && wid < instruction.Words.Length - 2
                 )
@@ -70,30 +69,30 @@ public ref struct OperandEnumerator
                 wid += 2;
                 return true;
             }
-            else if ( 
-                    logOp.Kind switch 
+            else if (
+                    logOp.Kind switch
                     {
-                        OperandKind.PairIdRefIdRef 
-                        or OperandKind.PairLiteralIntegerIdRef 
+                        OperandKind.PairIdRefIdRef
+                        or OperandKind.PairLiteralIntegerIdRef
                         or OperandKind.PairIdRefLiteralInteger => true,
                         _ => false
                     }
-                    
+
                     && logOp.Quantifier == OperandQuantifier.ZeroOrOne
                     && wid == instruction.Words.Length - 2
                 )
             {
                 return false;
             }
-            else if ( 
-                    logOp.Kind switch 
+            else if (
+                    logOp.Kind switch
                     {
-                        OperandKind.PairIdRefIdRef 
-                        or OperandKind.PairLiteralIntegerIdRef 
+                        OperandKind.PairIdRefIdRef
+                        or OperandKind.PairLiteralIntegerIdRef
                         or OperandKind.PairIdRefLiteralInteger => true,
                         _ => false
                     }
-                    
+
                     && logOp.Quantifier == OperandQuantifier.ZeroOrMore
                     && wid < instruction.Words.Length - 2
                 )
@@ -101,22 +100,22 @@ public ref struct OperandEnumerator
                 wid += 2;
                 return true;
             }
-            else if ( 
-                    logOp.Kind switch 
+            else if (
+                    logOp.Kind switch
                     {
-                        OperandKind.PairIdRefIdRef 
-                        or OperandKind.PairLiteralIntegerIdRef 
+                        OperandKind.PairIdRefIdRef
+                        or OperandKind.PairLiteralIntegerIdRef
                         or OperandKind.PairIdRefLiteralInteger => true,
                         _ => false
                     }
-                    
+
                     && logOp.Quantifier == OperandQuantifier.ZeroOrMore
                     && wid == instruction.Words.Length - 2
                 )
             {
                 return false;
             }
-            else if(logOp.Quantifier == OperandQuantifier.One)
+            else if (logOp.Quantifier == OperandQuantifier.One)
             {
                 wid += 1;
             }
@@ -150,8 +149,8 @@ public ref struct OperandEnumerator
 
             return result;
         }
-        else if(logOp.Kind == OperandKind.None) return new(logOp.Kind.Value, Span<int>.Empty, instruction.ResultIdReplacement);
-        else return new(logOp.Kind.Value, instruction.Words[wid..(wid + 1)], instruction.ResultIdReplacement);
+        else if(logOp.Kind == OperandKind.None) return new(logOp.Kind.Value, Span<int>.Empty);
+        else return new(logOp.Kind.Value, instruction.Words[wid..(wid + 1)]);
     }
 
 }

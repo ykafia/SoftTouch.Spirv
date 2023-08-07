@@ -43,6 +43,5 @@ public sealed class SortedWordBuffer : BufferBase<int>, ISpirvBuffer
             item.Words.CopyTo(_owner.Span[Length..(Length + item.CountOfWords)]);
             Length += item.CountOfWords;
         }
-        buffer.Dispose();
     }
 }

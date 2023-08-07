@@ -6,7 +6,7 @@ namespace SoftTouch.Spirv.Core;
 public ref struct SpvOperand
 {
     public OperandKind Kind { get; init; }
-    Span<int> Words { get; init; }
+    public Span<int> Words { get; init; }
     public int Offset { get; init; }
 
     public SpvOperand(OperandKind kind, Span<int> words, int idRefOffset = 0)

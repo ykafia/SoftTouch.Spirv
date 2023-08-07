@@ -35,9 +35,14 @@ public ref struct SpirvReader
         data = slice;
         HasHeader = hasHeader;
     }
-    public SpirvReader(Memory<int> slice, bool hasHeader = false)
+    public SpirvReader(Memory<int> slice, bool hasHeader)
     {
         words = slice.Span[(hasHeader ? 5 : 0)..];
+        //data = slice;
+    }
+    public SpirvReader(Memory<int> slice)
+    {
+        words = slice.Span;
         //data = slice;
     }
 

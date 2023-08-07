@@ -40,6 +40,5 @@ public sealed class UnsortedWordBuffer : BufferBase<int>, ISpirvBuffer
         _owner = MemoryOwner<int>.Allocate(buffer.Length);
         buffer.Span.CopyTo(_owner.Span);
         Length = buffer.Length;
-        buffer.Dispose();
     }
 }

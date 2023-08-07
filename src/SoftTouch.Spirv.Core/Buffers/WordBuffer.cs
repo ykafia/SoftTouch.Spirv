@@ -22,7 +22,7 @@ public sealed partial class WordBuffer : ExpandableBuffer<int>, ISpirvBuffer
                 wid += Span[wid] >> 16;
                 id++;
             }
-            return RefInstruction.ParseRef(Span.Slice(wid, Span[wid] >> 16), Bound.Offset);
+            return RefInstruction.ParseRef(Span.Slice(wid, Span[wid] >> 16));
         }
     }
     public WordBuffer()
