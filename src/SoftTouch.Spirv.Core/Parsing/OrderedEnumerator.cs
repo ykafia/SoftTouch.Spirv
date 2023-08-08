@@ -15,11 +15,11 @@ public ref struct OrderedEnumerator
     int index;
     int wordIndex;
     bool started;
+    
 
-    WordBuffer wbuff;
-
-    readonly Span<int> instructionWords => wbuff.Span;
-    Memory<int> memorySlice => wbuff.Memory;
+    ISpirvBuffer wbuff;
+    readonly Span<int> instructionWords {get; init;}
+    Memory<int> memorySlice {get; init;}
 
     public OrderedEnumerator(WordBuffer buffer)
     {
@@ -27,6 +27,17 @@ public ref struct OrderedEnumerator
         wordIndex = 0;
         index = 0;
         wbuff = buffer;
+        instructionWords = buffer.Span;
+        memorySlice = buffer.Memory;
+    }
+    public OrderedEnumerator(SpirvBuffer buffer)
+    {
+        started = false;
+        wordIndex = 0;
+        index = 0;
+        wbuff = buffer;
+        instructionWords = buffer.InstructionSpan;
+        memorySlice = buffer.InstructionMemory;
     }
 
     public Instruction Current => ParseCurrentInstruction();
@@ -36,7 +47,7 @@ public ref struct OrderedEnumerator
         if (!started)
         {
             var wid = 0;
-            var count = wbuff.Length;
+            var count = new SpirvReader(memorySlice).Count;
             var currentGroup = GetGroupOrder(0);
             for (int i = 0; i < count && wid < instructionWords.Length; i++)
             {
@@ -56,7 +67,7 @@ public ref struct OrderedEnumerator
         else
         {
             
-            var count = wbuff.Length;
+            var count = new SpirvReader(memorySlice).Count;
             var currentGroup = GetGroupOrder(wordIndex);
             for (int groupOffset = 0; groupOffset < 14; groupOffset++)
             {

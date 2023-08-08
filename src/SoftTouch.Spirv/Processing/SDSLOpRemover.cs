@@ -10,14 +10,12 @@ namespace SoftTouch.Spirv.Processing;
 
 
 
-
-public class SDSLOpRemover : PostProcessorPassBase, IPostProcessorPassCreator
+public struct SDSLOpRemover : IPostProcessorPass
 {
-    public SDSLOpRemover(SpirvBuffer buffer) : base(buffer) { }
 
-    public override void Apply()
+    public void Apply(SpirvBuffer buffer)
     {
-        foreach (var i in Buffer.Instructions)
+        foreach (var i in buffer.Instructions)
         {
             if (
                 i.OpCode == SDSLOp.OpSDSLImportIdRef
@@ -29,11 +27,11 @@ public class SDSLOpRemover : PostProcessorPassBase, IPostProcessorPassCreator
             ) SetOpNop(i.Words);
         }
     }
-    void SetOpNop(Span<int> words)
+
+    static void SetOpNop(Span<int> words)
     {
         words[0] = words.Length << 16;
         words[1..].Clear();
     }
-
-    public static PostProcessorPassBase Create(SpirvBuffer buffer) => new SDSLOpRemover(buffer);
+    
 }

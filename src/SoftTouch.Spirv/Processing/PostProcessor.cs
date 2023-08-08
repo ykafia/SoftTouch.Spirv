@@ -5,52 +5,34 @@ using SoftTouch.Spirv.Processing;
 namespace SoftTouch.Spirv.PostProcessor;
 
 
-public class PostProcessor : IDisposable
+public static class PostProcessor
 {
-    public SpirvBuffer Buffer { get; init; }
-
-    public List<PostProcessorPassBase> AdditionalPasses { get; init; }
-
-    public PostProcessor(SpirvBuffer buffer)
+    public static SpirvBuffer Process(string mixinName)
     {
-        Buffer = buffer;
-        AdditionalPasses = new();
-    }
-
-    public PostProcessor(string mixinName)
-    {
-        Buffer = new();
-        // Words = new BufferBase<int>();
+        var buffer = new SpirvBuffer();
         var mixin = MixinSourceProvider.Get(mixinName);
         foreach (var m in mixin.Parents.ToGraph())
-        {
-            Buffer.Add(m.Buffer);
-        }
-        Buffer.Add(mixin.Buffer);
-        AdditionalPasses = new();
-        AddPasses<IdRefOffsetter>();
-        //AddPasses<SDSLOpRemover>();
+            buffer.Add(m.Buffer);
+        buffer.Add(mixin.Buffer);
+
+        Apply(buffer);
+
+        return buffer;
     }
 
-    public void AddPasses<T>()
-        where T : IPostProcessorPassCreator
+    static void Apply(SpirvBuffer buffer)
     {
-        AdditionalPasses.Add(T.Create(Buffer));
+        Apply<IdRefOffsetter>(buffer);
+        Apply<TypeDuplicateRemover>(buffer);
+        Apply<BoundReducer>(buffer);
+        Apply<SDSLOpRemover>(buffer);
+        Apply<MixinMerger>(buffer);
     }
 
-
-    public void Apply()
+    static void Apply<T>(SpirvBuffer buffer)
+        where T : struct, IPostProcessorPass
     {
-        foreach(var pass in AdditionalPasses)
-        {
-            pass.Apply();
-        }
+        var p = new T();
+        p.Apply(buffer);
     }
-
-
-    public void Dispose() => Buffer.Dispose();
-
-    public static IPostProcessorPassCreator Create(SpirvBuffer buffer) => (IPostProcessorPassCreator)new PostProcessor(buffer);
-
-
 }

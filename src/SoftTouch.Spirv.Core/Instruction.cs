@@ -11,7 +11,7 @@ using static Spv.Specification;
 
 public partial struct Instruction
 {
-    WordBuffer Buffer { get; init; }
+    ISpirvBuffer Buffer { get; init; }
     public int Index { get; init; }
 
     int offset;
@@ -24,7 +24,7 @@ public partial struct Instruction
 
     public Span<int> Words => Buffer[Index].Words;
 
-    public Instruction(WordBuffer buffer, int index, int offset = 0)
+    public Instruction(ISpirvBuffer buffer, int index, int offset = 0)
     {
         Buffer = buffer;
         Index = index;

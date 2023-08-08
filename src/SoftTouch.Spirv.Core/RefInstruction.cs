@@ -33,6 +33,10 @@ public ref struct RefInstruction
 
     public OperandEnumerator GetEnumerator() => new(this);
 
+
+    public static bool operator ==(RefInstruction r1, RefInstruction r2) => r1.Words == r2.Words;
+    public static bool operator !=(RefInstruction r1, RefInstruction r2) => r1.Words != r2.Words;
+
     public static RefInstruction Parse(Memory<int> owner, int ownerIndex)
     {
         var words = owner.Span.Slice(ownerIndex, owner.Span[ownerIndex] >> 16);
@@ -82,38 +86,32 @@ public ref struct RefInstruction
     }
 
 
-    
+    int? GetResultId()
+    {
+        foreach (var o in this)
+            if (o.Kind == OperandKind.IdResult)
+                return o.Words[0];
+        return null;
+    }
+    int? GetResultType()
+    {
+        foreach (var o in this)
+            if (o.Kind == OperandKind.IdResultType)
+                return o.Words[0];
+        return null;
+    }
 
     public void SetResultId(int id)
     {
-        var info = InstructionInfo.GetInfo(OpCode);
-
-        if (info.HasResult)
-        {
-            int i = 0;
-            while (info[i].Kind != OperandKind.IdResult) { i += 1; }
-            Operands[id] = id;
-        }
+        foreach(var o in this)
+            if(o.Kind == OperandKind.IdResult)
+                o.Words[0] = id;
     }
     public void SetResultType(int id)
     {
-        var info = InstructionInfo.GetInfo(OpCode);
-
-        if (info.HasResultType)
-        {
-            int i = 0;
-            while (info[i].Kind != OperandKind.IdResultType) { i += 1; }
-            Operands[id] = id;
-        }
-    }
-    public void ReplaceIdRef(int toReplace, int value)
-    {
-        var info = InstructionInfo.GetInfo(OpCode);
-        for (int i = 0; i < info.Count; i++)
-        {
-            if (info[i].Kind == OperandKind.IdRef && Operands[i] == toReplace)
-                Operands[i] = value;
-        }
+        foreach (var o in this)
+            if (o.Kind == OperandKind.IdResultType)
+                o.Words[0] = id;
     }
     //public void CopyTo(Span<int> destination)
     //{
@@ -146,26 +144,7 @@ public ref struct RefInstruction
     }
 
 
-    int? GetResultId()
-    {
-        var info = InstructionInfo.GetInfo(OpCode);
-        var index = -1;
-        index += info.HasResult ? 1 : 0;
-        if(index == -1)
-            return null;
-        index += info.HasResultType ? 1 : 0;
-        return Words[index + 1];
-    }
-    int? GetResultType()
-    {
-        var info = InstructionInfo.GetInfo(OpCode);
-        var index = -1;
-        index += info.HasResult ? 1 : 0;
-        if (index == -1)
-            return null;
-        index += info.HasResultType ? 1 : 0;
-        return Words[index + 1];
-    }
+    
 
     public override string ToString()
     {

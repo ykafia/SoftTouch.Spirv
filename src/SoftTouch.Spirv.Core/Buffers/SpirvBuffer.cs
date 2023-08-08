@@ -8,13 +8,29 @@ using System.Threading.Tasks;
 
 namespace SoftTouch.Spirv.Core.Buffers;
 
-public class SpirvBuffer : ExpandableBuffer<int>, ISpirvBuffer
+public class SpirvBuffer : ExpandableBuffer<int>, ISpirvBuffer, IDisposable
 {
     public Span<int> InstructionSpan => _owner.Span[5..Length];
     public Memory<int> InstructionMemory => _owner.Memory[5..Length];
     public RefHeader Header => new(_owner.Span[..5]);
     public RefInstructions Instructions => new(InstructionMemory);
 
+
+
+    public RefInstruction this[int index]
+    {
+        get
+        {
+            int id = 0;
+            int wid = 5;
+            while (id < index)
+            {
+                wid += Span[wid] >> 16;
+                id++;
+            }
+            return RefInstruction.ParseRef(Span.Slice(wid, Span[wid] >> 16));
+        }
+    }
 
     public SpirvBuffer()
     {
@@ -30,8 +46,29 @@ public class SpirvBuffer : ExpandableBuffer<int>, ISpirvBuffer
 
     public void Add(SortedWordBuffer buffer) => Add(buffer.Span);
 
+    public void Replace(SpirvBuffer buffer, out bool dispose)
+    {
+        if(buffer.Length <= Length)
+        {
+            _owner.Span.Clear();
+            buffer.Span.CopyTo(Span);
+            Length = buffer.Length;
+            dispose = true;
+        }
+        else 
+        {
+            var disp = _owner;
+            _owner = buffer._owner;
+            Length = buffer.Length;
+            disp.Dispose();
+            dispose = false;
+        }
+    }
+
     public override string ToString()
     {
         return new Disassembler().Disassemble(this);
     }
+
+    
 }

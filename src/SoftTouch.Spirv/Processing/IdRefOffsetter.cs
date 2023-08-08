@@ -12,15 +12,15 @@ namespace SoftTouch.Spirv.Processing;
 
 
 
-public class IdRefOffsetter : PostProcessorPassBase, IPostProcessorPassCreator
+public struct IdRefOffsetter : IPostProcessorPass
 {
-    public IdRefOffsetter(SpirvBuffer buffer) : base(buffer) { }
+    public IdRefOffsetter() { }
 
-    public override void Apply()
+    public void Apply(SpirvBuffer buffer)
     {
         int offset = 0;
         int nextOffset = 0;
-        foreach (var i in Buffer.Instructions)
+        foreach (var i in buffer.Instructions)
         {
             // if we hit a mixin name we reset stuff
             if (i.OpCode == SDSLOp.OpSDSLMixinName)
@@ -36,6 +36,4 @@ public class IdRefOffsetter : PostProcessorPassBase, IPostProcessorPassCreator
             }
         }
     }
-
-    public static PostProcessorPassBase Create(SpirvBuffer buffer) => new IdRefOffsetter(buffer);
 }

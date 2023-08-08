@@ -26,7 +26,9 @@ public class ExpandableBuffer<T> : BufferBase<T>
         {
             var n = MemoryOwner<T>.Allocate((int)BitOperations.RoundUpToPowerOf2((uint)(Length + size)), AllocationMode.Clear);
             _owner.Span.CopyTo(n.Span);
+            var toDispose = _owner;
             _owner = n;
+            toDispose.Dispose();
         }
     }
 
