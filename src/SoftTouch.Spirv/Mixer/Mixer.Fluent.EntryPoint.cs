@@ -13,6 +13,8 @@ public partial class Mixer
         ExecutionModel executionModel;
         string name;
         ExpandableBuffer<int> variableIds;
+
+        Instruction function;
         public EntryPoint(Mixer mixer, ExecutionModel executionModel, string name)
         {
             this.mixer = mixer;
@@ -27,7 +29,6 @@ public partial class Mixer
             var variable = mixer.buffer.AddOpVariable(t_variable.ResultId ?? -1, StorageClass.Input, null);
             mixer.buffer.AddOpName(variable.ResultId ?? -1, name);
             variableIds.Add(variable.ResultId ?? -1);
-
             return this;
         }
         public EntryPoint WithOutput(string type, string name)
@@ -45,8 +46,18 @@ public partial class Mixer
             return new(this);
         }
 
-        public Mixer FinishEntryPoint()
+        public Mixer FinishEntryPoint(ExecutionMode executionMode)
         {
+
+            mixer.buffer.AddOpExecutionMode(
+                mixer.buffer.AddOpEntryPoint(executionModel, function, name, Span<IdRef>.Empty),
+                executionMode
+            );
+            mixer.buffer.AddOpCapability(Capability.Shader);
+            mixer.buffer.AddOpExtInstImport("GLSL.std.450");
+            mixer.buffer.AddOpMemoryModel(AddressingModel.Logical, MemoryModel.GLSL450);
+            
+
             return mixer;
         }
 
@@ -57,6 +68,7 @@ public partial class Mixer
             EntryPoint entryPoint;
             Mixer Mixer => entryPoint.mixer;
             WordBuffer Buffer => Mixer.buffer;
+            Instruction function;
 
             ExpandableBuffer<(string, int)> variables;
             public Function(EntryPoint entryPoint)
@@ -65,7 +77,7 @@ public partial class Mixer
                 this.entryPoint = entryPoint;
                 var t_void = Mixer.GetOrCreateBaseType("void");
                 var t_func = Buffer.AddOpTypeFunction(t_void.ResultId ?? -1, Span<IdRef>.Empty);
-                Buffer.AddOpFunction(t_void.ResultId ?? -1, FunctionControlMask.MaskNone, t_func.ResultId ?? -1);
+                function = Buffer.AddOpFunction(t_void.ResultId ?? -1, FunctionControlMask.MaskNone, t_func.ResultId ?? -1);
                 Buffer.AddOpLabel();
             }
 
@@ -82,9 +94,9 @@ public partial class Mixer
             public Function StoreInt(string name, int value)
             {
                 var cst = Mixer.CreateConstant($"cst_{Buffer.Bound}", value);
-                foreach((string n, int id) in variables.Span)
+                foreach ((string n, int id) in variables.Span)
                 {
-                    if(n == name)
+                    if (n == name)
                     {
                         Buffer.AddOpStore(cst.ResultId ?? -1, id, null);
                         return this;
@@ -103,6 +115,7 @@ public partial class Mixer
             public EntryPoint FunctionEnd()
             {
                 Buffer.AddOpFunctionEnd();
+                entryPoint.function = function;
                 return entryPoint;
             }
         }
