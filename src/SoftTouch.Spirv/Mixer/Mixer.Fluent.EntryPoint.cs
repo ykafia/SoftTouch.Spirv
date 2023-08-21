@@ -46,12 +46,12 @@ public partial class Mixer
             return new(this);
         }
 
-        public Mixer FinishEntryPoint(ExecutionMode executionMode)
+        public Mixer FinishEntryPoint()
         {
 
             mixer.buffer.AddOpExecutionMode(
                 mixer.buffer.AddOpEntryPoint(executionModel, function, name, Span<IdRef>.Empty),
-                executionMode
+                ExecutionMode.OriginLowerLeft
             );
             mixer.buffer.AddOpCapability(Capability.Shader);
             mixer.buffer.AddOpExtInstImport("GLSL.std.450");

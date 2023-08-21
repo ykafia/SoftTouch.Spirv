@@ -35,7 +35,7 @@
       ]
     },
     {
-      "opname": "OpSDSLMixinInherit",
+      "opname": "OpSDSLCompose",
       "class": "Miscellaneous",
       "operands": [
         {
