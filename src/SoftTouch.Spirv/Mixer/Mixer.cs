@@ -6,12 +6,8 @@ using SoftTouch.Spirv.Core.Buffers;
 namespace SoftTouch.Spirv;
 
 
-public partial class Mixer
+public sealed partial class Mixer : MixerBase
 {
-    // public Mixin? Module { get; protected set; }
-    MixinGraph mixins;
-    public string Name { get; init; }
-    WordBuffer buffer;
 
     ExpandableBuffer<(string, int)> constants;
 
@@ -20,7 +16,7 @@ public partial class Mixer
         return new(new(name));
     }
 
-    private Mixer(string name)
+    public Mixer(string name) : base(name)
     {
         Name = name;
         buffer = new();
@@ -32,15 +28,6 @@ public partial class Mixer
     public EntryPoint WithEntryPoint(Spv.Specification.ExecutionModel model, string name)
     {
         return new EntryPoint(this, model, name);
-    }
-
-    public Mixin Build()
-    {
-        buffer.AddOpSDSLMixinEnd();
-        // TODO : do some validation here
-        MixinSourceProvider.Register(new(Name, new(buffer)));
-        buffer.Dispose();
-        return MixinSourceProvider.Get(Name);
     }
 
     public Mixer Inherit(string mixin)
@@ -161,7 +148,7 @@ public partial class Mixer
         else if (value is Vector4 vec4)
         {
             var t_const = GetOrCreateBaseType("float");
-            var t_const2 = GetOrCreateBaseType("float3");
+            var t_const2 = GetOrCreateBaseType("float4");
 
             var c1 = buffer.AddOpConstant<LiteralFloat>(t_const.ResultId ?? -1, vec4.X);
             var c2 = buffer.AddOpConstant<LiteralFloat>(t_const.ResultId ?? -1, vec4.Y);

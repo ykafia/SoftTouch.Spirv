@@ -35,6 +35,20 @@
       ]
     },
     {
+      "opname": "OpSDSLMixinInherit",
+      "class": "Miscellaneous",
+      "operands": [
+        {
+          "kind": "LiteralString",
+          "name": "mixin"
+        },
+        {
+          "kind": "LiteralString",
+          "name": "name"
+        }        
+      ]
+    },
+    {
       "opname": "OpSDSLImportIdRef",
       "class": "Miscellaneous",
       "operands": [
