@@ -45,7 +45,17 @@
         {
           "kind": "LiteralString",
           "name": "name"
-        }        
+        }
+      ]
+    },
+    {
+      "opname": "OpSDSLStage",
+      "class": "Miscellaneous",
+      "operands": [
+        {
+          "kind": "IdRef",
+          "name": "stagedElement"
+        }
       ]
     },
     {
@@ -78,7 +88,7 @@
         },
         {
           "kind": "IdRef",
-          "name" : "variableId"
+          "name": "variableId"
         }
       ]
     }

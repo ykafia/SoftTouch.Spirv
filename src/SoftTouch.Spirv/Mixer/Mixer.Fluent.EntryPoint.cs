@@ -48,9 +48,9 @@ public partial class Mixer
 
         public Mixer FinishEntryPoint()
         {
-
+            mixer.buffer.AddOpEntryPoint(executionModel, function, name, Span<IdRef>.Empty);
             mixer.buffer.AddOpExecutionMode(
-                mixer.buffer.AddOpEntryPoint(executionModel, function, name, Span<IdRef>.Empty),
+                function,
                 ExecutionMode.OriginLowerLeft
             );
             mixer.buffer.AddOpCapability(Capability.Shader);
