@@ -8,6 +8,8 @@ public abstract class MixerBase
     protected MixinGraph mixins;
     protected WordBuffer buffer;
 
+    protected Action DisposeBuffers;
+
     public string Name { get; init; }
     
 
@@ -17,14 +19,15 @@ public abstract class MixerBase
         buffer = new();
         buffer.AddOpSDSLMixinName(Name);
         mixins = new();
+        DisposeBuffers = buffer.Dispose;
     }
 
-    public Mixin Build()
+    public virtual Mixin Build()
     {
         buffer.AddOpSDSLMixinEnd();
         // TODO : do some validation here
         MixinSourceProvider.Register(new(Name, new(buffer)));
-        buffer.Dispose();
+        DisposeBuffers.Invoke();
         return MixinSourceProvider.Get(Name);
     }
 }

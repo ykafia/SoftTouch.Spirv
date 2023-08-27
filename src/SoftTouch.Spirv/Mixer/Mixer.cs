@@ -2,6 +2,7 @@ using System.Numerics;
 using System.Security.Cryptography;
 using SoftTouch.Spirv.Core;
 using SoftTouch.Spirv.Core.Buffers;
+using static Spv.Specification;
 
 namespace SoftTouch.Spirv;
 
@@ -10,6 +11,10 @@ public sealed partial class Mixer : MixerBase
 {
 
     ExpandableBuffer<(string, int)> constants;
+    VariableBuffer inoutVariables;
+    FunctionBuffer functions;
+
+    
 
     public static Inheritance Create(string name)
     {
@@ -18,14 +23,15 @@ public sealed partial class Mixer : MixerBase
 
     public Mixer(string name) : base(name)
     {
-        Name = name;
-        buffer = new();
-        buffer.AddOpSDSLMixinName(Name);
-        mixins = new();
         constants = new();
+        inoutVariables = new();
+        functions = new();
+        DisposeBuffers += constants.Dispose;
+        DisposeBuffers += inoutVariables.Dispose;
+        DisposeBuffers += functions.Dispose;
     }
 
-    public EntryPoint WithEntryPoint(Spv.Specification.ExecutionModel model, string name)
+    public EntryPoint WithEntryPoint(ExecutionModel model, string name)
     {
         return new EntryPoint(this, model, name);
     }
@@ -42,7 +48,24 @@ public sealed partial class Mixer : MixerBase
         GetOrCreateBaseType(type);
         return this;
     }
-    
+
+    public Mixer WithInput(string type, string name)
+    {
+        var t_variable = GetOrCreateBaseType(type);
+        var variable = buffer.AddOpVariable(t_variable.ResultId ?? -1, StorageClass.Input, null);
+        buffer.AddOpName(variable.ResultId ?? -1, name);
+        inoutVariables[name] = variable.ResultId ?? -1;
+        return this;
+    }
+    public Mixer WithOutput(string type, string name)
+    {
+        var t_variable = GetOrCreateBaseType(type);
+        var variable = buffer.AddOpVariable(t_variable.ResultId ?? -1, StorageClass.Output, null);
+        buffer.AddOpName(variable.ResultId ?? -1, name);
+        inoutVariables[name] = variable.ResultId ?? -1;
+        return this;
+    }
+
     public Mixer WithConstant<T>(string name, T value)
         where T : struct
     {
@@ -161,8 +184,6 @@ public sealed partial class Mixer : MixerBase
 
         throw new NotImplementedException();
     }
-
-
     public override string ToString()
     {
         var dis = new Disassembler();

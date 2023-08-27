@@ -12,7 +12,7 @@ public partial class Mixer
         public Mixer mixer;
         ExecutionModel executionModel;
         string name;
-        ExpandableBuffer<int> variableIds;
+        public VariableBuffer variableIds = new();
 
         Instruction function;
         public EntryPoint(Mixer mixer, ExecutionModel executionModel, string name)
@@ -23,27 +23,11 @@ public partial class Mixer
             variableIds = new();
         }
 
-        public EntryPoint WithInput(string type, string name)
-        {
-            var t_variable = mixer.GetOrCreateBaseType(type);
-            var variable = mixer.buffer.AddOpVariable(t_variable.ResultId ?? -1, StorageClass.Input, null);
-            mixer.buffer.AddOpName(variable.ResultId ?? -1, name);
-            variableIds.Add(variable.ResultId ?? -1);
-            return this;
-        }
-        public EntryPoint WithOutput(string type, string name)
-        {
-            var t_variable = mixer.GetOrCreateBaseType(type);
-            var variable = mixer.buffer.AddOpVariable(t_variable.ResultId ?? -1, StorageClass.Output, null);
-            mixer.buffer.AddOpName(variable.ResultId ?? -1, name);
-            variableIds.Add(variable.ResultId ?? -1);
+        
 
-            return this;
-        }
-
-        public Function FunctionStart()
+        public FunctionBuilder FunctionStart()
         {
-            return new(this);
+            return new(mixer,this);
         }
 
         public Mixer FinishEntryPoint()
@@ -56,8 +40,7 @@ public partial class Mixer
             mixer.buffer.AddOpCapability(Capability.Shader);
             mixer.buffer.AddOpExtInstImport("GLSL.std.450");
             mixer.buffer.AddOpMemoryModel(AddressingModel.Logical, MemoryModel.GLSL450);
-            
-
+            variableIds.Dispose();
             return mixer;
         }
     }

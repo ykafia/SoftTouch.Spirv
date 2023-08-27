@@ -3,6 +3,17 @@ namespace SoftTouch.Spirv;
 
 public record struct MixinGraphInstructions(MixinGraph Graph, bool Offseted = false)
 {
+
+    public int Count
+    {
+        get
+        {
+            int count = 0;
+            foreach (var e in this)
+                count += 1;
+            return count;
+        }
+    }
     public MixinInstructionEnumerator GetEnumerator() => new(Graph, Offseted);
 }
 
