@@ -7,9 +7,9 @@ namespace SoftTouch.Spirv;
 
 public partial class Mixer
 {
-    public ref struct EntryPoint
+    public struct EntryPoint
     {
-        Mixer mixer;
+        public Mixer mixer;
         ExecutionModel executionModel;
         string name;
         ExpandableBuffer<int> variableIds;
@@ -59,65 +59,6 @@ public partial class Mixer
             
 
             return mixer;
-        }
-
-
-
-        public ref struct Function
-        {
-            EntryPoint entryPoint;
-            Mixer Mixer => entryPoint.mixer;
-            WordBuffer Buffer => Mixer.buffer;
-            Instruction function;
-
-            ExpandableBuffer<(string, int)> variables;
-            public Function(EntryPoint entryPoint)
-            {
-                variables = new();
-                this.entryPoint = entryPoint;
-                var t_void = Mixer.GetOrCreateBaseType("void");
-                var t_func = Buffer.AddOpTypeFunction(t_void.ResultId ?? -1, Span<IdRef>.Empty);
-                function = Buffer.AddOpFunction(t_void.ResultId ?? -1, FunctionControlMask.MaskNone, t_func.ResultId ?? -1);
-                Buffer.AddOpLabel();
-            }
-
-
-            public Function Declare(string type, string name)
-            {
-                var t_variable = Mixer.GetOrCreateBaseType(type);
-                var variable = Buffer.AddOpVariable(t_variable.ResultId ?? -1, StorageClass.Function, null);
-                Buffer.AddOpName(variable.ResultId ?? -1, name);
-                variables.Add((name, variable.ResultId ?? -1));
-                return this;
-            }
-
-            public Function StoreInt(string name, int value)
-            {
-                var cst = Mixer.CreateConstant($"cst_{Buffer.Bound}", value);
-                foreach ((string n, int id) in variables.Span)
-                {
-                    if (n == name)
-                    {
-                        Buffer.AddOpStore(cst.ResultId ?? -1, id, null);
-                        return this;
-                    }
-                }
-                return this;
-            }
-
-
-            public Function Return()
-            {
-                Buffer.AddOpReturn();
-                return this;
-            }
-
-            public EntryPoint FunctionEnd()
-            {
-                Buffer.AddOpFunctionEnd();
-                entryPoint.function = function;
-                return entryPoint;
-            }
         }
     }
 }
