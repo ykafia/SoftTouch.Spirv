@@ -11,54 +11,54 @@ using System.Threading.Tasks;
 namespace SoftTouch.Spirv;
 
 
-public record struct FunctionInfo(string Name, IdRef Id, IdResultType Type);
+public record struct VariableInfo(string Name, IdRef Id);
 
 
 public partial class Mixer
 {
-    public ref struct Functions
+    public ref struct Variables
     {
         Mixer mixer;
 
-        public FunctionInfo this[string name]
+        public VariableInfo this[string name]
         {
             get
             {
-                var filtered = new FilteredEnumerator<WordBuffer>(mixer.buffer, SDSLOp.OpSDSLImportFunction);
+                var filtered = new FilteredEnumerator<WordBuffer>(mixer.buffer, SDSLOp.OpSDSLImportVariable);
                 while (filtered.MoveNext())
                 {
-                    var functionName = filtered.Current.GetOperand<LiteralString>("functionName");
-                    if (functionName.Value == name)
-                        return new(functionName.Value, filtered.Current.ResultId ?? -1, filtered.Current.ResultType ?? -1);
+                    var variableName = filtered.Current.GetOperand<LiteralString>("variableName");
+                    if (variableName.Value == name)
+                        return new(variableName.Value, filtered.Current.ResultId ?? -1);
                 }
                 foreach (var m in mixer.mixins)
                 {
-                    var functionEnumerator = new FilteredEnumerator<SortedWordBuffer>(m.Buffer, SDSLOp.OpFunction);
-                    while (functionEnumerator.MoveNext())
+                    var variableEnumerator = new FilteredEnumerator<SortedWordBuffer>(m.Buffer, SDSLOp.OpVariable);
+                    while (variableEnumerator.MoveNext())
                     {
                         var nameEnumerator = new FilteredEnumerator<SortedWordBuffer>(m.Buffer, SDSLOp.OpName);
                         while (nameEnumerator.MoveNext())
                         {
                             if (
-                                functionEnumerator.Current.ResultId == nameEnumerator.Current.Operands[0]
+                                variableEnumerator.Current.ResultId == nameEnumerator.Current.Operands[0]
                                 && nameEnumerator.Current.GetOperand<LiteralString>("name").Value == name
                             )
                             {
-                                var typeToFind = functionEnumerator.Current.ResultType ?? -1;
+
+                                var typeToFind = variableEnumerator.Current.ResultType ?? -1;
                                 foreach (var i in m.Instructions)
                                 {
                                     if (i.ResultId == typeToFind)
                                     {
                                         var tmp = mixer.buffer.Duplicate(i);
-                                        var result = mixer.buffer.AddOpSDSLImportFunction(
+                                        var result = mixer.buffer.AddOpSDSLImportVariable(
                                             name,
                                             m.Name,
-                                            functionEnumerator.Current.ResultId,
-                                            tmp.ResultType
+                                            variableEnumerator.Current.ResultId
                                         );
-                                        return new(name,
-                                            result.ResultId ?? -1,
-                                            functionEnumerator.Current.ResultType ?? -1
+                                        return new(
+                                            name,
+                                            result.ResultId ?? -1
                                         );
                                     }
                                 }
@@ -70,7 +70,7 @@ public partial class Mixer
             }
         }
 
-        public Functions(Mixer mixer)
+        public Variables(Mixer mixer)
         {
             this.mixer = mixer;
         }

@@ -20,7 +20,9 @@ public partial class InstructionInfo
         OrderGroup[(SDSLOp.OpCapability, null)] = 0;
         OrderGroup[(SDSLOp.OpSDSLMixinOffset, null)] = 0;
         OrderGroup[(SDSLOp.OpSDSLMixinInherit, null)] = 0;
-        OrderGroup[(SDSLOp.OpSDSLImportIdRef, null)] = 1;
+        OrderGroup[(SDSLOp.OpSDSLCompose, null)] = 0;
+        foreach (var e in Enum.GetValues<SDSLOp>().Where(x => x.ToString().StartsWith("OpSDSLImport")))
+            OrderGroup[(e, null)] = 1;
         OrderGroup[(SDSLOp.OpExtension, null)] = 1;
         OrderGroup[(SDSLOp.OpExtInstImport, null)] = 2;
         OrderGroup[(SDSLOp.OpMemoryModel, null)] = 3;

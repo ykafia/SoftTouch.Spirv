@@ -14,7 +14,7 @@ public ref struct MutRefInstruction
     public int WordCount
     {
         get => Words[0] >> 16; 
-        private set => Words[0] = value << 16 | Words[0] & 0xFF;
+        set => Words[0] = value << 16 | Words[0] & 0xFF;
     }
 
     private int _index;

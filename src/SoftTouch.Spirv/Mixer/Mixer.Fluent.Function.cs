@@ -10,14 +10,15 @@ public partial class Mixer
     public ref struct FunctionBuilder
     {
         Mixer mixer;
+        Instruction function;
         EntryPoint? entryPoint;
         VariableBuffer variableIds;
-        public FunctionBuilder(Mixer mixer) 
+        public FunctionBuilder(Mixer mixer, string name) 
         { 
             this.mixer = mixer;
             variableIds = new();
         }
-        public FunctionBuilder(Mixer mixer, EntryPoint entryPoint)
+        public FunctionBuilder(Mixer mixer, EntryPoint entryPoint, string name)
         {
             this.mixer = mixer;
             this.entryPoint = entryPoint;
@@ -43,8 +44,9 @@ public partial class Mixer
 
         public FunctionBuilder CallFunction(string functionName, Span<IdRef> parameters)
         {
-            var function = mixer.functions[functionName];
-            mixer.buffer.AddOpFunctionCall(function.Type, function.Id, parameters);
+            throw new NotImplementedException();
+            //var function = mixer.functions[functionName];
+            //mixer.buffer.AddOpFunctionCall(function.Type, function.Id, parameters);
             return this;
         }
         
@@ -59,6 +61,10 @@ public partial class Mixer
         public Mixer FunctionEnd()
         {
             mixer.buffer.AddOpFunctionEnd();
+            if(entryPoint != null)
+            {
+                //mixer.buffer.AddOpEntryPoint()
+            }
             return mixer;
         }
     }

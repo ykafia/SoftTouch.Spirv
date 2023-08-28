@@ -9,27 +9,18 @@ namespace SoftTouch.Spirv;
 
 public sealed partial class Mixer : MixerBase
 {
+    Functions functions => new(this);
+    Variables variables => new(this);
+    //FunctionBuffer functions;
 
-    ExpandableBuffer<(string, int)> constants;
-    VariableBuffer inoutVariables;
-    FunctionBuffer functions;
 
-    
 
     public static Inheritance Create(string name)
     {
         return new(new(name));
     }
 
-    public Mixer(string name) : base(name)
-    {
-        constants = new();
-        inoutVariables = new();
-        functions = new();
-        DisposeBuffers += constants.Dispose;
-        DisposeBuffers += inoutVariables.Dispose;
-        DisposeBuffers += functions.Dispose;
-    }
+    public Mixer(string name) : base(name){}
 
     public EntryPoint WithEntryPoint(ExecutionModel model, string name)
     {
@@ -54,7 +45,6 @@ public sealed partial class Mixer : MixerBase
         var t_variable = GetOrCreateBaseType(type);
         var variable = buffer.AddOpVariable(t_variable.ResultId ?? -1, StorageClass.Input, null);
         buffer.AddOpName(variable.ResultId ?? -1, name);
-        inoutVariables[name] = variable.ResultId ?? -1;
         return this;
     }
     public Mixer WithOutput(string type, string name)
@@ -62,7 +52,6 @@ public sealed partial class Mixer : MixerBase
         var t_variable = GetOrCreateBaseType(type);
         var variable = buffer.AddOpVariable(t_variable.ResultId ?? -1, StorageClass.Output, null);
         buffer.AddOpName(variable.ResultId ?? -1, name);
-        inoutVariables[name] = variable.ResultId ?? -1;
         return this;
     }
 
@@ -79,70 +68,60 @@ public sealed partial class Mixer : MixerBase
         {
             var t_const = GetOrCreateBaseType("sbyte");
             var cons = buffer.AddOpConstant<LiteralInteger>(t_const.ResultId ?? -1, vi8);
-            constants.Add((name, cons.ResultId ?? -1));
             return cons.AsRef();
         }
         else if (value is int vi16)
         {
             var t_const = GetOrCreateBaseType("short");
             var cons = buffer.AddOpConstant<LiteralInteger>(t_const.ResultId ?? -1, vi16);
-            constants.Add((name, cons.ResultId ?? -1));
             return cons.AsRef();
         }
         else if (value is int vi32)
         {
             var t_const = GetOrCreateBaseType("int");
             var cons = buffer.AddOpConstant<LiteralInteger>(t_const.ResultId ?? -1, vi32);
-            constants.Add((name, cons.ResultId ?? -1));
             return cons.AsRef();
         }
         else if (value is long vi64)
         {
             var t_const = GetOrCreateBaseType("long");
             var cons = buffer.AddOpConstant<LiteralInteger>(t_const.ResultId ?? -1, vi64);
-            constants.Add((name, cons.ResultId ?? -1));
             return cons.AsRef();
         }
         else if (value is int vu8)
         {
             var t_const = GetOrCreateBaseType("byte");
             var cons = buffer.AddOpConstant<LiteralInteger>(t_const.ResultId ?? -1, vu8);
-            constants.Add((name, cons.ResultId ?? -1));
             return cons.AsRef();
         }
         else if (value is int vu16)
         {
             var t_const = GetOrCreateBaseType("ushort");
             var cons = buffer.AddOpConstant<LiteralInteger>(t_const.ResultId ?? -1, vu16);
-            constants.Add((name, cons.ResultId ?? -1));
             return cons.AsRef();
         }
         else if (value is int vu32)
         {
             var t_const = GetOrCreateBaseType("uint");
             var cons = buffer.AddOpConstant<LiteralInteger>(t_const.ResultId ?? -1, vu32);
-            constants.Add((name, cons.ResultId ?? -1));
             return cons.AsRef();
         }
         else if (value is long vu64)
         {
             var t_const = GetOrCreateBaseType("ulong");
             var cons = buffer.AddOpConstant<LiteralInteger>(t_const.ResultId ?? -1, vu64);
-            constants.Add((name, cons.ResultId ?? -1));
             return cons.AsRef();
         }
         else if (value is float vf32)
         {
             var t_const = GetOrCreateBaseType("float");
             var cons = buffer.AddOpConstant<LiteralFloat>(t_const.ResultId ?? -1, vf32);
-            constants.Add((name, cons.ResultId ?? -1));
             return cons.AsRef();
         }
         else if (value is float vf64)
         {
             var t_const = GetOrCreateBaseType("double");
             var cons = buffer.AddOpConstant<LiteralFloat>(t_const.ResultId ?? -1, vf64);
-            constants.Add((name, cons.ResultId ?? -1));
             return cons.AsRef();
         }
         else if (value is Vector2 vec2)
@@ -153,7 +132,6 @@ public sealed partial class Mixer : MixerBase
             var c1 = buffer.AddOpConstant<LiteralFloat>(t_const.ResultId ?? -1, vec2.X);
             var c2 = buffer.AddOpConstant<LiteralFloat>(t_const.ResultId ?? -1, vec2.Y);
             var cons = buffer.AddOpConstantComposite(t_const2.ResultId ?? -1, stackalloc IdRef[] { c1.ResultId ?? -1, c2.ResultId ?? -1 });
-            constants.Add((name, cons.ResultId ?? -1));
             return cons.AsRef();
         }
         else if (value is Vector3 vec3)
@@ -165,7 +143,6 @@ public sealed partial class Mixer : MixerBase
             var c2 = buffer.AddOpConstant<LiteralFloat>(t_const.ResultId ?? -1, vec3.Y);
             var c3 = buffer.AddOpConstant<LiteralFloat>(t_const.ResultId ?? -1, vec3.Z);
             var cons = buffer.AddOpConstantComposite(t_const2.ResultId ?? -1, stackalloc IdRef[] { c1.ResultId ?? -1, c2.ResultId ?? -1, c3.ResultId ?? -1 });
-            constants.Add((name, cons.ResultId ?? -1));
             return cons.AsRef();
         }
         else if (value is Vector4 vec4)
@@ -178,7 +155,6 @@ public sealed partial class Mixer : MixerBase
             var c3 = buffer.AddOpConstant<LiteralFloat>(t_const.ResultId ?? -1, vec4.Z);
             var c4 = buffer.AddOpConstant<LiteralFloat>(t_const.ResultId ?? -1, vec4.W);
             var cons = buffer.AddOpConstantComposite(t_const2.ResultId ?? -1, stackalloc IdRef[] { c1.ResultId ?? -1, c2.ResultId ?? -1, c3.ResultId ?? -1, c4.ResultId ?? -1 });
-            constants.Add((name, cons.ResultId ?? -1));
             return cons.AsRef();
         }
 

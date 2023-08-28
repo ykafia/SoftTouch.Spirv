@@ -59,6 +59,52 @@
       ]
     },
     {
+      "opname": "OpSDSLImportFunction",
+      "class": "Miscellaneous",
+      "operands": [
+        {
+          "kind": "IdResult"
+        },
+        {
+          "kind": "LiteralString",
+          "name": "functionName"
+        },
+        {
+          "kind": "LiteralString",
+          "name": "mixinName"
+        },
+        {
+          "kind": "LiteralInteger",
+          "name": "id"
+        },
+        {
+          "kind": "LiteralInteger",
+          "name": "typeId"
+        }
+      ]
+    },
+    {
+      "opname": "OpSDSLImportVariable",
+      "class": "Miscellaneous",
+      "operands": [
+        {
+          "kind": "IdResult"
+        },
+        {
+          "kind": "LiteralString",
+          "name": "variableName"
+        },
+        {
+          "kind": "LiteralString",
+          "name": "mixinName"
+        },
+        {
+          "kind": "LiteralInteger",
+          "name": "id"
+        }
+      ]
+    },
+    {
       "opname": "OpSDSLImportIdRef",
       "class": "Miscellaneous",
       "operands": [

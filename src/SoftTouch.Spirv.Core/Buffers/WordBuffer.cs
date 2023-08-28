@@ -73,6 +73,16 @@ public sealed partial class WordBuffer : ExpandableBuffer<int>, ISpirvBuffer
         return new(this, InstructionCount - 1);
     }
 
+    public Instruction Duplicate(RefInstruction instruction)
+    {
+        var m = new MutRefInstruction(stackalloc int[instruction.WordCount]);
+        m.OpCode = instruction.OpCode;
+        m.WordCount = instruction.WordCount;
+        instruction.Operands.CopyTo(m.Words[1..]);
+        Add(m);
+        return new(this, InstructionCount - 1);
+    }
+
 
     public byte[] GenerateSpirv()
     {

@@ -34,6 +34,24 @@ public ref struct RefInstruction
     public OperandEnumerator GetEnumerator() => new(this);
 
 
+    public T GetOperand<T>(string name)
+        where T : struct, IFromSpirv<T>
+    {
+        var info = InstructionInfo.GetInfo(OpCode);
+        var infoEnumerator = info.GetEnumerator();
+        var operandEnumerator = GetEnumerator();
+        while(infoEnumerator.MoveNext())
+        {
+            operandEnumerator.MoveNext();
+            if(infoEnumerator.Current.Name == name)
+            {
+                return operandEnumerator.Current.To<T>();
+            }
+        }
+        throw new Exception($"Instruction {OpCode} has no operand named \"{name}\"");
+    }
+
+
     public static bool operator ==(RefInstruction r1, RefInstruction r2) => r1.Words == r2.Words;
     public static bool operator !=(RefInstruction r1, RefInstruction r2) => r1.Words != r2.Words;
 
