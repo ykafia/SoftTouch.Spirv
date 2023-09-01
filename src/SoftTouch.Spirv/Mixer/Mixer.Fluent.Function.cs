@@ -33,8 +33,11 @@ public partial class Mixer
 
         public FunctionBuilder DeclareAssign(string type, string name, Func<Mixer,IdRef> function)
         {
+            var resultType = mixer.CreateTypePointer(type.AsMemory(), StorageClass.Function);
             var result = function.Invoke(mixer);
-            throw new NotImplementedException();
+            var variable = mixer.buffer.AddOpVariable(resultType.ResultId ?? - 1, StorageClass.Function,result);
+            mixer.buffer.AddOpName(variable.ResultId ?? -1, name);
+            return this;
         }
         public FunctionBuilder Assign(string name, Func<Mixer, IdRef> function)
         {

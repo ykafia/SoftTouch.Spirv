@@ -34,22 +34,25 @@ public sealed partial class Mixer : MixerBase
         return this;
     }
 
-    public Mixer WithType(string type)
+    public Mixer WithType(string type, StorageClass? storage = null)
     {
-        GetOrCreateBaseType(type);
+        if (type.Contains('*'))
+            CreateTypePointer(type.AsMemory(), storage ?? throw new Exception("storage should not be null"));
+        else 
+            GetOrCreateBaseType(type.AsMemory());
         return this;
     }
 
     public Mixer WithInput(string type, string name)
     {
-        var t_variable = GetOrCreateBaseType(type);
+        var t_variable = GetOrCreateBaseType(type.AsMemory());
         var variable = buffer.AddOpVariable(t_variable.ResultId ?? -1, StorageClass.Input, null);
         buffer.AddOpName(variable.ResultId ?? -1, name);
         return this;
     }
     public Mixer WithOutput(string type, string name)
     {
-        var t_variable = GetOrCreateBaseType(type);
+        var t_variable = GetOrCreateBaseType(type.AsMemory());
         var variable = buffer.AddOpVariable(t_variable.ResultId ?? -1, StorageClass.Output, null);
         buffer.AddOpName(variable.ResultId ?? -1, name);
         return this;
@@ -66,68 +69,68 @@ public sealed partial class Mixer : MixerBase
     {
         if (value is int vi8)
         {
-            var t_const = GetOrCreateBaseType("sbyte");
+            var t_const = GetOrCreateBaseType("sbyte".AsMemory());
             var cons = buffer.AddOpConstant<LiteralInteger>(t_const.ResultId ?? -1, vi8);
             return cons.AsRef();
         }
         else if (value is int vi16)
         {
-            var t_const = GetOrCreateBaseType("short");
+            var t_const = GetOrCreateBaseType("short".AsMemory());
             var cons = buffer.AddOpConstant<LiteralInteger>(t_const.ResultId ?? -1, vi16);
             return cons.AsRef();
         }
         else if (value is int vi32)
         {
-            var t_const = GetOrCreateBaseType("int");
+            var t_const = GetOrCreateBaseType("int".AsMemory());
             var cons = buffer.AddOpConstant<LiteralInteger>(t_const.ResultId ?? -1, vi32);
             return cons.AsRef();
         }
         else if (value is long vi64)
         {
-            var t_const = GetOrCreateBaseType("long");
+            var t_const = GetOrCreateBaseType("long".AsMemory());
             var cons = buffer.AddOpConstant<LiteralInteger>(t_const.ResultId ?? -1, vi64);
             return cons.AsRef();
         }
         else if (value is int vu8)
         {
-            var t_const = GetOrCreateBaseType("byte");
+            var t_const = GetOrCreateBaseType("byte".AsMemory());
             var cons = buffer.AddOpConstant<LiteralInteger>(t_const.ResultId ?? -1, vu8);
             return cons.AsRef();
         }
         else if (value is int vu16)
         {
-            var t_const = GetOrCreateBaseType("ushort");
+            var t_const = GetOrCreateBaseType("ushort".AsMemory());
             var cons = buffer.AddOpConstant<LiteralInteger>(t_const.ResultId ?? -1, vu16);
             return cons.AsRef();
         }
         else if (value is int vu32)
         {
-            var t_const = GetOrCreateBaseType("uint");
+            var t_const = GetOrCreateBaseType("uint".AsMemory());
             var cons = buffer.AddOpConstant<LiteralInteger>(t_const.ResultId ?? -1, vu32);
             return cons.AsRef();
         }
         else if (value is long vu64)
         {
-            var t_const = GetOrCreateBaseType("ulong");
+            var t_const = GetOrCreateBaseType("ulong".AsMemory());
             var cons = buffer.AddOpConstant<LiteralInteger>(t_const.ResultId ?? -1, vu64);
             return cons.AsRef();
         }
         else if (value is float vf32)
         {
-            var t_const = GetOrCreateBaseType("float");
+            var t_const = GetOrCreateBaseType("float".AsMemory());
             var cons = buffer.AddOpConstant<LiteralFloat>(t_const.ResultId ?? -1, vf32);
             return cons.AsRef();
         }
         else if (value is float vf64)
         {
-            var t_const = GetOrCreateBaseType("double");
+            var t_const = GetOrCreateBaseType("double".AsMemory());
             var cons = buffer.AddOpConstant<LiteralFloat>(t_const.ResultId ?? -1, vf64);
             return cons.AsRef();
         }
         else if (value is Vector2 vec2)
         {
-            var t_const = GetOrCreateBaseType("float");
-            var t_const2 = GetOrCreateBaseType("float2");
+            var t_const = GetOrCreateBaseType("float".AsMemory());
+            var t_const2 = GetOrCreateBaseType("float2".AsMemory());
 
             var c1 = buffer.AddOpConstant<LiteralFloat>(t_const.ResultId ?? -1, vec2.X);
             var c2 = buffer.AddOpConstant<LiteralFloat>(t_const.ResultId ?? -1, vec2.Y);
@@ -136,8 +139,8 @@ public sealed partial class Mixer : MixerBase
         }
         else if (value is Vector3 vec3)
         {
-            var t_const = GetOrCreateBaseType("float");
-            var t_const2 = GetOrCreateBaseType("float3");
+            var t_const = GetOrCreateBaseType("float".AsMemory());
+            var t_const2 = GetOrCreateBaseType("float3".AsMemory());
 
             var c1 = buffer.AddOpConstant<LiteralFloat>(t_const.ResultId ?? -1, vec3.X);
             var c2 = buffer.AddOpConstant<LiteralFloat>(t_const.ResultId ?? -1, vec3.Y);
@@ -147,8 +150,8 @@ public sealed partial class Mixer : MixerBase
         }
         else if (value is Vector4 vec4)
         {
-            var t_const = GetOrCreateBaseType("float");
-            var t_const2 = GetOrCreateBaseType("float4");
+            var t_const = GetOrCreateBaseType("float".AsMemory());
+            var t_const2 = GetOrCreateBaseType("float4".AsMemory());
 
             var c1 = buffer.AddOpConstant<LiteralFloat>(t_const.ResultId ?? -1, vec4.X);
             var c2 = buffer.AddOpConstant<LiteralFloat>(t_const.ResultId ?? -1, vec4.Y);

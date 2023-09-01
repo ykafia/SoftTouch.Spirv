@@ -27,7 +27,7 @@ public partial class Mixer
 
         public FunctionBuilder FunctionStart()
         {
-            return new(mixer,this);
+            return new(mixer,this, name);
         }
 
         public Mixer FinishEntryPoint()
