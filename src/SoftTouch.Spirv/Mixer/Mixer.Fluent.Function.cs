@@ -13,8 +13,8 @@ public partial class Mixer
         Instruction function;
         EntryPoint? entryPoint;
         VariableBuffer variableIds;
-        public FunctionBuilder(Mixer mixer, string name) 
-        { 
+        public FunctionBuilder(Mixer mixer, string name)
+        {
             this.mixer = mixer;
             variableIds = new();
         }
@@ -31,11 +31,12 @@ public partial class Mixer
             return this;
         }
 
-        public FunctionBuilder DeclareAssign(string type, string name, Func<Mixer,IdRef> function)
+        public FunctionBuilder DeclareAssign(string type, string name, Func<Mixer, IdRef> function)
         {
-            var resultType = mixer.CreateTypePointer(type.AsMemory(), StorageClass.Function);
-            var result = function.Invoke(mixer);
-            var variable = mixer.buffer.AddOpVariable(resultType.ResultId ?? - 1, StorageClass.Function,result);
+            var resultType = mixer.GetOrCreateBaseType(type.AsMemory());
+            var ptr = mixer.buffer.AddOpTypePointer(StorageClass.Function, resultType.ResultId ?? -1);
+            var value = function.Invoke(mixer);
+            var variable = mixer.buffer.AddOpVariable(ptr.ResultId ?? -1, StorageClass.Function, value);
             mixer.buffer.AddOpName(variable.ResultId ?? -1, name);
             return this;
         }
@@ -52,7 +53,7 @@ public partial class Mixer
             //mixer.buffer.AddOpFunctionCall(function.Type, function.Id, parameters);
             return this;
         }
-        
+
         public FunctionBuilder Return(IdRef? value = null)
         {
             if (value != null)
@@ -64,7 +65,7 @@ public partial class Mixer
         public Mixer FunctionEnd()
         {
             mixer.buffer.AddOpFunctionEnd();
-            if(entryPoint != null)
+            if (entryPoint != null)
             {
                 //mixer.buffer.AddOpEntryPoint()
             }

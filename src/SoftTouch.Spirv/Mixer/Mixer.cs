@@ -9,8 +9,8 @@ namespace SoftTouch.Spirv;
 
 public sealed partial class Mixer : MixerBase
 {
-    Functions functions => new(this);
-    Variables variables => new(this);
+    public FunctionFinder Functions => new(this);
+    public VariableFinder Variables => new(this);
     //FunctionBuffer functions;
 
 

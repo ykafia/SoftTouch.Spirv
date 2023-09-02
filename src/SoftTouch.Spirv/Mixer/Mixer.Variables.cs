@@ -16,7 +16,7 @@ public record struct VariableInfo(string Name, IdRef Id);
 
 public partial class Mixer
 {
-    public ref struct Variables
+    public ref struct VariableFinder
     {
         Mixer mixer;
 
@@ -70,7 +70,7 @@ public partial class Mixer
             }
         }
 
-        public Variables(Mixer mixer)
+        public VariableFinder(Mixer mixer)
         {
             this.mixer = mixer;
         }

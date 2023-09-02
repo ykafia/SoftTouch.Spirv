@@ -16,7 +16,7 @@ public record struct FunctionInfo(string Name, IdRef Id, IdResultType Type);
 
 public partial class Mixer
 {
-    public ref struct Functions
+    public ref struct FunctionFinder
     {
         Mixer mixer;
 
@@ -70,7 +70,7 @@ public partial class Mixer
             }
         }
 
-        public Functions(Mixer mixer)
+        public FunctionFinder(Mixer mixer)
         {
             this.mixer = mixer;
         }
