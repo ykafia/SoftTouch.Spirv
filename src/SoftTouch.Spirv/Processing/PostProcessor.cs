@@ -23,6 +23,7 @@ public static class PostProcessor
     static void Apply(SpirvBuffer buffer)
     {
         Apply<IdRefOffsetter>(buffer);
+        Apply<MemoryModelDuplicatesRemover>(buffer);
         Apply<TypeDuplicateRemover>(buffer);
         Apply<BoundReducer>(buffer);
         Apply<SDSLOpRemover>(buffer);

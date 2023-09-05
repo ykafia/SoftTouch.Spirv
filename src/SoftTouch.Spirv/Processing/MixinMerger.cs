@@ -23,12 +23,14 @@ public struct MixinMerger : IPostProcessorPass
     public readonly void Apply(SpirvBuffer buffer)
     {
         var temp = new SpirvBuffer();
-        foreach(var e in new OrderedSpvBuffer(buffer))
+        var ordered = new OrderedSpvBuffer(buffer);
+        foreach (var e in ordered)
             if(e.OpCode != SDSLOp.OpNop)
-                temp.Add(e.Words);
+                temp.Add(e.Words.Span);
         
         buffer.Replace(temp, out var dispose);
         if(dispose)
             temp.Dispose();
+        buffer.RecomputeBound();
     }
 }

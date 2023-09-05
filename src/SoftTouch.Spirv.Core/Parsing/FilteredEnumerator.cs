@@ -14,6 +14,7 @@ public ref struct FilteredEnumerator<T>
     where T : ISpirvBuffer
 {
     int wordIndex;
+    int index;
     bool started;
     T buffer;
     readonly Span<int> instructionWords => buffer.Span;
@@ -74,7 +75,7 @@ public ref struct FilteredEnumerator<T>
         filterType = FilterType.Op4;
     }
 
-    public RefInstruction Current => ParseCurrentInstruction();
+    public Instruction Current => ParseCurrentInstruction();
 
     bool Matches(SDSLOp toCheck)
     {
@@ -93,10 +94,12 @@ public ref struct FilteredEnumerator<T>
         if (!started)
         {
             started = true;
+            index = 0;
             var sizeToStep = 0;
             while (wordIndex + sizeToStep < instructionWords.Length && !Matches((SDSLOp)(instructionWords[wordIndex + sizeToStep] & 0xFFFF)))
             {
                 sizeToStep += instructionWords[wordIndex + sizeToStep] >> 16;
+                index += 1;
             }
             wordIndex += sizeToStep;
             if (wordIndex >= instructionWords.Length)
@@ -109,6 +112,7 @@ public ref struct FilteredEnumerator<T>
             while(wordIndex + sizeToStep < instructionWords.Length && !Matches((SDSLOp)(instructionWords[wordIndex + sizeToStep] & 0xFFFF)))
             {
                 sizeToStep += instructionWords[wordIndex + sizeToStep] >> 16;
+                index += 1;
             }
             wordIndex += sizeToStep;
             if (wordIndex >= instructionWords.Length)
@@ -119,10 +123,10 @@ public ref struct FilteredEnumerator<T>
     }
 
 
-    public RefInstruction ParseCurrentInstruction()
+    public Instruction ParseCurrentInstruction()
     {
-        var wordNumber = instructionWords[wordIndex] >> 16;
-        return RefInstruction.Parse(buffer.Memory, wordIndex);
+        var wordCount= instructionWords[wordIndex] >> 16;
+        return new(buffer, buffer.Memory.Slice(wordIndex, wordCount), index);
     }
 
     internal enum FilterType

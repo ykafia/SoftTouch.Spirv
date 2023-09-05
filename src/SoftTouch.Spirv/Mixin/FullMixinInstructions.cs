@@ -24,7 +24,7 @@ public struct FullMixinInstructions
         InstructionEnumerator self;
 
 
-        public MixinRefInstruction Current => graphFinished ? new(mixin.Name, self.Current) : enumerator.Current;
+        public MixinInstruction Current => graphFinished ? new(mixin.Name, self.Current) : enumerator.Current;
 
         public Enumerator(Mixin mixin)
         {

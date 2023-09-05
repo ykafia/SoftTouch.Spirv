@@ -19,16 +19,24 @@ public partial class Mixer
     public ref struct VariableFinder
     {
         Mixer mixer;
+        bool io;
 
         public VariableInfo this[string name]
         {
             get
             {
+                var selfFiltered = new FilteredEnumerator<WordBuffer>(mixer.buffer, SDSLOp.OpVariable);
+                while (selfFiltered.MoveNext())
+                {
+                    var varName = FindVariableName(mixer, selfFiltered.Current.ResultId ?? -1);
+                    if (varName == name && io == (selfFiltered.Current.Words.Span[2] == (int)Specification.StorageClass.Input || selfFiltered.Current.Words.Span[2] == (int)Specification.StorageClass.Output))
+                        return new(varName, selfFiltered.Current.ResultId ?? -1);
+                }
                 var filtered = new FilteredEnumerator<WordBuffer>(mixer.buffer, SDSLOp.OpSDSLImportVariable);
                 while (filtered.MoveNext())
                 {
                     var variableName = filtered.Current.GetOperand<LiteralString>("variableName");
-                    if (variableName.Value == name)
+                    if (variableName.Value == name && io == (selfFiltered.Current.Words.Span[2] == (int)Specification.StorageClass.Input || selfFiltered.Current.Words.Span[2] == (int)Specification.StorageClass.Output))
                         return new(variableName.Value, filtered.Current.ResultId ?? -1);
                 }
                 foreach (var m in mixer.mixins)
@@ -40,8 +48,9 @@ public partial class Mixer
                         while (nameEnumerator.MoveNext())
                         {
                             if (
-                                variableEnumerator.Current.ResultId == nameEnumerator.Current.Operands[0]
+                                variableEnumerator.Current.ResultId == nameEnumerator.Current.Operands.Span[0]
                                 && nameEnumerator.Current.GetOperand<LiteralString>("name").Value == name
+                                && io == (selfFiltered.Current.Words.Span[2] == (int)Specification.StorageClass.Input || selfFiltered.Current.Words.Span[2] == (int)Specification.StorageClass.Output)
                             )
                             {
 
@@ -50,7 +59,7 @@ public partial class Mixer
                                 {
                                     if (i.ResultId == typeToFind)
                                     {
-                                        var tmp = mixer.buffer.Duplicate(i);
+                                        var tmp = mixer.buffer.Duplicate(i.AsRef());
                                         var result = mixer.buffer.AddOpSDSLImportVariable(
                                             name,
                                             m.Name,
@@ -70,9 +79,22 @@ public partial class Mixer
             }
         }
 
-        public VariableFinder(Mixer mixer)
+        public static string FindVariableName(Mixer mixer, IdRef variable)
+        {
+            foreach(var e in mixer.buffer)
+            {
+                if(e.OpCode == SDSLOp.OpName && e.Words.Span[1] == variable)
+                {
+                    return e.AsRef().GetOperand<LiteralString>("name").Value;
+                }
+            }
+            throw new Exception("variable has no name");
+        }
+
+        public VariableFinder(Mixer mixer, bool io = false)
         {
             this.mixer = mixer;
+            this.io = io;
         }
     }
 }

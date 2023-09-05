@@ -14,49 +14,46 @@ public ref struct SpirvReader
         foreach (var instruction in data)
             instructions.Add(instruction);
     }
-    
-    
 
 
-    MemoryOwner<int>? data;
-    Span<int> words;
+
+
+    SpirvSpan buffer;
     public int Count => GetInstructionCount();
-    public int WordCount => words.Length;
+    public int WordCount => buffer.Length;
     public bool HasHeader { get; init; }
 
     public SpirvReader(byte[] byteCode, bool hasHeader = false)
     {
-        words = MemoryMarshal.Cast<byte, int>(byteCode.AsSpan());
+        buffer = new(MemoryMarshal.Cast<byte, int>(byteCode.AsSpan()));
         HasHeader = hasHeader;
     }
     public SpirvReader(MemoryOwner<int> slice, bool hasHeader = false)
     {
-        words = slice.Span[(hasHeader ? 5 : 0)..];
-        data = slice;
+        buffer = new(slice.Span);
         HasHeader = hasHeader;
     }
-    public SpirvReader(Memory<int> slice, bool hasHeader)
+    public SpirvReader(Memory<int> slice, bool hasHeader = false)
     {
-        words = slice.Span[(hasHeader ? 5 : 0)..];
-        //data = slice;
+        buffer = new(slice.Span[(hasHeader ? 5 : 0)..]);
     }
     public SpirvReader(Memory<int> slice)
     {
-        words = slice.Span;
+        buffer = new(slice.Span);
         //data = slice;
     }
 
 
-    public InstructionEnumerator GetEnumerator() => new(words, data?.Memory[(HasHeader ? 5 : 0)..]);
+    public InstructionEnumerator GetEnumerator() => new();
 
     public int GetInstructionCount()
     {
         var count = 0;
         var index = 0;
-        while(index < words.Length) 
+        while(index < buffer.Length) 
         {
             count += 1;
-            index += words[index] >> 16;
+            index += buffer[index] >> 16;
         }
         return count;
     }

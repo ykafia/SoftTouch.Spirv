@@ -5,5 +5,10 @@ public interface ISpirvBuffer
 {
     Span<int> Span { get; }
     Memory<int> Memory { get; }
-    public RefInstruction this[int index] {get;}
+    Span<int> InstructionSpan { get; }
+    Memory<int> InstructionMemory { get; }
+
+    bool HasHeader { get; }
+
+    public Instruction this[int index] {get;}
 }

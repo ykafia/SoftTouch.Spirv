@@ -14,8 +14,13 @@ public sealed class SortedWordBuffer : BufferBase<int>, ISpirvBuffer
     public int InstructionCount => new SpirvReader(Memory).Count;
     public bool IsEmpty => Span.IsEmpty;
 
+    public Span<int> InstructionSpan => InstructionMemory.Span;
 
-    public RefInstruction this[int index]
+    public Memory<int> InstructionMemory => HasHeader ? Memory[5..] : Memory;
+
+    public bool HasHeader => Span[0] == Spv.Specification.MagicNumber;
+
+    public Instruction this[int index]
     {
         get
         {
@@ -27,7 +32,7 @@ public sealed class SortedWordBuffer : BufferBase<int>, ISpirvBuffer
         }
     }
 
-    public InstructionEnumerator GetEnumerator() => new(Span, Memory);
+    public InstructionEnumerator GetEnumerator() => new(this);
 
     public SortedWordBuffer()
     {
@@ -40,8 +45,8 @@ public sealed class SortedWordBuffer : BufferBase<int>, ISpirvBuffer
         Length = 0;
         foreach (var item in buffer)
         {
-            item.Words.CopyTo(_owner.Span[Length..(Length + item.CountOfWords)]);
-            Length += item.CountOfWords;
+            item.Words.Span.CopyTo(_owner.Span[Length..(Length + item.WordCount)]);
+            Length += item.WordCount;
         }
     }
 }

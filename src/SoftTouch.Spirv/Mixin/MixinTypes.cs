@@ -24,7 +24,7 @@ public ref struct MixinTypes
             this.enumerator = enumerator;
         }
 
-        public RefInstruction Current => enumerator.Current;
+        public Instruction Current => enumerator.Current;
         
         public bool MoveNext()
         {

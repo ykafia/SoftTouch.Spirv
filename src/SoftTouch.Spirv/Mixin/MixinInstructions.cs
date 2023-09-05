@@ -12,12 +12,12 @@ public ref struct MixinInstructions
         this.mixin = mixin;
     }
 
-    public RefInstruction this[int index]
+    public Instruction this[int index]
     {
         get
         {
             var count = mixin.Buffer.Length;
-            if(index >= count) return RefInstruction.Empty;
+            if(index >= count) return Instruction.Empty;
             var enumerator = GetEnumerator();
             for(int i = 0; enumerator.MoveNext() && i < index; i++);
             return enumerator.Current;

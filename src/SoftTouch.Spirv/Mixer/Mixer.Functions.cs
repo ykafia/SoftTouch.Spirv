@@ -40,7 +40,7 @@ public partial class Mixer
                         while (nameEnumerator.MoveNext())
                         {
                             if (
-                                functionEnumerator.Current.ResultId == nameEnumerator.Current.Operands[0]
+                                functionEnumerator.Current.ResultId == nameEnumerator.Current.Operands.Span[0]
                                 && nameEnumerator.Current.GetOperand<LiteralString>("name").Value == name
                             )
                             {
@@ -49,7 +49,7 @@ public partial class Mixer
                                 {
                                     if (i.ResultId == typeToFind)
                                     {
-                                        var tmp = mixer.buffer.Duplicate(i);
+                                        var tmp = mixer.buffer.Duplicate(i.AsRef());
                                         var result = mixer.buffer.AddOpSDSLImportFunction(
                                             name,
                                             m.Name,

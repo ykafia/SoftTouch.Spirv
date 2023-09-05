@@ -12,11 +12,16 @@ public sealed class UnsortedWordBuffer : BufferBase<int>, ISpirvBuffer
 {
     public static readonly SortedWordBuffer Empty = new ();
 
+
+    public Span<int> InstructionSpan => InstructionMemory.Span;
+    public Memory<int> InstructionMemory => HasHeader ? Memory[5..] : Memory;
+    public bool HasHeader => Span[0] == Spv.Specification.MagicNumber;
+
     public int InstructionCount => new SpirvReader(Memory).Count;
     public bool IsEmpty => Span.IsEmpty;
     
     
-    public RefInstruction this[int index]
+    public Instruction this[int index]
     {
         get
         {
@@ -28,7 +33,7 @@ public sealed class UnsortedWordBuffer : BufferBase<int>, ISpirvBuffer
         }
     }
 
-    public InstructionEnumerator GetEnumerator() => new(Span, Memory);
+    public InstructionEnumerator GetEnumerator() => new(this);
 
     public UnsortedWordBuffer()
     {

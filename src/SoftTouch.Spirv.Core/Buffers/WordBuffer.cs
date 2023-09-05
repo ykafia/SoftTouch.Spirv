@@ -8,10 +8,15 @@ namespace SoftTouch.Spirv.Core.Buffers;
 public sealed partial class WordBuffer : ExpandableBuffer<int>, ISpirvBuffer
 {
     public Bound Bound { get; private set; }
-    public int InstructionCount => new SpirvReader(Memory[..Length]).Count;
+    public int InstructionCount => new SpirvReader(Memory).Count;
 
+    public Span<int> InstructionSpan => Span;
 
-    public RefInstruction this[int index]
+    public Memory<int> InstructionMemory => Memory;
+
+    public bool HasHeader => false;
+
+    public Instruction this[int index]
     {
         get
         {
@@ -22,7 +27,7 @@ public sealed partial class WordBuffer : ExpandableBuffer<int>, ISpirvBuffer
                 wid += Span[wid] >> 16;
                 id++;
             }
-            return RefInstruction.ParseRef(Span.Slice(wid, Span[wid] >> 16));
+            return new Instruction(this, Memory[wid..(wid+Span[wid] >> 16)],index);
         }
     }
     public WordBuffer()
@@ -61,9 +66,9 @@ public sealed partial class WordBuffer : ExpandableBuffer<int>, ISpirvBuffer
 
 
 
-    public void Insert(RefInstruction instruction)
+    public void Insert(Instruction instruction)
     {
-        Insert(Length, instruction.Words);
+        Insert(Length, instruction.Words.Span);
     }
 
 
@@ -98,7 +103,7 @@ public sealed partial class WordBuffer : ExpandableBuffer<int>, ISpirvBuffer
         while (enumerator.MoveNext())
         {
             var curr = enumerator.Current;
-            curr.Words.CopyTo(instructionWords.Slice(id, curr.Words.Length));
+            curr.Words.Span.CopyTo(instructionWords.Slice(id, curr.Words.Length));
             id += curr.Words.Length;
         }
         return output;

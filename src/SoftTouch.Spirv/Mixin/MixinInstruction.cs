@@ -4,20 +4,20 @@ namespace SoftTouch.Spirv;
 
 
 
-public ref struct MixinRefInstruction
+public ref struct MixinInstruction
 {
     public string MixinName { get; init; }
-    public RefInstruction Instruction { get; init; }
+    public Instruction Instruction { get; init; }
 
     public SDSLOp OpCode => Instruction.OpCode;
     public int? ResultId => Instruction.ResultId;
     public int? ResultType => Instruction.ResultType;
-    public Span<int> Words => Instruction.Words;
+    public Span<int> Words => Instruction.Words.Span;
     public bool IsEmpty => Instruction.IsEmpty;
 
-    public static implicit operator MixinRefInstruction(RefInstruction instruction) => new("",instruction);    
+    public static implicit operator MixinInstruction(Instruction instruction) => new("",instruction);    
 
-    public MixinRefInstruction(string mixinName, RefInstruction instruction)
+    public MixinInstruction(string mixinName, Instruction instruction)
     {
         MixinName = mixinName;
         Instruction = instruction;

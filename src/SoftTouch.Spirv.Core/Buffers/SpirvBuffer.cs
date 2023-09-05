@@ -14,10 +14,9 @@ public class SpirvBuffer : ExpandableBuffer<int>, ISpirvBuffer, IDisposable
     public Memory<int> InstructionMemory => _owner.Memory[5..Length];
     public RefHeader Header => new(_owner.Span[..5]);
     public RefInstructions Instructions => new(InstructionMemory);
+    public bool HasHeader => true;
 
-
-
-    public RefInstruction this[int index]
+    public Instruction this[int index]
     {
         get
         {
@@ -28,7 +27,7 @@ public class SpirvBuffer : ExpandableBuffer<int>, ISpirvBuffer, IDisposable
                 wid += Span[wid] >> 16;
                 id++;
             }
-            return RefInstruction.ParseRef(Span.Slice(wid, Span[wid] >> 16));
+            return new Instruction(this, Memory.Slice(wid, Span[wid] >> 16),index);
         }
     }
 
@@ -65,10 +64,19 @@ public class SpirvBuffer : ExpandableBuffer<int>, ISpirvBuffer, IDisposable
         }
     }
 
+    public void RecomputeBound()
+    {
+        int last = 0;
+        foreach(var i in this)
+        {
+            last = i.ResultId ?? last;
+        }
+        var header = Header;
+        header.Bound = last + 1;
+    }
+
     public override string ToString()
     {
         return new Disassembler().Disassemble(this);
-    }
-
-    
+    }    
 }

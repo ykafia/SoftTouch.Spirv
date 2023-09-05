@@ -21,7 +21,7 @@ public ref struct SortedMixinInstructionEnumerator
         lastMixin = -1;
         boundOffset = -1;
     }
-    public RefInstruction Current => Mixins[lastMixin].Instructions[lastIndex];
+    public readonly Instruction Current => Mixins[lastMixin].Instructions[lastIndex];
     public bool MoveNext()
     {
         if (Mixins.Count == 0)
@@ -47,7 +47,7 @@ public ref struct SortedMixinInstructionEnumerator
                     {
                         offset += 1;
                     }
-                    if (!instruction.IsEmpty && InstructionInfo.GetGroupOrder(instruction) == currentGroup)
+                    if (!instruction.IsEmpty && InstructionInfo.GetGroupOrder(instruction.AsRef()) == currentGroup)
                     {
                         lastIndex += offset;
                         return true;

@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.HighPerformance.Buffers;
+using SoftTouch.Spirv.Core.Buffers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,22 +13,21 @@ namespace SoftTouch.Spirv.Core.Parsing;
 public ref struct InstructionEnumerator
 {
     int wordIndex;
+    int index;
     bool started;
-    readonly Span<int> instructionWords;
-    Memory<int>? memorySlice;
+    ISpirvBuffer buffer;
 
     public int ResultIdReplacement { get; set; }
 
-    public InstructionEnumerator(Span<int> words, Memory<int>? slice = null)
+    public InstructionEnumerator(ISpirvBuffer buffer)
     {
         started = false;
         wordIndex = 0;
-        instructionWords = words;
-        memorySlice = slice;
+        this.buffer = buffer;
         ResultIdReplacement = 0;
     }
 
-    public RefInstruction Current => ParseCurrentInstruction();
+    public Instruction Current => ParseCurrentInstruction();
 
     public bool MoveNext()
     {
@@ -38,9 +38,10 @@ public ref struct InstructionEnumerator
         }
         else
         {
-            var sizeToStep = instructionWords[wordIndex] >> 16;
+            var sizeToStep = buffer.Span[wordIndex] >> 16;
             wordIndex += sizeToStep;
-            if (wordIndex >= instructionWords.Length)
+            index += 1;
+            if (wordIndex >= buffer.Span.Length)
                 return false;
             return true;
         }
@@ -48,14 +49,10 @@ public ref struct InstructionEnumerator
     }
 
 
-    public RefInstruction ParseCurrentInstruction()
+    public Instruction ParseCurrentInstruction()
     {
-        var wordNumber = instructionWords[wordIndex] >> 16;
-        if (memorySlice is not null)
-        {
-            return RefInstruction.Parse(memorySlice.Value, wordIndex);
-        }
-        else
-            return RefInstruction.ParseRef(instructionWords.Slice(wordIndex, wordNumber));
+        var count = buffer.Span[wordIndex] >> 16;
+        return new Instruction(buffer, buffer.Memory[wordIndex..(wordIndex + count)], index);
+
     }
 }

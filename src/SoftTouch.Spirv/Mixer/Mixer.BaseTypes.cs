@@ -7,15 +7,15 @@ namespace SoftTouch.Spirv;
 
 public partial class Mixer
 {
-    public MixinRefInstruction CreateTypePointer(ReadOnlyMemory<char> type, Spv.Specification.StorageClass storage)
+    public MixinInstruction CreateTypePointer(ReadOnlyMemory<char> type, Spv.Specification.StorageClass storage)
     {
         var t = GetOrCreateBaseType(type[..^1]);
-        return buffer.AddOpTypePointer(storage, t.ResultId ?? -1).AsRef();
+        return buffer.AddOpTypePointer(storage, t.ResultId ?? -1);
     }
-    public MixinRefInstruction GetOrCreateBaseType(ReadOnlyMemory<char> type)
+    public MixinInstruction GetOrCreateBaseType(ReadOnlyMemory<char> type)
     {
         var matched = MatchesBaseType(type);
-        if (matched is null) return RefInstruction.Empty;
+        if (matched is null) return Instruction.Empty;
         else
         {
             if (matched.Value.IsScalar)
@@ -25,18 +25,18 @@ public partial class Mixer
                     return found;
                 else return matched.Value.BaseType.Span switch
                 {
-                    "void" => buffer.AddOpTypeVoid().AsRef(),
-                    "sbyte" => buffer.AddOpTypeInt(8, 1).AsRef(),
-                    "byte" => buffer.AddOpTypeInt(8, 0).AsRef(),
-                    "short" => buffer.AddOpTypeInt(16, 1).AsRef(),
-                    "ushort" => buffer.AddOpTypeInt(16, 0).AsRef(),
-                    "int" => buffer.AddOpTypeInt(32, 1).AsRef(),
-                    "uint" => buffer.AddOpTypeInt(32, 0).AsRef(),
-                    "long" => buffer.AddOpTypeInt(64, 1).AsRef(),
-                    "ulong" => buffer.AddOpTypeInt(64, 0).AsRef(),
-                    "half" => buffer.AddOpTypeFloat(16).AsRef(),
-                    "float" => buffer.AddOpTypeFloat(32).AsRef(),
-                    "double" => buffer.AddOpTypeFloat(64).AsRef(),
+                    "void" => buffer.AddOpTypeVoid(),
+                    "sbyte" => buffer.AddOpTypeInt(8, 1),
+                    "byte" => buffer.AddOpTypeInt(8, 0),
+                    "short" => buffer.AddOpTypeInt(16, 1),
+                    "ushort" => buffer.AddOpTypeInt(16, 0),
+                    "int" => buffer.AddOpTypeInt(32, 1),
+                    "uint" => buffer.AddOpTypeInt(32, 0),
+                    "long" => buffer.AddOpTypeInt(64, 1),
+                    "ulong" => buffer.AddOpTypeInt(64, 0),
+                    "half" => buffer.AddOpTypeFloat(16),
+                    "float" => buffer.AddOpTypeFloat(32),
+                    "double" => buffer.AddOpTypeFloat(64),
                     _ => throw new NotImplementedException()
                 };
             }
@@ -49,11 +49,11 @@ public partial class Mixer
                 {
                     var b = GetOrCreateBaseType(matched.Value.BaseType);
                     if(b.MixinName == "")
-                        return buffer.AddOpTypeVector(b.ResultId ?? -1, new(matched?.Row)).AsRef();
+                        return buffer.AddOpTypeVector(b.ResultId ?? -1, new(matched?.Row));
                     else
                     {
                         var imported = buffer.AddOpSDSLImportIdRef(b.MixinName, b.ResultId ?? -1);
-                        return buffer.AddOpTypeVector(imported.ResultId ?? -1, new(matched?.Row)).AsRef();
+                        return buffer.AddOpTypeVector(imported.ResultId ?? -1, new(matched?.Row));
                     }
                 }
             }
@@ -66,11 +66,11 @@ public partial class Mixer
                 {
                     var b = GetOrCreateBaseType($"{matched.Value.BaseType.Span}{matched?.Row}".AsMemory());
                     if (b.MixinName == "")
-                        return buffer.AddOpTypeMatrix(b.ResultId ?? -1, new(matched?.Row)).AsRef();
+                        return buffer.AddOpTypeMatrix(b.ResultId ?? -1, new(matched?.Row));
                     else
                     {
                         var imported = buffer.AddOpSDSLImportIdRef(b.MixinName, b.ResultId ?? -1);
-                        return buffer.AddOpTypeMatrix(imported.ResultId ?? -1, new(matched?.Row)).AsRef();
+                        return buffer.AddOpTypeMatrix(imported.ResultId ?? -1, new(matched?.Row));
                     }
                 }
             }
@@ -80,11 +80,11 @@ public partial class Mixer
         }
     }
 
-    internal MixinRefInstruction FindMatrixType(in TypeMatch type)
+    internal MixinInstruction FindMatrixType(in TypeMatch type)
     {
         var baseType = FindVectorType(type with {Col = null});
         if(baseType.IsEmpty)
-            return RefInstruction.Empty;
+            return Instruction.Empty;
 
         // var enumerator = new MixinFilteredInstructionEnumerator(mixins, SDSLOp.OpTypeMatrix);
 
@@ -98,12 +98,12 @@ public partial class Mixer
 
         while (self.MoveNext())
         {
-            if(self.Current.Words[2] == baseType.Words[2] && self.Current.Words[3] == type.Col)
+            if(self.Current.Words.Span[2] == baseType.Words[2] && self.Current.Words.Span[3] == type.Col)
                 return self.Current;
         }
-        return RefInstruction.Empty;
+        return Instruction.Empty;
     }
-    internal MixinRefInstruction FindVectorType(in TypeMatch type)
+    internal MixinInstruction FindVectorType(in TypeMatch type)
     {
         var baseType = FindScalarType(type.BaseType);
         if(baseType.IsEmpty)
@@ -121,13 +121,13 @@ public partial class Mixer
 
         while (self.MoveNext())
         {
-            if (self.Current.Words[2] == baseType.Words[2] && self.Current.Words[3] == type.Row)
+            if (self.Current.Words.Span[2] == baseType.Words[2] && self.Current.Words.Span[3] == type.Row)
                 return self.Current;
         }
-        return RefInstruction.Empty;
+        return Instruction.Empty;
     }
 
-    internal MixinRefInstruction FindScalarType(ReadOnlyMemory<char> type)
+    internal MixinInstruction FindScalarType(ReadOnlyMemory<char> type)
     {
         (SDSLOp Filter, int? Width, int? Sign) filterData = type.Span switch
         {
@@ -163,12 +163,12 @@ public partial class Mixer
         {
             if (
                 (filterData.Width is null)
-                || (filterData.Width is not null && filterData.Sign is null && self.Current.Words[2] == filterData.Width)
-                || (filterData.Width is not null && filterData.Sign is not null && self.Current.Words[2] == filterData.Width && self.Current.Words[3] == filterData.Sign)
+                || (filterData.Width is not null && filterData.Sign is null && self.Current.Words.Span[2] == filterData.Width)
+                || (filterData.Width is not null && filterData.Sign is not null && self.Current.Words.Span[2] == filterData.Width && self.Current.Words.Span[3] == filterData.Sign)
             )
                 return self.Current;
         }
-        return RefInstruction.Empty;
+        return Instruction.Empty;
     }
 
     static string[] types = { "bool", "sbyte", "byte", "short", "ushort", "int", "uint", "long", "ulong", "half", "float", "double" };

@@ -18,26 +18,15 @@ public ref struct OrderedEnumerator
     
 
     ISpirvBuffer wbuff;
-    readonly Span<int> instructionWords {get; init;}
-    Memory<int> memorySlice {get; init;}
+    readonly Span<int> instructionWords => wbuff.InstructionSpan;
+    Memory<int> memorySlice => wbuff.InstructionMemory;
 
-    public OrderedEnumerator(WordBuffer buffer)
+    public OrderedEnumerator(ISpirvBuffer buffer)
     {
         started = false;
         wordIndex = 0;
         index = 0;
         wbuff = buffer;
-        instructionWords = buffer.Span;
-        memorySlice = buffer.Memory;
-    }
-    public OrderedEnumerator(SpirvBuffer buffer)
-    {
-        started = false;
-        wordIndex = 0;
-        index = 0;
-        wbuff = buffer;
-        instructionWords = buffer.InstructionSpan;
-        memorySlice = buffer.InstructionMemory;
     }
 
     public Instruction Current => ParseCurrentInstruction();
@@ -46,50 +35,89 @@ public ref struct OrderedEnumerator
     {
         if (!started)
         {
+            (var firstGroup, var firstPos) = (int.MaxValue, int.MaxValue);
             var wid = 0;
-            var count = new SpirvReader(memorySlice).Count;
-            var currentGroup = GetGroupOrder(0);
-            for (int i = 0; i < count && wid < instructionWords.Length; i++)
+            var idx = 0;
+            while(wid < instructionWords.Length)
             {
-                wid += instructionWords[wid] >> 16;
-                if (wid >= instructionWords.Length)
-                    break;
-                if (GetGroupOrder(wid) < currentGroup)
+                var group = GetGroupOrder(wid);
+                if(group < firstGroup)
                 {
-                    currentGroup = GetGroupOrder(wid);
-                    index = i;
-                    wordIndex = wid;
+                    firstGroup = group;
+                    firstPos = wid;
+                    index = idx;
                 }
+                idx += 1;
+                wid += instructionWords[wid] >> 16;
             }
+            wordIndex = firstPos;
             started = true;
             return true;
         }
         else
         {
-            
-            var count = new SpirvReader(memorySlice).Count;
             var currentGroup = GetGroupOrder(wordIndex);
-            for (int groupOffset = 0; groupOffset < 14; groupOffset++)
+            for (int group = currentGroup; group < 14; group += 1)
             {
-                var wid = 0;
-                for (int i = 0; i < count; i++)
+                if(group == currentGroup)
                 {
-                    if (wid >= instructionWords.Length)
-                        break;
-                    var g = GetGroupOrder(wid);
-                    if (GetGroupOrder(wid) == currentGroup + groupOffset && i != index)
+                    var offset = instructionWords[wordIndex] >> 16;
+                    var idx = index;
+                    while(wordIndex + offset <  instructionWords.Length)
                     {
-                        if (!(groupOffset == 0 && i < index))
+                        if(GetGroupOrder(wordIndex + offset) == group)
                         {
-                            index = i;
-                            wordIndex = wid;
+                            wordIndex += offset;
+                            index = idx;
                             return true;
                         }
+                        offset += instructionWords[offset] >> 16;
+                        idx += 1;
                     }
-                    wid += instructionWords[wid] >> 16;
+                }
+                else
+                {
+                    var wid = 0;
+                    var idx = 0;
+                    while (wid < instructionWords.Length)
+                    {
+                        var g = GetGroupOrder(wid);
+                        if (g == group)
+                        {
+                            wordIndex = wid;
+                            index = idx;
+                            return true;
+                        }
+                        idx += 1;
+                        wid += instructionWords[wid] >> 16;
+                    }
                 }
             }
             return false;
+
+            //var count = new SpirvReader(memorySlice).Count;
+            //var currentGroup = GetGroupOrder(wordIndex);
+            //for (int groupOffset = 0; groupOffset < 14; groupOffset++)
+            //{
+            //    var wid = 0;
+            //    for (int i = 0; i < count; i++)
+            //    {
+            //        if (wid >= instructionWords.Length)
+            //            break;
+            //        var g = GetGroupOrder(wid);
+            //        if (GetGroupOrder(wid) == currentGroup + groupOffset && i != index)
+            //        {
+            //            if (!(groupOffset == 0 && i < index))
+            //            {
+            //                index = i;
+            //                wordIndex = wid;
+            //                return true;
+            //            }
+            //        }
+            //        wid += instructionWords[wid] >> 16;
+            //    }
+            //}
+            //return false;
         }
 
     }
