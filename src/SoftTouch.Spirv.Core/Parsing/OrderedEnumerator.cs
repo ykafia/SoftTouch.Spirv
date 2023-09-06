@@ -33,6 +33,7 @@ public ref struct OrderedEnumerator
 
     public bool MoveNext()
     {
+        // The first time find the lowest group and index 
         if (!started)
         {
             (var firstGroup, var firstPos) = (int.MaxValue, int.MaxValue);
@@ -56,22 +57,23 @@ public ref struct OrderedEnumerator
         }
         else
         {
+            // We start from the current group since we've established there is no other below this one
             var currentGroup = GetGroupOrder(wordIndex);
-            for (int group = currentGroup; group < 14; group += 1)
+            for (int group = currentGroup; group < 15; group += 1)
             {
                 if(group == currentGroup)
                 {
                     var offset = instructionWords[wordIndex] >> 16;
-                    var idx = index;
+                    var idx = index + 1;
                     while(wordIndex + offset <  instructionWords.Length)
                     {
-                        if(GetGroupOrder(wordIndex + offset) == group)
+                        if(GetGroupOrder(wordIndex + offset) == group && idx > index)
                         {
                             wordIndex += offset;
                             index = idx;
                             return true;
                         }
-                        offset += instructionWords[offset] >> 16;
+                        offset += instructionWords[wordIndex + offset] >> 16;
                         idx += 1;
                     }
                 }
@@ -131,6 +133,7 @@ public ref struct OrderedEnumerator
 
     public Instruction ParseCurrentInstruction()
     {
-        return new(wbuff, index);
+        var result = new Instruction(wbuff, index);
+        return result;
     }
 }

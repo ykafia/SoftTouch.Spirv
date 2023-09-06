@@ -20,5 +20,6 @@ public partial class WordBuffer
         ints.CopyTo(buffer.Span);
         return buffer;
     }
+
     
 }

@@ -44,7 +44,7 @@ public ref struct SpirvReader
     }
 
 
-    public InstructionEnumerator GetEnumerator() => new();
+    public SpirvSpan.Enumerator GetEnumerator() => new(buffer.Span);
 
     public int GetInstructionCount()
     {

@@ -17,9 +17,12 @@ public record struct Instruction(ISpirvBuffer Buffer, Memory<int> Words, int Ind
         Buffer = buffer;
         Index = index;
         var wid = 0;
-        for(int i = 0; i < index; i+=1)
+        for (int i = 0; i < index; i += 1)
+        {
+            var refi = RefInstruction.ParseRef(buffer.InstructionSpan.Slice(wid, buffer.InstructionSpan[wid] >> 16));
             wid += buffer.InstructionSpan[wid] >> 16;
-        Words = buffer.InstructionMemory.Slice(wid, buffer.Span[wid] >> 16);
+        }
+        Words = buffer.InstructionMemory.Slice(wid, buffer.InstructionSpan[wid] >> 16);
     }
 
     public readonly SDSLOp OpCode => AsRef().OpCode;
@@ -36,4 +39,9 @@ public record struct Instruction(ISpirvBuffer Buffer, Memory<int> Words, int Ind
         => AsRef().GetOperand<T>(name);
 
     public readonly OperandEnumerator GetEnumerator() => AsRef().GetEnumerator();
+
+    public override string ToString()
+    {
+        return (ResultId == null ? "" : $"%{ResultId} = ") + $"{OpCode} {string.Join(" ", Operands.ToArray().Select(x => x.ToString()))}";
+    }
 }

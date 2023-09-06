@@ -137,4 +137,9 @@ public sealed partial class WordBuffer : ExpandableBuffer<int>, ISpirvBuffer
     internal static int GetWordLength(Span<PairIdRefLiteralInteger> values) => values.Length * 2;
     internal static int GetWordLength(Span<PairLiteralIntegerIdRef> values) => values.Length * 2;
 
+
+    public override string ToString()
+    {
+        return new Disassembler().Disassemble(this);
+    }
 }
