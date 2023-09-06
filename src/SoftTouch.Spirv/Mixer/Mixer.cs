@@ -175,7 +175,6 @@ public sealed partial class Mixer : MixerBase
     }
     public override string ToString()
     {
-        var dis = new Disassembler();
-        return dis.Disassemble(buffer);
+        return Disassembler.Disassemble(buffer);
     }
 }

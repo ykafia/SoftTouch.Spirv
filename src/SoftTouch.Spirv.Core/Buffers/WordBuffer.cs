@@ -140,6 +140,6 @@ public sealed partial class WordBuffer : ExpandableBuffer<int>, ISpirvBuffer
 
     public override string ToString()
     {
-        return new Disassembler().Disassemble(this);
+        return Disassembler.Disassemble(this);
     }
 }

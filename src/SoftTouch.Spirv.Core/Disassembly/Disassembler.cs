@@ -5,14 +5,10 @@ using static Spv.Specification;
 namespace SoftTouch.Spirv.Core;
 
 
-public class Disassembler
-{ 
-    public Disassembler()
-    {
-        
-    }
+public static class Disassembler
+{
 
-    public string Disassemble(Span<int> memory)
+    public static string Disassemble(Span<int> memory)
     {
         var words = MagicNumber == memory[0] ?
             memory[5..] : memory;
@@ -21,7 +17,7 @@ public class Disassembler
         return Disassemble(wbuff);
     }
 
-    public string Disassemble(Memory<int> memory)
+    public static string Disassemble(Memory<int> memory)
     {
         var words = MagicNumber == memory.Span[0] ?
             memory.Span[5..] : memory.Span;
@@ -29,7 +25,7 @@ public class Disassembler
         var wbuff = new WordBuffer(words);
         return Disassemble(wbuff);
     }
-    public string Disassemble(UnsortedWordBuffer wbuff)
+    public static string Disassemble(UnsortedWordBuffer wbuff)
     {
         var dis = new DisWriter(new SpirvReader(wbuff.Memory, wbuff.Span[0] == MagicNumber).ComputeBound());
 
@@ -46,7 +42,7 @@ public class Disassembler
         return dis.ToString();
     }
 
-    public string Disassemble(SortedWordBuffer wbuff)
+    public static string Disassemble(SortedWordBuffer wbuff)
     {
         var dis = new DisWriter(new SpirvReader(wbuff.Memory, wbuff.Span[0] == MagicNumber).ComputeBound());
 
@@ -62,7 +58,7 @@ public class Disassembler
         }
         return dis.ToString();
     }
-    public string Disassemble(SpirvBuffer wbuff)
+    public static string Disassemble(SpirvBuffer wbuff)
     {
         var dis = new DisWriter(new SpirvReader(wbuff.InstructionMemory).ComputeBound());
 
@@ -79,7 +75,7 @@ public class Disassembler
         return dis.ToString();
     }
 
-    public string Disassemble(WordBuffer wbuff)
+    public static string Disassemble(WordBuffer wbuff)
     {
         var dis = new DisWriter(new SpirvReader(wbuff.Memory, wbuff.Span[0] == MagicNumber).ComputeBound());
         
@@ -96,7 +92,7 @@ public class Disassembler
         return dis.ToString();
     }
 
-    public void Append(in SpvOperand o, DisWriter dis)
+    public static void Append(in SpvOperand o, DisWriter dis)
     {
         if (o.Kind == OperandKind.IdRef)
             dis.Append(o.To<IdRef>());

@@ -136,7 +136,7 @@ static void CreateShader()
 
     var sorted = new SortedWordBuffer(buffer);
 
-    Console.WriteLine(new Disassembler().Disassemble(sorted));
+    Console.WriteLine(Disassembler.Disassemble(sorted));
     
     //var list = new List<Instruction>(buffer.Count);
     //foreach(var e in buffer)

@@ -48,13 +48,12 @@ public partial struct Mixin
         {
             words.Insert(e.Instruction);
         }
-        return new Core.Disassembler().Disassemble(new UnsortedWordBuffer(words));
+        return Disassembler.Disassemble(new UnsortedWordBuffer(words));
     }
 
 
     public override string ToString()
     {
-        var dis = new Core.Disassembler();
-        return dis.Disassemble(Buffer.Memory);
+        return Disassembler.Disassemble(Buffer.Memory);
     }
 }

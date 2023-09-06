@@ -77,6 +77,6 @@ public class SpirvBuffer : ExpandableBuffer<int>, ISpirvBuffer, IDisposable
 
     public override string ToString()
     {
-        return new Disassembler().Disassemble(this);
+        return Disassembler.Disassemble(this);
     }    
 }
