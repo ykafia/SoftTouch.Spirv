@@ -16,6 +16,11 @@ public record struct VariableInfo(string Name, IdRef Id);
 
 public partial class Mixer
 {
+    public enum VariableFinderMask : byte
+    {
+        Global,
+        Function
+    }
     public ref struct VariableFinder
     {
         Mixer mixer;

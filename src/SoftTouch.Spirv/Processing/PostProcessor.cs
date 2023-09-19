@@ -11,8 +11,16 @@ public static class PostProcessor
     {
         var buffer = new SpirvBuffer();
         var mixin = MixinSourceProvider.Get(mixinName);
+        #if DEBUG
+        Console.WriteLine($"Processing {mixinName}");
+        #endif
         foreach (var m in mixin.Parents.ToGraph())
+        {
+            #if DEBUG
+            Console.WriteLine($"Adding {m.Name} to the buffer");
+            #endif
             buffer.Add(m.Buffer);
+        }
         buffer.Add(mixin.Buffer);
 
         Apply(buffer);

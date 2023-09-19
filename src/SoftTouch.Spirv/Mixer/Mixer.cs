@@ -56,14 +56,16 @@ public sealed partial class Mixer : MixerBase
     public Mixer WithInput(string type, string name)
     {
         var t_variable = GetOrCreateBaseType(type.AsMemory());
-        var variable = buffer.AddOpVariable(t_variable.ResultId ?? -1, StorageClass.Input, null);
+        var p_t_variable = buffer.AddOpTypePointer(StorageClass.Input, t_variable.ResultId ?? -1);
+        var variable = buffer.AddOpVariable(p_t_variable.ResultId ?? -1, StorageClass.Input, null);
         buffer.AddOpName(variable.ResultId ?? -1, name);
         return this;
     }
     public Mixer WithOutput(string type, string name)
     {
         var t_variable = GetOrCreateBaseType(type.AsMemory());
-        var variable = buffer.AddOpVariable(t_variable.ResultId ?? -1, StorageClass.Output, null);
+        var p_t_variable = buffer.AddOpTypePointer(StorageClass.Output, t_variable.ResultId ?? -1);
+        var variable = buffer.AddOpVariable(p_t_variable.ResultId ?? -1, StorageClass.Output, null);
         buffer.AddOpName(variable.ResultId ?? -1, name);
         return this;
     }
@@ -77,13 +79,13 @@ public sealed partial class Mixer : MixerBase
     public MixinInstruction CreateConstant<T>(string name, T value)
         where T : struct
     {
-        if (value is int vi8)
+        if (value is sbyte vi8)
         {
             var t_const = GetOrCreateBaseType("sbyte".AsMemory());
             var cons = buffer.AddOpConstant<LiteralInteger>(t_const.ResultId ?? -1, vi8);
             return cons;
         }
-        else if (value is int vi16)
+        else if (value is short vi16)
         {
             var t_const = GetOrCreateBaseType("short".AsMemory());
             var cons = buffer.AddOpConstant<LiteralInteger>(t_const.ResultId ?? -1, vi16);
@@ -101,25 +103,25 @@ public sealed partial class Mixer : MixerBase
             var cons = buffer.AddOpConstant<LiteralInteger>(t_const.ResultId ?? -1, vi64);
             return cons;
         }
-        else if (value is int vu8)
+        else if (value is byte vu8)
         {
             var t_const = GetOrCreateBaseType("byte".AsMemory());
             var cons = buffer.AddOpConstant<LiteralInteger>(t_const.ResultId ?? -1, vu8);
             return cons;
         }
-        else if (value is int vu16)
+        else if (value is ushort vu16)
         {
             var t_const = GetOrCreateBaseType("ushort".AsMemory());
             var cons = buffer.AddOpConstant<LiteralInteger>(t_const.ResultId ?? -1, vu16);
             return cons;
         }
-        else if (value is int vu32)
+        else if (value is uint vu32)
         {
             var t_const = GetOrCreateBaseType("uint".AsMemory());
             var cons = buffer.AddOpConstant<LiteralInteger>(t_const.ResultId ?? -1, vu32);
             return cons;
         }
-        else if (value is long vu64)
+        else if (value is ulong vu64)
         {
             var t_const = GetOrCreateBaseType("ulong".AsMemory());
             var cons = buffer.AddOpConstant<LiteralInteger>(t_const.ResultId ?? -1, vu64);
@@ -131,7 +133,7 @@ public sealed partial class Mixer : MixerBase
             var cons = buffer.AddOpConstant<LiteralFloat>(t_const.ResultId ?? -1, vf32);
             return cons;
         }
-        else if (value is float vf64)
+        else if (value is double vf64)
         {
             var t_const = GetOrCreateBaseType("double".AsMemory());
             var cons = buffer.AddOpConstant<LiteralFloat>(t_const.ResultId ?? -1, vf64);

@@ -1,10 +1,10 @@
 namespace SoftTouch.Spirv;
 
 
-public record struct MixinGraphInstructions(MixinGraph Graph, bool Offseted = false)
+public record struct MixinGraphInstructions(MixinGraph Graph, bool Offsetted = false)
 {
 
-    public int Count
+    public readonly  int Count
     {
         get
         {
@@ -14,7 +14,7 @@ public record struct MixinGraphInstructions(MixinGraph Graph, bool Offseted = fa
             return count;
         }
     }
-    public MixinInstructionEnumerator GetEnumerator() => new(Graph, Offseted);
+    public readonly MixinInstructionEnumerator GetEnumerator() => new(Graph, Offsetted);
 }
 
 

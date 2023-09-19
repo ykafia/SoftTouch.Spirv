@@ -11,6 +11,8 @@ public partial class Mixer
     public ref struct FunctionBuilder
     {
 
+        public delegate IdRef InitializerDelegate(Mixer mixer, ref FunctionBuilder functionBuilder);
+
         Mixer mixer;
         Instruction function;
         EntryPoint? entryPoint;
@@ -25,6 +27,7 @@ public partial class Mixer
             var t_func = mixer.buffer.AddOpTypeFunction(t.ResultId ?? -1, parameters);
             function = mixer.buffer.AddOpFunction(t.ResultId ?? -1, FunctionControlMask.MaskNone,t_func);
             mixer.buffer.AddOpName(function.ResultId ?? -1, name);
+            mixer.buffer.AddOpLabel();
 
         }
         public FunctionBuilder(Mixer mixer, EntryPoint entryPoint)
@@ -35,6 +38,8 @@ public partial class Mixer
             var t_func = mixer.buffer.AddOpTypeFunction(t.ResultId ?? -1, Span<IdRef>.Empty);
             function = mixer.buffer.AddOpFunction(t.ResultId ?? -1, FunctionControlMask.MaskNone, t_func);
             mixer.buffer.AddOpName(function.ResultId ?? -1, entryPoint.name);
+            mixer.buffer.AddOpLabel();
+
         }
 
         public FunctionBuilder Declare(string type, string name)
@@ -43,18 +48,18 @@ public partial class Mixer
             return this;
         }
 
-        public FunctionBuilder DeclareAssign(string type, string name, Func<Mixer, IdRef> initializer)
+        public FunctionBuilder DeclareAssign(string type, string name, InitializerDelegate initializer)
         {
             var resultType = mixer.GetOrCreateBaseType(type.AsMemory());
             var ptr = mixer.buffer.AddOpTypePointer(StorageClass.Function, resultType.ResultId ?? -1);
-            var value = initializer.Invoke(mixer);
+            var value = initializer.Invoke(mixer, ref this);
             var variable = mixer.buffer.AddOpVariable(ptr.ResultId ?? -1, StorageClass.Function, value);
             mixer.buffer.AddOpName(variable.ResultId ?? -1, name);
             return this;
         }
-        public FunctionBuilder Assign(string name, Func<Mixer, IdRef> initializer)
+        public FunctionBuilder Assign(string name, InitializerDelegate initializer)
         {
-            var result = initializer.Invoke(mixer);
+            var result = initializer.Invoke(mixer, ref this);
             throw new NotImplementedException();
         }
 
