@@ -49,4 +49,10 @@ public sealed class SortedWordBuffer : BufferBase<int>, ISpirvBuffer
             Length += item.WordCount;
         }
     }
+    public SortedWordBuffer(SpirvBuffer buffer)
+    {
+        _owner = buffer._owner;
+        Length = buffer.Length;
+        buffer._owner = MemoryOwner<int>.Empty;
+    }
 }

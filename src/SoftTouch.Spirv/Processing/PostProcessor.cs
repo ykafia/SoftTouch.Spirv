@@ -2,7 +2,7 @@ using SoftTouch.Spirv.Core;
 using SoftTouch.Spirv.Core.Buffers;
 using SoftTouch.Spirv.Processing;
 
-namespace SoftTouch.Spirv.PostProcessor;
+namespace SoftTouch.Spirv.PostProcessing;
 
 
 public static class PostProcessor

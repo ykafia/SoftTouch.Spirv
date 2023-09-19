@@ -3,6 +3,7 @@ using SoftTouch.Spirv.Core.Parsing;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -73,6 +74,11 @@ public class SpirvBuffer : ExpandableBuffer<int>, ISpirvBuffer, IDisposable
         }
         var header = Header;
         header.Bound = last + 1;
+    }
+
+    public SortedWordBuffer ToSorted()
+    {
+        return new(this);
     }
 
     public override string ToString()
