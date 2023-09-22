@@ -66,6 +66,14 @@ public partial class InstructionInfo
     {
         return GetGroupOrder(instruction.OpCode, instruction.OpCode == SDSLOp.OpVariable ? (StorageClass)instruction.Words[3] : null);
     }
+    public static int GetGroupOrder(MutRefInstruction instruction)
+    {
+        return GetGroupOrder(instruction.OpCode, instruction.OpCode == SDSLOp.OpVariable ? (StorageClass)instruction.Words[3] : null);
+    }
+    public static int GetGroupOrder(Instruction instruction)
+    {
+        return GetGroupOrder(instruction.OpCode, instruction.OpCode == SDSLOp.OpVariable ? (StorageClass)instruction.Words.Span[3] : null);
+    }
 
     public static int GetGroupOrder(SDSLOp op, StorageClass? sc = null)
     {

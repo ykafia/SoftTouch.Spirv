@@ -5,7 +5,7 @@ namespace SoftTouch.Spirv.Core;
 
 public ref struct MutRefInstruction
 {
-    public Span<int> Words { get;}
+    public Span<int> Words { get; }
     public SDSLOp OpCode 
     {
         get => (SDSLOp)(Words[0] & 0xFF); 
@@ -16,6 +16,7 @@ public ref struct MutRefInstruction
         get => Words[0] >> 16; 
         set => Words[0] = value << 16 | Words[0] & 0xFF;
     }
+
 
     private int _index;
 

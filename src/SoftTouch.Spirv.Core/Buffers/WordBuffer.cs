@@ -78,7 +78,7 @@ public sealed partial class WordBuffer : ExpandableBuffer<int>, ISpirvBuffer
     }
 
 
-    internal Instruction Add(MutRefInstruction instruction)
+    public Instruction Add(MutRefInstruction instruction)
     {
         Add(instruction.Words);
         return new(this, InstructionCount - 1);

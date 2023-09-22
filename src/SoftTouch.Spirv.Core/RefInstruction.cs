@@ -26,6 +26,7 @@ public ref struct RefInstruction
     public Span<int> Words { get; init; }
 
 
+
     public bool IsEmpty => Words == Span<int>.Empty;
 
 
