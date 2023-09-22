@@ -16,6 +16,8 @@ public sealed partial class WordBuffer : ExpandableBuffer<int>, ISpirvBuffer
 
     public bool HasHeader => false;
 
+    public Memory<int> this[Range range] => Memory[range];
+
     public Instruction this[int index]
     {
         get
@@ -69,6 +71,10 @@ public sealed partial class WordBuffer : ExpandableBuffer<int>, ISpirvBuffer
     public void Insert(Instruction instruction)
     {
         Insert(Length, instruction.Words.Span);
+    }
+    public void Insert(Span<int> instructions)
+    {
+        Insert(Length, instructions);
     }
 
 

@@ -23,6 +23,8 @@ public ref struct SpirvSpan
         this.words = words;
     }
 
+    public Enumerator GetEnumerator() => new(words);
+
     public ref struct Enumerator
     {
         int wordIndex;
