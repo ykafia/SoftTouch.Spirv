@@ -21,6 +21,5 @@ public class ComposableBuffer
             Functions.Insert(instruction);
         else
             Declarations.Add(instruction);
-
     }
 }

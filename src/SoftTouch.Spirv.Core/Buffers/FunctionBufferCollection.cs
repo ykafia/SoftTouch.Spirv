@@ -1,3 +1,4 @@
+using SoftTouch.Spirv.Core.Parsing;
 using System.Collections;
 
 namespace SoftTouch.Spirv.Core.Buffers;
@@ -8,6 +9,8 @@ public class FunctionBufferCollection
     bool functionStarted;
     List<WordBuffer> buffers;
     public WordBuffer? Current => functionStarted ? buffers[^1] : null;
+
+    public FunctionsInstructions Instructions => new(this);
 
     public FunctionBufferCollection()
     {
@@ -31,5 +34,66 @@ public class FunctionBufferCollection
             functionStarted = false;
         }
     }
+
+    public struct FunctionsInstructions
+    {
+        FunctionBufferCollection buffers;
+        public FunctionsInstructions(FunctionBufferCollection buffers)
+        {
+            this.buffers = buffers;
+        }
+
+
+        public Enumerator GetEnumerator() => new(buffers);
+
+        public ref struct Enumerator
+        {
+            List<WordBuffer>.Enumerator lastBuffer;
+            OrderedEnumerator lastEnumerator;
+            bool started;
+            public Enumerator(FunctionBufferCollection buffers)
+            {
+                lastBuffer = buffers.GetEnumerator();
+                started = false;
+            }
+
+            public Instruction Current => lastEnumerator.Current;
+
+            public bool MoveNext()
+            {
+                if (!started)
+                {
+                    started = true;
+                    if (!lastBuffer.MoveNext())
+                        return false;
+                    lastEnumerator = lastBuffer.Current.GetEnumerator();
+                    while (!lastEnumerator.MoveNext())
+                    {
+                        if (!lastBuffer.MoveNext())
+                            return false;
+                        lastEnumerator = lastBuffer.Current.GetEnumerator();
+                    }
+                    return true;
+                }
+                else
+                {
+                    if (lastEnumerator.MoveNext())
+                        return true;
+                    else
+                    {
+                        while (lastBuffer.MoveNext())
+                        {
+                            lastEnumerator = lastBuffer.Current.GetEnumerator();
+                            if (lastEnumerator.MoveNext())
+                                return true;
+                        }
+                    }
+                    return false;
+                }
+            }
+        }
+    }
+
+    
         
 }
