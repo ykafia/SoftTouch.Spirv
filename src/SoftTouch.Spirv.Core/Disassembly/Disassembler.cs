@@ -62,7 +62,7 @@ public static class Disassembler
     {
         var dis = new DisWriter(new SpirvReader(wbuff.InstructionMemory).ComputeBound());
 
-        foreach (var e in wbuff.Instructions)
+        foreach (var e in wbuff)
         {
             dis.Append(e.ResultId != null ? new IdResult(e.ResultId.Value) : null);
             dis.AppendLiteral(Enum.GetName(e.OpCode) ?? "Op.OpNop");

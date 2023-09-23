@@ -20,7 +20,7 @@ public struct IdRefOffsetter : IPostProcessorPass
     {
         int offset = 0;
         int nextOffset = 0;
-        foreach (var i in buffer.Instructions)
+        foreach (var i in buffer)
         {
             // if we hit a mixin name we reset stuff
             if (i.OpCode == SDSLOp.OpSDSLMixinName)
@@ -32,7 +32,7 @@ public struct IdRefOffsetter : IPostProcessorPass
             {
                 if (i.ResultId != null)
                     nextOffset = i.ResultId.Value;
-                i.OffsetIds(offset);
+                i.AsRef().OffsetIds(offset);
             }
         }
     }

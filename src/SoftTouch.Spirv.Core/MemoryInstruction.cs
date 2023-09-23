@@ -4,25 +4,23 @@ using SoftTouch.Spirv.Core.Parsing;
 
 namespace SoftTouch.Spirv.Core;
 
-public record struct Instruction(ISpirvBuffer Buffer, Memory<int> Words, int Index)
+public record struct Instruction(ISpirvBuffer Buffer, Memory<int> Words, int Index, int WordIndex)
 {
-    public static Instruction Empty { get; } = new(null!, Memory<int>.Empty, 0);
+    public static Instruction Empty { get; } = new(null!, Memory<int>.Empty, 0, 0);
 
     public static implicit operator IdRef(Instruction i) => new(i.ResultId ?? throw new Exception("Instruction has no result id"));
     public static implicit operator IdResultType(Instruction i) => new(i.ResultId ?? throw new Exception("Instruction has no result id"));
 
 
-    public Instruction(ISpirvBuffer buffer, int index) : this(buffer, Memory<int>.Empty, index)
+    public Instruction(ISpirvBuffer buffer, int index) : this(buffer, Memory<int>.Empty, index, 0)
     {
         Buffer = buffer;
         Index = index;
         var wid = 0;
         for (int i = 0; i < index; i += 1)
-        {
-            var refi = RefInstruction.ParseRef(buffer.InstructionSpan.Slice(wid, buffer.InstructionSpan[wid] >> 16));
             wid += buffer.InstructionSpan[wid] >> 16;
-        }
         Words = buffer.InstructionMemory.Slice(wid, buffer.InstructionSpan[wid] >> 16);
+        WordIndex = wid;
     }
 
     public readonly SDSLOp OpCode => AsRef().OpCode;

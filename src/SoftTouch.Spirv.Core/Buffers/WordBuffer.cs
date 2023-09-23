@@ -29,7 +29,7 @@ public sealed partial class WordBuffer : ExpandableBuffer<int>, ISpirvBuffer
                 wid += Span[wid] >> 16;
                 id++;
             }
-            return new Instruction(this, Memory[wid..(wid+Span[wid] >> 16)],index);
+            return new Instruction(this, Memory[wid..(wid+Span[wid] >> 16)],index, wid);
         }
     }
     public WordBuffer()
@@ -72,15 +72,15 @@ public sealed partial class WordBuffer : ExpandableBuffer<int>, ISpirvBuffer
     {
         Insert(Length, instruction.Words.Span);
     }
-    public void Insert(Span<int> instructions)
+    public void Insert(Span<int> instructions, int? start = null)
     {
-        Insert(Length, instructions);
+        Insert(start ?? Length, instructions);
     }
 
 
-    public Instruction Add(MutRefInstruction instruction)
+    public Instruction Add(MutRefInstruction instruction, int? start = null)
     {
-        Add(instruction.Words);
+        Insert(instruction.Words, start);
         return new(this, InstructionCount - 1);
     }
 

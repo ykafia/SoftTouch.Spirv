@@ -16,12 +16,12 @@ public struct MemoryModelDuplicatesRemover : IPostProcessorPass
     public void Apply(SpirvBuffer buffer)
     {
         var found = false;
-        foreach (var i in buffer.Instructions)
+        foreach (var i in buffer)
         {
             if (!found && i.OpCode == SDSLOp.OpMemoryModel)
                 found = true;
             else if (found && i.OpCode == SDSLOp.OpMemoryModel)
-                SetOpNop(i.Words);
+                SetOpNop(i.Words.Span);
         }
     }
 

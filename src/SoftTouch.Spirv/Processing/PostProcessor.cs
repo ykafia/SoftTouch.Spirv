@@ -36,6 +36,7 @@ public static class PostProcessor
         Apply<BoundReducer>(buffer);
         Apply<SDSLOpRemover>(buffer);
         Apply<MixinMerger>(buffer);
+        Apply<FunctionVariableOrderer>(buffer);
     }
 
     static void Apply<T>(SpirvBuffer buffer)

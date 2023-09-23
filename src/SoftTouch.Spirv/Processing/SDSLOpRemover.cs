@@ -15,7 +15,7 @@ public struct SDSLOpRemover : IPostProcessorPass
 
     public void Apply(SpirvBuffer buffer)
     {
-        foreach (var i in buffer.Instructions)
+        foreach (var i in buffer)
         {
             if (
                 i.OpCode == SDSLOp.OpSDSLImportIdRef
@@ -24,7 +24,7 @@ public struct SDSLOpRemover : IPostProcessorPass
                 || i.OpCode == SDSLOp.OpSDSLMixinName
                 || i.OpCode == SDSLOp.OpSDSLMixinOffset
                 || i.OpCode == SDSLOp.OpSDSLMixinVariable
-            ) SetOpNop(i.Words);
+            ) SetOpNop(i.Words.Span);
         }
     }
 

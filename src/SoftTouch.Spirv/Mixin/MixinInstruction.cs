@@ -15,7 +15,9 @@ public ref struct MixinInstruction
     public Span<int> Words => Instruction.Words.Span;
     public bool IsEmpty => Instruction.IsEmpty;
 
-    public static implicit operator MixinInstruction(Instruction instruction) => new("",instruction);    
+    public static implicit operator MixinInstruction(Instruction instruction) => new("",instruction);
+    public static implicit operator IdRef(MixinInstruction mi) => mi.ResultId ?? throw new Exception("This instruction has no ResultId");    
+    public static implicit operator IdResultType(MixinInstruction mi) => mi.ResultId ?? throw new Exception("This instruction has no ResultId");    
 
     public MixinInstruction(string mixinName, Instruction instruction)
     {

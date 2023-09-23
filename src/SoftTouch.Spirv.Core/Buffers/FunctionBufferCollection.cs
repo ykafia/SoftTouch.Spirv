@@ -33,7 +33,7 @@ public class FunctionBufferCollection
             buffers.Add(functionName, new());
             functionStarted = true;
         }
-        var result = Current?.Add(instruction);
+        Instruction? result = Current?.Add(instruction);
         if(instruction.OpCode == SDSLOp.OpFunctionEnd)
         {
             functionStarted = false;

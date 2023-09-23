@@ -126,7 +126,7 @@ public ref struct FilteredEnumerator<T>
     public Instruction ParseCurrentInstruction()
     {
         var wordCount= instructionWords[wordIndex] >> 16;
-        return new(buffer, buffer.Memory.Slice(wordIndex, wordCount), index);
+        return new(buffer, buffer.Memory.Slice(wordIndex, wordCount), index, wordIndex);
     }
 
     internal enum FilterType

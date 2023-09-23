@@ -14,7 +14,6 @@ public class SpirvBuffer : ExpandableBuffer<int>, ISpirvBuffer, IDisposable
     public Span<int> InstructionSpan => _owner.Span[5..Length];
     public Memory<int> InstructionMemory => _owner.Memory[5..Length];
     public RefHeader Header => new(_owner.Span[..5]);
-    public RefInstructions Instructions => new(InstructionMemory);
     public bool HasHeader => true;
 
     public Instruction this[int index]
@@ -28,13 +27,13 @@ public class SpirvBuffer : ExpandableBuffer<int>, ISpirvBuffer, IDisposable
                 wid += Span[wid] >> 16;
                 id++;
             }
-            return new Instruction(this, Memory.Slice(wid, Span[wid] >> 16),index);
+            return new Instruction(this, Memory.Slice(wid, Span[wid] >> 16),index,wid);
         }
     }
 
-    public SpirvBuffer()
+    public SpirvBuffer(int initialSize = 32)
     {
-        _owner = MemoryOwner<int>.Allocate(32,AllocationMode.Clear);
+        _owner = MemoryOwner<int>.Allocate(initialSize,AllocationMode.Clear);
         var header = Header;
         header.MagicNumber = Spv.Specification.MagicNumber;
         header.VersionNumber = new(1,3);
@@ -42,7 +41,7 @@ public class SpirvBuffer : ExpandableBuffer<int>, ISpirvBuffer, IDisposable
         Length = 5;
     }
 
-    public RefInstructions.Enumerator GetEnumerator() => Instructions.GetEnumerator();
+    public InstructionEnumerator GetEnumerator() => new(this);
 
     public void Add(SortedWordBuffer buffer) => Add(buffer.Span);
 

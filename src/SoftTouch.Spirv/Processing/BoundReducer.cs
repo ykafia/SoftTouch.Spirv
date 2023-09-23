@@ -19,7 +19,7 @@ public struct BoundReducer : IPostProcessorPass
     public void Apply(SpirvBuffer buffer)
     {
         int previousId = 0;
-        foreach (var i in buffer.Instructions)
+        foreach (var i in buffer)
         {
             var id = i.ResultId;
             if (id != null && id == previousId + 1)
@@ -29,7 +29,7 @@ public struct BoundReducer : IPostProcessorPass
             else if (id != null && id > previousId + 1)
             {
                 previousId += 1;
-                i.SetResultId(previousId);
+                i.AsRef().SetResultId(previousId);
                 ReplaceRefs(id.Value, previousId, buffer);
             }
         }
@@ -37,7 +37,7 @@ public struct BoundReducer : IPostProcessorPass
     }
     static void ReplaceRefs(int from, int to, SpirvBuffer buffer)
     {
-        foreach (var i in buffer.Instructions)
+        foreach (var i in buffer)
         {
             foreach (var op in i)
             {

@@ -23,17 +23,17 @@ public struct TypeDuplicateRemover : IPostProcessorPass
         var idx1 = 0;
 
         // First base types
-        foreach (var i in buffer.Instructions)
+        foreach (var i in buffer)
         {
             if (i.OpCode == SDSLOp.OpTypeInt || i.OpCode == SDSLOp.OpTypeFloat)
             {
                 var idx2 = 0;
-                foreach (var j in buffer.Instructions)
+                foreach (var j in buffer)
                 {
-                    if (j.OpCode == i.OpCode && idx1 != idx2 && i.Operands[1..].SequenceEqual(j.Operands[1..]))
+                    if (j.OpCode == i.OpCode && idx1 != idx2 && i.Operands.Span[1..].SequenceEqual(j.Operands.Span[1..]))
                     {
                         ReplaceRefs(j.ResultId ?? -1, i.ResultId ?? -1, buffer);
-                        SetOpNop(j.Words);
+                        SetOpNop(j.Words.Span);
                     }
                     idx2 += 1;
                 }
@@ -41,12 +41,12 @@ public struct TypeDuplicateRemover : IPostProcessorPass
             else if (i.OpCode == SDSLOp.OpTypeVoid || i.OpCode == SDSLOp.OpTypeBool)
             {
                 var idx2 = 0;
-                foreach (var j in buffer.Instructions)
+                foreach (var j in buffer)
                 {
                     if (j.OpCode == i.OpCode && idx1 != idx2)
                     {
                         ReplaceRefs(j.ResultId ?? -1, i.ResultId ?? -1, buffer);
-                        SetOpNop(j.Words);
+                        SetOpNop(j.Words.Span);
                     }
                     idx2 += 1;
                 }
@@ -55,17 +55,17 @@ public struct TypeDuplicateRemover : IPostProcessorPass
         }
         idx1 = 0;
         // Then vectors
-        foreach (var i in buffer.Instructions)
+        foreach (var i in buffer)
         {
             if (i.OpCode == SDSLOp.OpTypeVector)
             {
                 var idx2 = 0;
-                foreach (var j in buffer.Instructions)
+                foreach (var j in buffer)
                 {
-                    if (j.OpCode == i.OpCode && idx1 != idx2 && i.Operands[1..].SequenceEqual(j.Operands[1..]))
+                    if (j.OpCode == i.OpCode && idx1 != idx2 && i.Operands.Span[1..].SequenceEqual(j.Operands.Span[1..]))
                     {
                         ReplaceRefs(j.ResultId ?? -1, i.ResultId ?? -1, buffer);
-                        SetOpNop(j.Words);
+                        SetOpNop(j.Words.Span);
                     }
                     idx2 += 1;
                 }
@@ -75,17 +75,17 @@ public struct TypeDuplicateRemover : IPostProcessorPass
         idx1 = 0;
 
         // Then matrices
-        foreach (var i in buffer.Instructions)
+        foreach (var i in buffer)
         {
             if (i.OpCode == SDSLOp.OpTypeMatrix)
             {
                 var idx2 = 0;
-                foreach (var j in buffer.Instructions)
+                foreach (var j in buffer)
                 {
-                    if (j.OpCode == i.OpCode && idx1 != idx2 && i.Operands[1..].SequenceEqual(j.Operands[1..]))
+                    if (j.OpCode == i.OpCode && idx1 != idx2 && i.Operands.Span[1..].SequenceEqual(j.Operands.Span[1..]))
                     {
                         ReplaceRefs(j.ResultId ?? -1, i.ResultId ?? -1, buffer);
-                        SetOpNop(j.Words);
+                        SetOpNop(j.Words.Span);
                     }
                     idx2 += 1;
                 }
@@ -97,7 +97,7 @@ public struct TypeDuplicateRemover : IPostProcessorPass
 
     static void ReplaceRefs(int from, int to, SpirvBuffer buffer)
     {
-        foreach (var i in buffer.Instructions)
+        foreach (var i in buffer)
         {
             foreach (var op in i)
             {

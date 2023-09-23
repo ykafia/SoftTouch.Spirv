@@ -10,8 +10,8 @@ public partial class Mixer
 {
     public ref struct FunctionBuilder
     {
-
-        public delegate IdRef InitializerDelegate(Mixer mixer, ref FunctionBuilder functionBuilder);
+        public record struct Variable(IdRef Id, bool IsConstant);
+        public delegate Variable InitializerDelegate(Mixer mixer, ref FunctionBuilder functionBuilder);
 
         Mixer mixer;
         Instruction function;
@@ -35,7 +35,7 @@ public partial class Mixer
             this.entryPoint = entryPoint;
             var t = mixer.GetOrCreateBaseType("void".AsMemory());
             var t_func = mixer.buffer.AddOpTypeFunction(t.ResultId ?? -1, Span<IdRef>.Empty);
-            function = mixer.buffer.AddOpSDSLFunction(t.ResultId ?? -1, FunctionControlMask.MaskNone, t_func, entryPoint.name);
+            function = mixer.buffer.AddOpSDSLFunction(t.ResultId ?? -1, FunctionControlMask.MaskNone, t_func, entryPoint.Name);
             mixer.buffer.AddOpLabel();
 
         }
@@ -51,8 +51,16 @@ public partial class Mixer
             var resultType = mixer.GetOrCreateBaseType(type.AsMemory());
             var ptr = mixer.buffer.AddOpTypePointer(StorageClass.Function, resultType.ResultId ?? -1);
             var value = initializer.Invoke(mixer, ref this);
-            var variable = mixer.buffer.AddOpVariable(ptr.ResultId ?? -1, StorageClass.Function, value);
-            mixer.buffer.AddOpName(variable.ResultId ?? -1, name);
+            MixinInstruction variable;
+            if (value.IsConstant)
+                 variable = mixer.buffer.AddOpVariable(ptr, StorageClass.Function, value.Id);
+            else
+            {
+                variable = mixer.buffer.AddOpVariable(ptr, StorageClass.Function, null);
+                var load = mixer.buffer.AddOpLoad(resultType, value.Id, null);
+                mixer.buffer.AddOpStore(variable, load, null);
+            }
+            mixer.buffer.AddOpName(variable, name);
             return this;
         }
         public FunctionBuilder Assign(string name, InitializerDelegate initializer)
@@ -79,10 +87,18 @@ public partial class Mixer
         }
         public Mixer FunctionEnd()
         {
+            var count = mixer.IOVariables.Count;
+            Span<IdRef> idRefs = stackalloc IdRef[count];
+            int index = 0;
+            foreach(var i in mixer.IOVariables)
+            {
+                idRefs[index] = i;
+                index+=1;
+            }
             mixer.buffer.AddOpFunctionEnd();
             if (entryPoint != null)
             {
-                //mixer.buffer.AddOpEntryPoint()
+                mixer.buffer.AddOpEntryPoint(entryPoint.Value.ExecutionModel, function, entryPoint.Value.Name, idRefs);
             }
             return mixer;
         }

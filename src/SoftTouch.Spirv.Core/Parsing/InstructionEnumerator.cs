@@ -38,10 +38,10 @@ public ref struct InstructionEnumerator
         }
         else
         {
-            var sizeToStep = buffer.Span[wordIndex] >> 16;
+            var sizeToStep = buffer.InstructionSpan[wordIndex] >> 16;
             wordIndex += sizeToStep;
             index += 1;
-            if (wordIndex >= buffer.Span.Length)
+            if (wordIndex >= buffer.InstructionSpan.Length)
                 return false;
             return true;
         }
@@ -51,8 +51,8 @@ public ref struct InstructionEnumerator
 
     public Instruction ParseCurrentInstruction()
     {
-        var count = buffer.Span[wordIndex] >> 16;
-        return new Instruction(buffer, buffer.Memory[wordIndex..(wordIndex + count)], index);
+        var count = buffer.InstructionSpan[wordIndex] >> 16;
+        return new Instruction(buffer, buffer.InstructionMemory[wordIndex..(wordIndex + count)], index, wordIndex);
 
     }
 }

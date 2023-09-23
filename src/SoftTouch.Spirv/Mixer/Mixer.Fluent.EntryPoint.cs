@@ -10,15 +10,15 @@ public partial class Mixer
     public struct EntryPoint
     {
         public Mixer mixer;
-        ExecutionModel executionModel;
-        public string name;
+        public ExecutionModel ExecutionModel { get; }
+        public string Name { get; }
 
         Instruction function;
         public EntryPoint(Mixer mixer, ExecutionModel executionModel, string name)
         {
             this.mixer = mixer;
-            this.executionModel = executionModel;
-            this.name = name;
+            ExecutionModel = executionModel;
+            Name = name;
         }
 
         
@@ -30,7 +30,7 @@ public partial class Mixer
 
         public Mixer FinishEntryPoint()
         {
-            mixer.buffer.AddOpEntryPoint(executionModel, function, name, Span<IdRef>.Empty);
+            mixer.buffer.AddOpEntryPoint(ExecutionModel, function, Name, Span<IdRef>.Empty);
             mixer.buffer.AddOpExecutionMode(
                 function,
                 ExecutionMode.OriginLowerLeft
