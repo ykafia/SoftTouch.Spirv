@@ -49,10 +49,23 @@ public sealed class SortedWordBuffer : BufferBase<int>, ISpirvBuffer
             Length += item.WordCount;
         }
     }
+    public SortedWordBuffer(MultiBuffer buffer)
+    {
+        _owner = MemoryOwner<int>.Allocate(buffer.Length, AllocationMode.Clear);
+        Length = 0;
+        foreach (var item in buffer.Instructions)
+        {
+            item.Words.Span.CopyTo(_owner.Span[Length..(Length + item.WordCount)]);
+            Length += item.WordCount;
+        }
+    }
     public SortedWordBuffer(SpirvBuffer buffer)
     {
         _owner = buffer._owner;
         Length = buffer.Length;
         buffer._owner = MemoryOwner<int>.Empty;
     }
+    public SpirvSpan AsSpan() => new(Span);
+    public SpirvMemory AsMemory() => new(this);
+
 }

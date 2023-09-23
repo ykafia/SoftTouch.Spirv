@@ -35,6 +35,10 @@ public sealed class UnsortedWordBuffer : BufferBase<int>, ISpirvBuffer
 
     public InstructionEnumerator GetEnumerator() => new(this);
 
+    public SpirvSpan AsSpan() => new(Span);
+    public SpirvMemory AsMemory() => new(this);
+
+
     public UnsortedWordBuffer()
     {
         _owner = MemoryOwner<int>.Empty;

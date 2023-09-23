@@ -2,6 +2,7 @@ using System.Numerics;
 using System.Security.Cryptography;
 using SoftTouch.Spirv.Core;
 using SoftTouch.Spirv.Core.Buffers;
+using static SoftTouch.Spirv.Core.Buffers.MultiBuffer;
 using static Spv.Specification;
 
 namespace SoftTouch.Spirv;
@@ -9,10 +10,12 @@ namespace SoftTouch.Spirv;
 
 public sealed partial class Mixer : MixerBase
 {
-    public FunctionFinder Functions => new(this);
-    public VariableFinder IOVariables => new(this, true);
-    public VariableFinder Variables => new(this);
+    //public FunctionFinder Functions => new(this);
     //FunctionBuffer functions;
+
+    public MultiBufferLocalVariables LocalVariables => buffer.LocalVariables;
+    public MultiBufferGlobalVariables GlobalVariables => buffer.GlobalVariables;
+
 
 
 
@@ -177,6 +180,6 @@ public sealed partial class Mixer : MixerBase
     }
     public override string ToString()
     {
-        return Disassembler.Disassemble(buffer);
+        return Disassembler.Disassemble(new SortedWordBuffer(buffer));
     }
 }

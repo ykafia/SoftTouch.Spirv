@@ -80,6 +80,9 @@ public class SpirvBuffer : ExpandableBuffer<int>, ISpirvBuffer, IDisposable
     {
         return new(this);
     }
+    public SpirvSpan AsSpan() => new(Span);
+    public SpirvMemory AsMemory() => new(this);
+
 
     public override string ToString()
     {

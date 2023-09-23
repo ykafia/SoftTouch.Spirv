@@ -94,7 +94,7 @@ public partial class Mixer
         //         return enumerator.Current;
         // }
 
-        var self = new FilteredEnumerator<WordBuffer>(buffer, SDSLOp.OpTypeMatrix);
+        var self = new FilteredEnumerator<WordBuffer>(buffer.Declarations, SDSLOp.OpTypeMatrix);
 
         while (self.MoveNext())
         {
@@ -117,7 +117,7 @@ public partial class Mixer
         //         return enumerator.Current;
         // }
 
-        var self = new FilteredEnumerator<WordBuffer>(buffer, SDSLOp.OpTypeVector);
+        var self = new FilteredEnumerator<WordBuffer>(buffer.Declarations, SDSLOp.OpTypeVector);
 
         while (self.MoveNext())
         {
@@ -157,7 +157,7 @@ public partial class Mixer
         //     )
         //         return enumerator.Current;
         // }
-        var self = new FilteredEnumerator<WordBuffer>(buffer, filterData.Filter);
+        var self = new FilteredEnumerator<WordBuffer>(buffer.Declarations, filterData.Filter);
 
         while (self.MoveNext())
         {

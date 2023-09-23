@@ -17,7 +17,7 @@ public ref struct FilteredEnumerator<T>
     int index;
     bool started;
     T buffer;
-    readonly Span<int> instructionWords => buffer.Span;
+    readonly Span<int> instructionWords => buffer.InstructionSpan;
 
     string? classFilter;
     SDSLOp? filter1;

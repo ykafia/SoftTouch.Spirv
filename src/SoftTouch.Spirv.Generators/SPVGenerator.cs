@@ -70,6 +70,10 @@ namespace SoftTouch.Spirv.Generators
                 "WordBuffer.gen.cs",
                 code.ToString()
             );
+            context.AddSource(
+                "MultiBuffer.gen.cs",
+                code.ToString().Replace("WordBuffer", "MultiBuffer")
+            );
         }
 
         public void CreateOperation(JsonElement op, CodeWriter code)

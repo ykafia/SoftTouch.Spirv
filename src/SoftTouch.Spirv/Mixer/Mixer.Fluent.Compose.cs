@@ -13,7 +13,7 @@ public partial class Mixer
         // If the instruction is an OpName for variables, create a new OpName instruction with the same name prefixed by variableName
         // Make sure to offset the Ids.
         var composable = CompositionSourceProvider.Get(mixinName);
-        var offset = buffer.Bound.Count;
+        var offset = buffer.Bound;
         Span<int> nameBuffer = stackalloc int[200];
         foreach (var i in composable)
         {

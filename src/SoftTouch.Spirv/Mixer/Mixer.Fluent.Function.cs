@@ -25,8 +25,7 @@ public partial class Mixer
             parameterTypesDelegate.Invoke(ref p);
             var t = mixer.GetOrCreateBaseType(returnType.AsMemory());
             var t_func = mixer.buffer.AddOpTypeFunction(t.ResultId ?? -1, parameters);
-            function = mixer.buffer.AddOpFunction(t.ResultId ?? -1, FunctionControlMask.MaskNone,t_func);
-            mixer.buffer.AddOpName(function.ResultId ?? -1, name);
+            function = mixer.buffer.AddOpSDSLFunction(t.ResultId ?? -1, FunctionControlMask.MaskNone,t_func, name);
             mixer.buffer.AddOpLabel();
 
         }
@@ -36,8 +35,7 @@ public partial class Mixer
             this.entryPoint = entryPoint;
             var t = mixer.GetOrCreateBaseType("void".AsMemory());
             var t_func = mixer.buffer.AddOpTypeFunction(t.ResultId ?? -1, Span<IdRef>.Empty);
-            function = mixer.buffer.AddOpFunction(t.ResultId ?? -1, FunctionControlMask.MaskNone, t_func);
-            mixer.buffer.AddOpName(function.ResultId ?? -1, entryPoint.name);
+            function = mixer.buffer.AddOpSDSLFunction(t.ResultId ?? -1, FunctionControlMask.MaskNone, t_func, entryPoint.name);
             mixer.buffer.AddOpLabel();
 
         }
@@ -114,46 +112,6 @@ public partial class Mixer
                 return this;
             }
             public void Finish() { }
-        }
-
-        public ref struct VariableFinder
-        {
-            FunctionBuilder builder;
-
-            public VariableFinder(FunctionBuilder builder)
-            {
-                this.builder = builder;
-            }
-
-            public ref struct Enumerator
-            {
-                RefInstruction function;
-                OrderedEnumerator enumerator;
-                bool inFunction;
-
-                public Enumerator(VariableFinder finder)
-                {
-                    enumerator = finder.builder.mixer.buffer.GetEnumerator();
-                    function = finder.builder.function.AsRef();
-                    inFunction = false;
-                }
-
-
-                public RefInstruction Current => RefInstruction.Empty;
-
-
-                public bool MoveNext()
-                {
-                    while(!inFunction && enumerator.MoveNext())
-                    {
-                        //if(
-                        //    enumerator.Current.OpCode == function.OpCode 
-                        //    && enumerator.Current)
-                    }
-                    return true;
-                    
-                }
-            }
         }
     }
 }

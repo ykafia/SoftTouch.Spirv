@@ -7,10 +7,13 @@ namespace SoftTouch.Spirv.Core.Buffers;
 public class FunctionBufferCollection
 {
     bool functionStarted;
-    List<WordBuffer> buffers;
-    public WordBuffer? Current => functionStarted ? buffers[^1] : null;
+    SortedList<string, WordBuffer> buffers;
+    public WordBuffer? Current => functionStarted ? buffers.Values[^1] : null;
 
     public FunctionsInstructions Instructions => new(this);
+
+    public int BuffersLength => buffers.Sum(static (x) => x.Value.Length);
+
 
     public FunctionBufferCollection()
     {
@@ -18,21 +21,24 @@ public class FunctionBufferCollection
         buffers = new();
     }
 
-    public List<WordBuffer>.Enumerator GetEnumerator() => buffers.GetEnumerator();
+    public IEnumerator<WordBuffer> GetEnumerator() => buffers.Values.GetEnumerator();
 
 
-    public void Insert(MutRefInstruction instruction)
+    public Instruction Insert(MutRefInstruction instruction, string? functionName = null)
     {
         if(!functionStarted)
         {
-            buffers.Add(new());
+            if (instruction.OpCode != SDSLOp.OpFunction || functionName == null)
+                throw new Exception("A function should be started with SDSLOp.OpFunction");
+            buffers.Add(functionName, new());
             functionStarted = true;
         }
-        Current?.Add(instruction);
+        var result = Current?.Add(instruction);
         if(instruction.OpCode == SDSLOp.OpFunctionEnd)
         {
             functionStarted = false;
         }
+        return result ?? throw new Exception("The instruction was not inserted");
     }
 
     public struct FunctionsInstructions
@@ -48,7 +54,7 @@ public class FunctionBufferCollection
 
         public ref struct Enumerator
         {
-            List<WordBuffer>.Enumerator lastBuffer;
+            IEnumerator<WordBuffer> lastBuffer;
             OrderedEnumerator lastEnumerator;
             bool started;
             public Enumerator(FunctionBufferCollection buffers)

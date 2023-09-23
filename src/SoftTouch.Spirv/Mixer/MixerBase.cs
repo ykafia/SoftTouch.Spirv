@@ -6,7 +6,7 @@ namespace SoftTouch.Spirv;
 public abstract class MixerBase
 {
     protected MixinGraph mixins;
-    protected WordBuffer buffer;
+    protected MultiBuffer buffer;
 
     protected Action DisposeBuffers;
 

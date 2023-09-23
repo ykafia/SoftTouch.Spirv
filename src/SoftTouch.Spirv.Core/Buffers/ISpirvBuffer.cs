@@ -11,4 +11,7 @@ public interface ISpirvBuffer
     bool HasHeader { get; }
 
     public Instruction this[int index] {get;}
+
+    public SpirvSpan AsSpan();
+    public SpirvMemory AsMemory();
 }

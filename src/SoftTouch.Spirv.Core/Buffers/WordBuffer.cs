@@ -135,6 +135,9 @@ public sealed partial class WordBuffer : ExpandableBuffer<int>, ISpirvBuffer
         };
     }
 
+    public SpirvSpan AsSpan() => new(Span);
+    public SpirvMemory AsMemory() => new(this);
+
     internal static int GetWordLength(Span<int> values) => values.Length;
     internal static int GetWordLength(Span<LiteralInteger> values) => values.Length * values[0].WordCount;
     internal static int GetWordLength(Span<LiteralFloat> values) => values.Length * values[0].WordCount;
