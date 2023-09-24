@@ -3,7 +3,9 @@ using System.Runtime.CompilerServices;
 
 namespace SoftTouch.Spirv.Core;
 
-
+/// <summary>
+/// Helps create instruction through stack allocations instead of buffers
+/// </summary>
 public ref struct MutRefInstruction
 {
     public Span<int> Words { get; }

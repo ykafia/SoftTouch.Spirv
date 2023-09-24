@@ -4,7 +4,9 @@ using System.Transactions;
 namespace SoftTouch.Spirv.Core.Buffers;
 
 
-
+/// <summary>
+/// A spirv buffer composed of many different buffers for declarations and functions
+/// </summary>
 public sealed partial class MultiBuffer
 {
     public int Bound { get; private set; }

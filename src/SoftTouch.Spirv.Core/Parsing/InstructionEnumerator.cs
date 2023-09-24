@@ -10,6 +10,9 @@ using static Spv.Specification;
 
 namespace SoftTouch.Spirv.Core.Parsing;
 
+/// <summary>
+/// A simple spirv instruction enumerator without sorting
+/// </summary>
 public ref struct InstructionEnumerator
 {
     int wordIndex;

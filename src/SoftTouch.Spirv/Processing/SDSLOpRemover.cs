@@ -9,8 +9,10 @@ using System.Threading.Tasks;
 namespace SoftTouch.Spirv.Processing;
 
 
-
-public struct SDSLOpRemover : IPostProcessorPass
+/// <summary>
+/// Removes SDSL specific instructions
+/// </summary>
+public struct SDSLOpRemover : INanoPass
 {
 
     public void Apply(SpirvBuffer buffer)

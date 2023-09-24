@@ -3,7 +3,9 @@ using System.Collections;
 
 namespace SoftTouch.Spirv.Core.Buffers;
 
-
+/// <summary>
+/// A collection of function buffers, usable through the MultiBuffer class
+/// </summary>
 public class FunctionBufferCollection
 {
     bool functionStarted;

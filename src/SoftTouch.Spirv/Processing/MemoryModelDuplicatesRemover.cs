@@ -9,8 +9,10 @@ using System.Threading.Tasks;
 namespace SoftTouch.Spirv.Processing;
 
 
-
-public struct MemoryModelDuplicatesRemover : IPostProcessorPass
+/// <summary>
+/// Checks for duplicate memory models in case of multiple entry points
+/// </summary>
+public struct MemoryModelDuplicatesRemover : INanoPass
 {
 
     public void Apply(SpirvBuffer buffer)

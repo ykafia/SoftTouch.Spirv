@@ -8,7 +8,10 @@ using System.Threading.Tasks;
 
 namespace SoftTouch.Spirv.Processing;
 
-public interface IPostProcessorPass
+/// <summary>
+/// Nano pass for the mixin compiler
+/// </summary>
+public interface INanoPass
 {
     void Apply(SpirvBuffer buffer);
 }

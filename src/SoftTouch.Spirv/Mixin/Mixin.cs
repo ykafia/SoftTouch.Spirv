@@ -7,7 +7,9 @@ namespace SoftTouch.Spirv;
 
 
 
-
+/// <summary>
+/// Mixin object
+/// </summary>
 public partial struct Mixin
 {
     public static readonly Mixin Empty = new("", SortedWordBuffer.Empty);

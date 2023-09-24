@@ -2,7 +2,10 @@
 using SoftTouch.Spirv.Core;
 namespace SoftTouch.Spirv.Processing;
 
-public struct FunctionVariableOrderer : IPostProcessorPass
+/// <summary>
+/// Makes sure variables are created in the beginning of a function definition
+/// </summary>
+public struct FunctionVariableOrderer : INanoPass
 {
     public void Apply(SpirvBuffer buffer)
     {

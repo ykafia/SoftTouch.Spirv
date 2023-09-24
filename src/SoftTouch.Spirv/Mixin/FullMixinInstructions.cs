@@ -3,7 +3,9 @@ using SoftTouch.Spirv.Core.Parsing;
 
 namespace SoftTouch.Spirv;
 
-
+/// <summary>
+/// Helper to enumerate all instructions from many mixins
+/// </summary>
 public struct FullMixinInstructions
 {
     Mixin mixin;

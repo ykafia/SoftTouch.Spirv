@@ -11,8 +11,10 @@ namespace SoftTouch.Spirv.Processing;
 
 
 
-
-public struct BoundReducer : IPostProcessorPass
+/// <summary>
+/// Makes sure indices used in spirv module are all continuous.
+/// </summary>
+public struct BoundReducer : INanoPass
 {
     public BoundReducer() { }
 

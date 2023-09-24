@@ -1,6 +1,8 @@
 namespace SoftTouch.Spirv.Core.Parsing;
 
-
+/// <summary>
+/// An instruction operands enumerator, useful for parsing instructions
+/// </summary>
 public ref struct OperandEnumerator
 {
     RefInstruction instruction;

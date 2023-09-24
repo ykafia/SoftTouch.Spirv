@@ -8,6 +8,9 @@ using System.Threading.Tasks;
 
 namespace SoftTouch.Spirv.Core.Buffers;
 
+/// <summary>
+/// A spirv buffer where instructions are not sorted
+/// </summary>
 public sealed class UnsortedWordBuffer : BufferBase<int>, ISpirvBuffer
 {
     public static readonly SortedWordBuffer Empty = new ();

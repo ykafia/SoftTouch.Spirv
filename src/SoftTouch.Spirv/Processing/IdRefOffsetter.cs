@@ -11,8 +11,10 @@ namespace SoftTouch.Spirv.Processing;
 
 
 
-
-public struct IdRefOffsetter : IPostProcessorPass
+/// <summary>
+/// Offsets ids for each mixins inherited
+/// </summary>
+public struct IdRefOffsetter : INanoPass
 {
     public IdRefOffsetter() { }
 

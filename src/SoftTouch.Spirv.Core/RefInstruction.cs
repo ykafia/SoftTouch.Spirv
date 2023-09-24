@@ -5,7 +5,9 @@ using static Spv.Specification;
 
 namespace SoftTouch.Spirv.Core;
 
-
+/// <summary>
+/// A ref struct representation of an instruction in a buffer.
+/// </summary>
 public ref struct RefInstruction
 {
 

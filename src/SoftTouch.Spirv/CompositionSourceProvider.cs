@@ -2,7 +2,9 @@ using SoftTouch.Spirv.PostProcessing;
 
 namespace SoftTouch.Spirv;
 
-
+/// <summary>
+/// Repository for compositable shaders
+/// </summary>
 public class CompositionSourceProvider
 {
     internal static CompositionSourceProvider Instance { get; } = new();

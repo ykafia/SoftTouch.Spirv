@@ -3,7 +3,9 @@ using SoftTouch.Spirv.Core;
 
 namespace SoftTouch.Spirv;
 
-
+/// <summary>
+/// Collections of mixins
+/// </summary>
 internal struct MixinList : IList<string>
 {
     List<string> mixins;

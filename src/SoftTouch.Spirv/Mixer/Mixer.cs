@@ -7,7 +7,9 @@ using static Spv.Specification;
 
 namespace SoftTouch.Spirv;
 
-
+/// <summary>
+/// Spirv Mixer object mainly designed around SDSL
+/// </summary>
 public sealed partial class Mixer : MixerBase
 {
     //public FunctionFinder Functions => new(this);

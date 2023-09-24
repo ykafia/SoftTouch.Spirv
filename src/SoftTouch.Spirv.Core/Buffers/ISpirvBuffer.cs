@@ -1,6 +1,8 @@
 namespace SoftTouch.Spirv.Core.Buffers;
 
-
+/// <summary>
+/// A spirv buffer object
+/// </summary>
 public interface ISpirvBuffer
 {
     Span<int> Span { get; }

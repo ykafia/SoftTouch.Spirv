@@ -18,7 +18,7 @@ public record struct OrderedSpvBuffer(SpirvBuffer Buffer)
 /// <summary>
 /// Merges mixins into one final spirv file
 /// </summary>
-public struct MixinMerger : IPostProcessorPass
+public struct MixinMerger : INanoPass
 {
     public readonly void Apply(SpirvBuffer buffer)
     {

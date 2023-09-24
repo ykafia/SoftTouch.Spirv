@@ -1,6 +1,8 @@
 namespace SoftTouch.Spirv;
 
-
+/// <summary>
+/// Mixin buffer repository
+/// </summary>
 public class MixinSourceProvider
 {
 

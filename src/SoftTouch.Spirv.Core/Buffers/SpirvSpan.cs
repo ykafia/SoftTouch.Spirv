@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace SoftTouch.Spirv.Core.Buffers;
 
+/// <summary>
+/// A buffer slice
+/// </summary>
 public ref struct SpirvSpan
 {
     Span<int> words;

@@ -3,7 +3,9 @@
 namespace SoftTouch.Spirv;
 
 
-
+/// <summary>
+/// Wrapper over Instruction for mixins
+/// </summary>
 public ref struct MixinInstruction
 {
     public string MixinName { get; init; }

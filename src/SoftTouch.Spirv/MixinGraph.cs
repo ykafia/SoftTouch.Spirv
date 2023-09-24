@@ -17,7 +17,9 @@ public record struct MixinGraphInstructions(MixinGraph Graph, bool Offsetted = f
     public readonly MixinInstructionEnumerator GetEnumerator() => new(Graph, Offsetted);
 }
 
-
+/// <summary>
+/// Representation of mixin parents to a graph.
+/// </summary>
 public class MixinGraph
 {
     public ParentList Names { get; private set; }

@@ -4,7 +4,9 @@ using SoftTouch.Spirv.Processing;
 
 namespace SoftTouch.Spirv.PostProcessing;
 
-
+/// <summary>
+/// Nano pass merger/optimizer/compiler
+/// </summary>
 public static class PostProcessor
 {
     public static SpirvBuffer Process(string mixinName)
@@ -40,7 +42,7 @@ public static class PostProcessor
     }
 
     static void Apply<T>(SpirvBuffer buffer)
-        where T : struct, IPostProcessorPass
+        where T : struct, INanoPass
     {
         var p = new T();
         p.Apply(buffer);

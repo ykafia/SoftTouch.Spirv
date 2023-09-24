@@ -7,7 +7,9 @@ using static Spv.Specification;
 
 namespace SoftTouch.Spirv.Core.Parsing;
 
-
+/// <summary>
+/// A spirv header parser
+/// </summary>
 public ref struct RefHeader
 {
     Span<int> Words { get; init; }

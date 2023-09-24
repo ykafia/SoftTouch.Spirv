@@ -3,6 +3,9 @@ using SoftTouch.Spirv.Core;
 
 namespace SoftTouch.Spirv;
 
+/// <summary>
+/// Instruction enumerator that goes through many mixins. Instructions are sorted.
+/// </summary>
 public ref struct SortedMixinInstructionEnumerator
 {
 

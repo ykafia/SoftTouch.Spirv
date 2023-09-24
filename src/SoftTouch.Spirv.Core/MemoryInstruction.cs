@@ -4,6 +4,13 @@ using SoftTouch.Spirv.Core.Parsing;
 
 namespace SoftTouch.Spirv.Core;
 
+/// <summary>
+/// Representation of an instruction from a memory slice.
+/// </summary>
+/// <param name="Buffer"></param>
+/// <param name="Words"></param>
+/// <param name="Index"></param>
+/// <param name="WordIndex"></param>
 public record struct Instruction(ISpirvBuffer Buffer, Memory<int> Words, int Index, int WordIndex)
 {
     public static Instruction Empty { get; } = new(null!, Memory<int>.Empty, 0, 0);

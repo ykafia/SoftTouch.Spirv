@@ -6,7 +6,9 @@ using SoftTouch.Spirv.Core.Parsing;
 
 namespace SoftTouch.Spirv;
 
-
+/// <summary>
+/// A list of parents built with MemoryOwner from the HighPerformance community toolkit
+/// </summary>
 public class ParentList
 {
     MemoryOwner<string> _owner;

@@ -2,7 +2,9 @@ using System.Runtime.CompilerServices;
 
 namespace SoftTouch.Spirv.Core;
 
-
+/// <summary>
+/// Spirv operand representation, used for parsing spirv.
+/// </summary>
 public ref struct SpvOperand
 {
     public OperandKind Kind { get; init; }

@@ -10,6 +10,10 @@ using static Spv.Specification;
 
 namespace SoftTouch.Spirv.Core.Parsing;
 
+/// <summary>
+/// A spirv buffer enumerator with filters on operations
+/// </summary>
+/// <typeparam name="T"></typeparam>
 public ref struct FilteredEnumerator<T>
     where T : ISpirvBuffer
 {

@@ -4,6 +4,9 @@ using SoftTouch.Spirv.Core.Buffers;
 
 namespace SoftTouch.Spirv.Core.Parsing;
 
+/// <summary>
+/// Simple Spirv parser for external buffers
+/// </summary>
 public ref struct SpirvReader
 {
     public static void ParseToList(byte[] byteCode, List<Instruction> instructions)

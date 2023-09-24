@@ -9,7 +9,10 @@ using System.Threading.Tasks;
 using static Spv.Specification;
 
 namespace SoftTouch.Spirv.Core.Parsing;
-
+/// <summary>
+/// An enumerator to filter instructions with a lambda
+/// </summary>
+/// <typeparam name="T"></typeparam>
 public ref struct LambdaFilteredEnumerator<T>
     where T : ISpirvBuffer
 { 

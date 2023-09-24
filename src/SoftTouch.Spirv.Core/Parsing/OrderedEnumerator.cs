@@ -10,6 +10,10 @@ using static Spv.Specification;
 
 namespace SoftTouch.Spirv.Core.Parsing;
 
+
+/// <summary>
+/// An enumerator where each declartions instructions is sorted
+/// </summary>
 public ref struct OrderedEnumerator
 {
     int index;

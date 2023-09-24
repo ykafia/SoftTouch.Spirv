@@ -61,15 +61,29 @@ public partial class InstructionInfo
         OrderGroup[(SDSLOp.OpVariable,StorageClass.Function)] = 13;
         OrderGroup[(SDSLOp.OpSDSLMixinEnd,null)] = 14;
     }
-
+    /// <summary>
+    /// Gets the order group for a given instruction, useful for sorting instructions according to the specification.
+    /// </summary>
+    /// <param name="instruction"></param>
+    /// <returns></returns>
     public static int GetGroupOrder(RefInstruction instruction)
     {
         return GetGroupOrder(instruction.OpCode, instruction.OpCode == SDSLOp.OpVariable ? (StorageClass)instruction.Words[3] : null);
     }
+    /// <summary>
+    /// Gets the order group for a given instruction, useful for sorting instructions according to the specification.
+    /// </summary>
+    /// <param name="instruction"></param>
+    /// <returns></returns>
     public static int GetGroupOrder(MutRefInstruction instruction)
     {
         return GetGroupOrder(instruction.OpCode, instruction.OpCode == SDSLOp.OpVariable ? (StorageClass)instruction.Words[3] : null);
     }
+    /// <summary>
+    /// Gets the order group for a given instruction, useful for sorting instructions according to the specification.
+    /// </summary>
+    /// <param name="instruction"></param>
+    /// <returns></returns>
     public static int GetGroupOrder(Instruction instruction)
     {
         return GetGroupOrder(instruction.OpCode, instruction.OpCode == SDSLOp.OpVariable ? (StorageClass)instruction.Words.Span[3] : null);

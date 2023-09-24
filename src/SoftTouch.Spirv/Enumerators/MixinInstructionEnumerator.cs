@@ -5,7 +5,9 @@ using SoftTouch.Spirv.Core.Parsing;
 
 namespace SoftTouch.Spirv;
 
-
+/// <summary>
+/// Instruction enumerator that goes through many mixins.
+/// </summary>
 public ref struct MixinInstructionEnumerator
 {
     MixinGraph Mixins { get; init; }

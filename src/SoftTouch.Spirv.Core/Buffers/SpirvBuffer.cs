@@ -9,6 +9,9 @@ using System.Threading.Tasks;
 
 namespace SoftTouch.Spirv.Core.Buffers;
 
+/// <summary>
+/// A common spirv buffer containing a header.
+/// </summary>
 public class SpirvBuffer : ExpandableBuffer<int>, ISpirvBuffer, IDisposable
 {
     public Span<int> InstructionSpan => _owner.Span[5..Length];

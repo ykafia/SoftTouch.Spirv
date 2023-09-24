@@ -7,6 +7,9 @@ using static Spv.Specification;
 
 namespace SoftTouch.Spirv.Core.Parsing;
 
+/// <summary>
+/// Spirv version wrapper to interact through string/integers
+/// </summary>
 public struct SpirvVersion
 {
     public int Version { get; }
@@ -33,7 +36,9 @@ public struct SpirvVersion
     public static implicit operator SpirvVersion(string v) => new(v);
 }
 
-
+/// <summary>
+/// Spirv Header struct for spirv assembling
+/// </summary>
 public struct SpirvHeader
 {
     public uint MagicNumber { get; init; }

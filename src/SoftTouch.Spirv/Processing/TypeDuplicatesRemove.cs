@@ -15,7 +15,7 @@ namespace SoftTouch.Spirv.Processing;
 /// Remove duplicate simple types.
 /// Should be applied before the IdRefOffsetter.
 /// </summary>
-public struct TypeDuplicateRemover : IPostProcessorPass
+public struct TypeDuplicateRemover : INanoPass
 {
 
     public readonly void Apply(SpirvBuffer buffer)

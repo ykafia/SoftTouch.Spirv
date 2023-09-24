@@ -2,7 +2,9 @@ using SoftTouch.Spirv.Core.Buffers;
 
 namespace SoftTouch.Spirv;
 
-
+/// <summary>
+/// Mixer base class
+/// </summary>
 public abstract class MixerBase
 {
     protected MixinGraph mixins;

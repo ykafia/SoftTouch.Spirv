@@ -5,6 +5,9 @@ using System.Runtime.InteropServices;
 
 namespace SoftTouch.Spirv.Core.Buffers;
 
+/// <summary>
+/// A buffer to assembler spirv byte code.
+/// </summary>
 public sealed partial class WordBuffer : ExpandableBuffer<int>, ISpirvBuffer
 {
     public Bound Bound { get; private set; }

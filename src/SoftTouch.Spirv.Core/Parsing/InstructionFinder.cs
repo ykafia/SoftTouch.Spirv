@@ -7,6 +7,10 @@ using System.Threading.Tasks;
 
 namespace SoftTouch.Spirv.Core.Parsing;
 
+/// <summary>
+/// A utility struct to find and look for specific instructions
+/// </summary>
+/// <typeparam name="T"></typeparam>
 public ref struct InstructionFinder<T> where T : ISpirvBuffer
 {
     T buffer;
