@@ -11,7 +11,9 @@ public partial class Mixer
     public ref struct FunctionBuilder
     {
         public record struct Variable(IdRef Id, bool IsConstant);
+        public record struct Value(IdRef Id, IdResultType Type, bool IsConstant);
         public delegate Variable InitializerDelegate(Mixer mixer, ref FunctionBuilder functionBuilder);
+        public delegate Value ValueDelegate(Mixer mixer, ref FunctionBuilder functionBuilder);
 
         Mixer mixer;
         Instruction function;
@@ -25,7 +27,7 @@ public partial class Mixer
             parameterTypesDelegate.Invoke(ref p);
             var t = mixer.GetOrCreateBaseType(returnType.AsMemory());
             var t_func = mixer.buffer.AddOpTypeFunction(t.ResultId ?? -1, parameters);
-            function = mixer.buffer.AddOpSDSLFunction(t.ResultId ?? -1, FunctionControlMask.MaskNone,t_func, name);
+            function = mixer.buffer.AddOpSDSLFunction(t.ResultId ?? -1, FunctionControlMask.MaskNone, t_func, name);
             mixer.buffer.AddOpLabel();
 
         }
@@ -53,7 +55,7 @@ public partial class Mixer
             var value = initializer.Invoke(mixer, ref this);
             MixinInstruction variable;
             if (value.IsConstant)
-                 variable = mixer.buffer.AddOpVariable(ptr, StorageClass.Function, value.Id);
+                variable = mixer.buffer.AddOpVariable(ptr, StorageClass.Function, value.Id);
             else
             {
                 variable = mixer.buffer.AddOpVariable(ptr, StorageClass.Function, null);
@@ -63,10 +65,21 @@ public partial class Mixer
             mixer.buffer.AddOpName(variable, name);
             return this;
         }
-        public FunctionBuilder Assign(string name, InitializerDelegate initializer)
+        public FunctionBuilder Assign(string name, ValueDelegate initializer)
         {
             var result = initializer.Invoke(mixer, ref this);
-            throw new NotImplementedException();
+            if (mixer.LocalVariables.TryGet(name, out var local))
+            {
+                var load = mixer.buffer.AddOpLoad(result.Type, result.Id, null);
+                mixer.buffer.AddOpStore(local, load, null);
+            }
+            else if (mixer.GlobalVariables.TryGet(name, out var global))
+            {
+                var load = mixer.buffer.AddOpLoad(result.Type, result.Id, null);
+                mixer.buffer.AddOpStore(global, load, null);
+            }
+            return this;
+
         }
 
         public FunctionBuilder CallFunction(string functionName, Span<IdRef> parameters)
@@ -90,10 +103,10 @@ public partial class Mixer
             var count = mixer.IOVariables.Count;
             Span<IdRef> idRefs = stackalloc IdRef[count];
             int index = 0;
-            foreach(var i in mixer.IOVariables)
+            foreach (var i in mixer.IOVariables)
             {
                 idRefs[index] = i;
-                index+=1;
+                index += 1;
             }
             mixer.buffer.AddOpFunctionEnd();
             if (entryPoint != null)
