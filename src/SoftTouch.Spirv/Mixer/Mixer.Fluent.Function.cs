@@ -67,6 +67,7 @@ public partial class Mixer
         }
         public FunctionBuilder Assign(string name, ValueDelegate initializer)
         {
+            // TODO : If the value delegate is a constant no need to be loaded on a register
             var result = initializer.Invoke(mixer, ref this);
             if (mixer.LocalVariables.TryGet(name, out var local))
             {
