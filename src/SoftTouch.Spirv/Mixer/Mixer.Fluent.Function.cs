@@ -1,3 +1,5 @@
+using System.Reflection.Metadata;
+using System.Runtime.Serialization.Formatters;
 using SoftTouch.Spirv.Core;
 using SoftTouch.Spirv.Core.Buffers;
 using SoftTouch.Spirv.Core.Parsing;
@@ -47,7 +49,13 @@ public partial class Mixer
             throw new NotImplementedException();
             return this;
         }
-
+        /// <summary>
+        /// Declares a variable and assigns a value to it
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="name"></param>
+        /// <param name="initializer"></param>
+        /// <returns></returns>
         public FunctionBuilder DeclareAssign(string type, string name, InitializerDelegate initializer)
         {
             var resultType = mixer.GetOrCreateBaseType(type.AsMemory());
@@ -75,6 +83,47 @@ public partial class Mixer
                 mixer.buffer.AddOpStore(local, load, null);
             }
             else if (mixer.GlobalVariables.TryGet(name, out var global))
+            {
+                var load = mixer.buffer.AddOpLoad(result.Type, result.Id, null);
+                mixer.buffer.AddOpStore(global, load, null);
+            }
+            return this;
+
+        }
+        public FunctionBuilder Assign(string name, IdRef constantValue)
+        {
+            if (mixer.LocalVariables.TryGet(name, out var local))
+                mixer.buffer.AddOpStore(local, constantValue, null);
+            else if (mixer.GlobalVariables.TryGet(name, out var global))
+                mixer.buffer.AddOpStore(global, constantValue, null);
+            return this;
+        }
+        public FunctionBuilder AssignConstant<T>(string name, T constantValue)
+            where T : struct
+        {
+            var constant = mixer.CreateConstant(constantValue);
+            if (mixer.LocalVariables.TryGet(name, out var local))
+                mixer.buffer.AddOpStore(local, constant, null);
+            else if (mixer.GlobalVariables.TryGet(name, out var global))
+                mixer.buffer.AddOpStore(global, constant, null);
+            return this;
+        }
+        public FunctionBuilder AssignVariable(string destination, string source)
+        {
+            // TODO : If the value delegate is a constant no need to be loaded on a register
+            
+            Instruction src = Instruction.Empty;
+            if(mixer.LocalVariables.TryGet(source,out var ls))
+                src = ls;
+            else if(mixer.GlobalVariables.TryGet(source, out var gs))
+                src = gs;
+                
+            if (mixer.LocalVariables.TryGet(destination, out var local))
+            {
+                var load = mixer.buffer.AddOpLoad(result.Type, result.Id, null);
+                mixer.buffer.AddOpStore(local, load, null);
+            }
+            else if (mixer.GlobalVariables.TryGet(destination, out var global))
             {
                 var load = mixer.buffer.AddOpLoad(result.Type, result.Id, null);
                 mixer.buffer.AddOpStore(global, load, null);

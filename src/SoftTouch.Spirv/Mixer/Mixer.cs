@@ -81,6 +81,65 @@ public sealed partial class Mixer : MixerBase
         CreateConstant(name, value);
         return this;
     }
+    public MixinInstruction CreateConstant<T>(T value)
+        where T : struct
+    {
+        return value switch
+        {
+            sbyte v => buffer.AddOpConstant<LiteralInteger>(GetOrCreateBaseType("sbyte".AsMemory()).ResultId ?? -1, v),
+            short v => buffer.AddOpConstant<LiteralInteger>(GetOrCreateBaseType("short".AsMemory()).ResultId ?? -1, v),
+            int v => buffer.AddOpConstant<LiteralInteger>(GetOrCreateBaseType("int".AsMemory()).ResultId ?? -1, v),
+            long v => buffer.AddOpConstant<LiteralInteger>(GetOrCreateBaseType("long".AsMemory()).ResultId ?? -1, v),
+            byte v => buffer.AddOpConstant<LiteralInteger>(GetOrCreateBaseType("byte".AsMemory()).ResultId ?? -1, v),
+            ushort v => buffer.AddOpConstant<LiteralInteger>(GetOrCreateBaseType("ushort".AsMemory()).ResultId ?? -1, v),
+            uint v => buffer.AddOpConstant<LiteralInteger>(GetOrCreateBaseType("uint".AsMemory()).ResultId ?? -1, v),
+            ulong v => buffer.AddOpConstant<LiteralInteger>(GetOrCreateBaseType("ulong".AsMemory()).ResultId ?? -1, v),
+            float v => buffer.AddOpConstant<LiteralFloat>(GetOrCreateBaseType("float".AsMemory()).ResultId ?? -1, v),
+            double v => buffer.AddOpConstant<LiteralFloat>(GetOrCreateBaseType("double".AsMemory()).ResultId ?? -1, v),
+            Vector2 v => CreateConstantVector(v),
+            Vector3 v => CreateConstantVector(v),
+            Vector4 v => CreateConstantVector(v),
+            _ => throw new NotImplementedException()
+        };
+    }
+    public MixinInstruction CreateConstantVector<T>(T value)
+        where T : struct
+    {
+        if (value is Vector2 vec2)
+        {
+            var t_const = GetOrCreateBaseType("float".AsMemory());
+            var t_const2 = GetOrCreateBaseType("float2".AsMemory());
+
+            var c1 = buffer.AddOpConstant<LiteralFloat>(t_const.ResultId ?? -1, vec2.X);
+            var c2 = buffer.AddOpConstant<LiteralFloat>(t_const.ResultId ?? -1, vec2.Y);
+            var cons = buffer.AddOpConstantComposite(t_const2.ResultId ?? -1, stackalloc IdRef[] { c1.ResultId ?? -1, c2.ResultId ?? -1 });
+            return cons;
+        }
+        else if (value is Vector3 vec3)
+        {
+            var t_const = GetOrCreateBaseType("float".AsMemory());
+            var t_const2 = GetOrCreateBaseType("float3".AsMemory());
+
+            var c1 = buffer.AddOpConstant<LiteralFloat>(t_const.ResultId ?? -1, vec3.X);
+            var c2 = buffer.AddOpConstant<LiteralFloat>(t_const.ResultId ?? -1, vec3.Y);
+            var c3 = buffer.AddOpConstant<LiteralFloat>(t_const.ResultId ?? -1, vec3.Z);
+            var cons = buffer.AddOpConstantComposite(t_const2.ResultId ?? -1, stackalloc IdRef[] { c1.ResultId ?? -1, c2.ResultId ?? -1, c3.ResultId ?? -1 });
+            return cons;
+        }
+        else if (value is Vector4 vec4)
+        {
+            var t_const = GetOrCreateBaseType("float".AsMemory());
+            var t_const2 = GetOrCreateBaseType("float4".AsMemory());
+
+            var c1 = buffer.AddOpConstant<LiteralFloat>(t_const.ResultId ?? -1, vec4.X);
+            var c2 = buffer.AddOpConstant<LiteralFloat>(t_const.ResultId ?? -1, vec4.Y);
+            var c3 = buffer.AddOpConstant<LiteralFloat>(t_const.ResultId ?? -1, vec4.Z);
+            var c4 = buffer.AddOpConstant<LiteralFloat>(t_const.ResultId ?? -1, vec4.W);
+            var cons = buffer.AddOpConstantComposite(t_const2.ResultId ?? -1, stackalloc IdRef[] { c1.ResultId ?? -1, c2.ResultId ?? -1, c3.ResultId ?? -1, c4.ResultId ?? -1 });
+            return cons;
+        }
+        throw new NotImplementedException();
+    }
     public MixinInstruction CreateConstant<T>(string name, T value)
         where T : struct
     {
