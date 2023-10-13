@@ -137,7 +137,7 @@ public ref struct OrderedEnumerator
 
     public Instruction ParseCurrentInstruction()
     {
-        var result = new Instruction(wbuff, index);
+        var result = new Instruction(wbuff,wbuff.InstructionMemory.Slice(wordIndex, wbuff.InstructionSpan[wordIndex] >> 16), index, wordIndex);
         return result;
     }
 }

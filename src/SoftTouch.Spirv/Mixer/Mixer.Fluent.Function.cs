@@ -46,7 +46,10 @@ public partial class Mixer
 
         public FunctionBuilder Declare(string type, string name)
         {
-            throw new NotImplementedException();
+            var t = mixer.GetOrCreateBaseType(type.AsMemory());
+            var p_t = mixer.buffer.AddOpTypePointer(StorageClass.Function, t);
+            var v = mixer.buffer.AddOpVariable(p_t, StorageClass.Function, null);
+            mixer.buffer.AddOpName(v, name);
             return this;
         }
         /// <summary>
@@ -56,20 +59,14 @@ public partial class Mixer
         /// <param name="name"></param>
         /// <param name="initializer"></param>
         /// <returns></returns>
-        public FunctionBuilder DeclareAssign(string type, string name, InitializerDelegate initializer)
+        public FunctionBuilder DeclareAssign<T>(string name, T constant)
+            where T : struct
         {
-            var resultType = mixer.GetOrCreateBaseType(type.AsMemory());
+            var resultType = mixer.GetOrCreateBaseType<T>();
             var ptr = mixer.buffer.AddOpTypePointer(StorageClass.Function, resultType.ResultId ?? -1);
-            var value = initializer.Invoke(mixer, ref this);
+            var value = mixer.CreateConstant(constant);
             MixinInstruction variable;
-            if (value.IsConstant)
-                variable = mixer.buffer.AddOpVariable(ptr, StorageClass.Function, value.Id);
-            else
-            {
-                variable = mixer.buffer.AddOpVariable(ptr, StorageClass.Function, null);
-                var load = mixer.buffer.AddOpLoad(resultType, value.Id, null);
-                mixer.buffer.AddOpStore(variable, load, null);
-            }
+            variable = mixer.buffer.AddOpVariable(ptr, StorageClass.Function, value.ResultId);
             mixer.buffer.AddOpName(variable, name);
             return this;
         }
@@ -90,12 +87,12 @@ public partial class Mixer
             return this;
 
         }
-        public FunctionBuilder Assign(string name, IdRef constantValue)
+        public FunctionBuilder Assign(string name, IdRef value)
         {
             if (mixer.LocalVariables.TryGet(name, out var local))
-                mixer.buffer.AddOpStore(local, constantValue, null);
+                mixer.buffer.AddOpStore(local, value, null);
             else if (mixer.GlobalVariables.TryGet(name, out var global))
-                mixer.buffer.AddOpStore(global, constantValue, null);
+                mixer.buffer.AddOpStore(global, value, null);
             return this;
         }
         public FunctionBuilder AssignConstant<T>(string name, T constantValue)
@@ -117,19 +114,20 @@ public partial class Mixer
                 src = ls;
             else if(mixer.GlobalVariables.TryGet(source, out var gs))
                 src = gs;
-                
+
+            var srcType = mixer.FindType(src.Words.Span[1]);
+
             if (mixer.LocalVariables.TryGet(destination, out var local))
             {
-                var load = mixer.buffer.AddOpLoad(result.Type, result.Id, null);
+                var load = mixer.buffer.AddOpLoad(srcType, src, null);
                 mixer.buffer.AddOpStore(local, load, null);
             }
             else if (mixer.GlobalVariables.TryGet(destination, out var global))
             {
-                var load = mixer.buffer.AddOpLoad(result.Type, result.Id, null);
+                var load = mixer.buffer.AddOpLoad(srcType, src, null);
                 mixer.buffer.AddOpStore(global, load, null);
             }
             return this;
-
         }
 
         public FunctionBuilder CallFunction(string functionName, Span<IdRef> parameters)

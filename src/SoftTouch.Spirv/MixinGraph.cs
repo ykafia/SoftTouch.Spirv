@@ -30,7 +30,7 @@ public class MixinGraph
 
     public int Count => GetCount();
 
-    public Mixin this[int index]
+    public MixinMultiBuffer this[int index]
     {
         get
         {

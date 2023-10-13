@@ -11,19 +11,18 @@ public static class PostProcessor
 {
     public static SpirvBuffer Process(string mixinName)
     {
-        var buffer = new SpirvBuffer();
+        var buffer = new MultiBuffer();
         var mixin = MixinSourceProvider.Get(mixinName);
         #if DEBUG
         Console.WriteLine($"Processing {mixinName}");
         #endif
-        foreach (var m in mixin.Parents.ToGraph())
+        foreach (var m in mixin.Parents)
         {
-            #if DEBUG
-            Console.WriteLine($"Adding {m.Name} to the buffer");
-            #endif
-            buffer.Add(m.Buffer);
+            buffer.Declarations.Add(m.Declarations.InstructionSpan);
+            foreach (var (nf,f) in buffer.Functions)
+                buffer.Functions.Add(nf, f);
         }
-        buffer.Add(mixin.Buffer);
+        //buffer.Add(mixin.Declarations);
 
         Apply(buffer);
 

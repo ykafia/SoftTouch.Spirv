@@ -2,17 +2,71 @@ using CommunityToolkit.HighPerformance;
 using SoftTouch.Spirv.Core;
 using SoftTouch.Spirv.Core.Buffers;
 using SoftTouch.Spirv.Core.Parsing;
+using System.Numerics;
 
 namespace SoftTouch.Spirv;
 
 public partial class Mixer
 {
+
+    public MixinInstruction FindType(IdRef typeId)
+    {
+        foreach(var i in buffer.Declarations)
+        {
+            if (i.OpCode == SDSLOp.OpTypePointer && i.ResultId == typeId)
+            {
+                IdRef toFind = i.Words.Span[1];
+                foreach (var j in buffer.Declarations)
+                {
+                    if (j.ResultId == toFind)
+                    {
+                        var found = j.OpCode switch
+                        {
+                            var tmp when InstructionInfo.OpTypes.Contains(tmp) => true,
+                            _ => false
+                        };
+                        if (found)
+                            return j;
+                    }
+                }
+            }
+            else if (InstructionInfo.OpTypes.Contains(i.OpCode) && i.ResultId == typeId)
+                return i;
+        }
+        return Instruction.Empty;
+    }
+
     public MixinInstruction CreateTypePointer(ReadOnlyMemory<char> type, Spv.Specification.StorageClass storage)
     {
         var t = GetOrCreateBaseType(type[..^1]);
         return buffer.AddOpTypePointer(storage, t.ResultId ?? -1);
     }
-    public MixinInstruction GetOrCreateBaseType(ReadOnlyMemory<char> type)
+    public MixinInstruction GetOrCreateBaseType<T>()
+        where T : struct
+    {
+        var v = default(T);
+        return v switch
+        {
+            sbyte t => GetOrCreateBaseType("sbyte".AsMemory()),
+            byte t => GetOrCreateBaseType("byte".AsMemory()),
+            short t => GetOrCreateBaseType("short".AsMemory()),
+            ushort t => GetOrCreateBaseType("ushort".AsMemory()),
+            int t => GetOrCreateBaseType("int".AsMemory()),
+            uint t => GetOrCreateBaseType("uint".AsMemory()),
+            long t => GetOrCreateBaseType("long".AsMemory()),
+            ulong t => GetOrCreateBaseType("ulong".AsMemory()),
+            System.Half t => GetOrCreateBaseType("half".AsMemory()),
+            float t => GetOrCreateBaseType("float".AsMemory()),
+            double t => GetOrCreateBaseType("double".AsMemory()),
+            Vector2 t => GetOrCreateBaseType("float2".AsMemory()),
+            Vector3 t => GetOrCreateBaseType("float3".AsMemory()),
+            Vector4 t => GetOrCreateBaseType("float4".AsMemory()),
+            Matrix4x4 t => GetOrCreateBaseType("float4x4".AsMemory()),
+            Matrix3x2 t => GetOrCreateBaseType("float3x2".AsMemory()),
+            _ => throw new NotImplementedException()
+        };
+    }
+        public MixinInstruction GetOrCreateBaseType(ReadOnlyMemory<char> type)
     {
         var matched = MatchesBaseType(type);
         if (matched is null) return Instruction.Empty;

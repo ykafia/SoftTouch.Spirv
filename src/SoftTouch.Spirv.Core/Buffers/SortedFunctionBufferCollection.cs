@@ -6,52 +6,32 @@ namespace SoftTouch.Spirv.Core.Buffers;
 /// <summary>
 /// A collection of function buffers, usable through the MultiBuffer class
 /// </summary>
-public class FunctionBufferCollection
+public class SortedFunctionBufferCollection
 {
     bool functionStarted;
-    internal SortedList<string, WordBuffer> buffers;
-    public WordBuffer? Current => functionStarted ? buffers.Values[^1] : null;
+    SortedList<string, SortedWordBuffer> buffers;
+    public SortedWordBuffer? Current => functionStarted ? buffers.Values[^1] : null;
 
     public FunctionsInstructions Instructions => new(this);
 
     public int BuffersLength => buffers.Sum(static (x) => x.Value.Length);
-    public int FunctionCount => buffers.Count;
 
-    public FunctionBufferCollection()
+
+    public SortedFunctionBufferCollection(FunctionBufferCollection functions)
     {
-        functionStarted = false;
-        buffers = new();
-    }
-
-    public IEnumerator<KeyValuePair<string,WordBuffer>> GetEnumerator() => buffers.GetEnumerator();
-
-
-    public Instruction Insert(MutRefInstruction instruction, string? functionName = null)
-    {
-        if(!functionStarted)
+        buffers = new(functions.FunctionCount);
+        foreach(var func in functions.buffers)
         {
-            if (instruction.OpCode != SDSLOp.OpFunction || functionName == null)
-                throw new Exception("A function should be started with SDSLOp.OpFunction");
-            buffers.Add(functionName, new());
-            functionStarted = true;
+            buffers.Add(func.Key, new(func.Value));
         }
-        Instruction? result = Current?.Add(instruction);
-        if(instruction.OpCode == SDSLOp.OpFunctionEnd)
-        {
-            functionStarted = false;
-        }
-        return result ?? throw new Exception("The instruction was not inserted");
     }
 
-    public void Add(string name, WordBuffer function)
-    {
-        buffers.Add(name, function);
-    }
-
+    public IEnumerator<SortedWordBuffer> GetEnumerator() => buffers.Values.GetEnumerator();
+    
     public struct FunctionsInstructions
     {
-        FunctionBufferCollection buffers;
-        public FunctionsInstructions(FunctionBufferCollection buffers)
+        SortedFunctionBufferCollection buffers;
+        public FunctionsInstructions(SortedFunctionBufferCollection buffers)
         {
             this.buffers = buffers;
         }
@@ -61,10 +41,10 @@ public class FunctionBufferCollection
 
         public ref struct Enumerator
         {
-            IEnumerator<WordBuffer> lastBuffer;
-            OrderedEnumerator lastEnumerator;
+            IEnumerator<SortedWordBuffer> lastBuffer;
+            InstructionEnumerator lastEnumerator;
             bool started;
-            public Enumerator(FunctionBufferCollection buffers)
+            public Enumerator(SortedFunctionBufferCollection buffers)
             {
                 lastBuffer = buffers.GetEnumerator();
                 started = false;
