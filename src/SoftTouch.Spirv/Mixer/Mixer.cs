@@ -29,6 +29,7 @@ public sealed partial class Mixer : MixerBase
     public Mixer(string name) : base(name)
     {
         buffer.AddOpMemoryModel(AddressingModel.Logical, MemoryModel.GLSL450);
+        buffer.AddOpExtension("SPV_GOOGLE_decorate_string");
     }
 
     public Mixer WithCapability(Capability capability)
@@ -58,20 +59,22 @@ public sealed partial class Mixer : MixerBase
         return this;
     }
 
-    public Mixer WithInput(string type, string name)
+    public Mixer WithInput(string type, string name, string semantic)
     {
         var t_variable = GetOrCreateBaseType(type.AsMemory());
         var p_t_variable = buffer.AddOpTypePointer(StorageClass.Input, t_variable.ResultId ?? -1);
         var variable = buffer.AddOpVariable(p_t_variable.ResultId ?? -1, StorageClass.Input, null);
         buffer.AddOpName(variable.ResultId ?? -1, name);
+        buffer.AddOpDecorateString(variable, Decoration.HlslSemanticGOOGLE, additionalString: semantic);
         return this;
     }
-    public Mixer WithOutput(string type, string name)
+    public Mixer WithOutput(string type, string name, string semantic)
     {
         var t_variable = GetOrCreateBaseType(type.AsMemory());
         var p_t_variable = buffer.AddOpTypePointer(StorageClass.Output, t_variable.ResultId ?? -1);
         var variable = buffer.AddOpVariable(p_t_variable.ResultId ?? -1, StorageClass.Output, null);
         buffer.AddOpName(variable.ResultId ?? -1, name);
+        buffer.AddOpDecorateString(variable, Decoration.HlslSemanticGOOGLE, additionalString: semantic);
         return this;
     }
 
