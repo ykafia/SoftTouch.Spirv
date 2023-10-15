@@ -37,6 +37,7 @@ public static class PostProcessor
 
     static void Apply(MultiBuffer buffer)
     {
+        Apply<IOReplace>(buffer);
         Apply<FunctionVariableOrderer>(buffer);
         Apply<TypeDuplicateRemover>(buffer);
         Apply<MemoryModelDuplicatesRemover>(buffer);

@@ -127,6 +127,7 @@ namespace SoftTouch.Spirv.Generators
                 "SelectionControl" => "SelectionControlMask",
                 "LiteralExtInstInteger" => "LiteralInteger",
                 "LiteralSpecConstantOpInteger" => "Op",
+                "CooperativeMatrixOperands" => "CooperativeMatrixOperandsMask",
                 _ => kind
             };
         }

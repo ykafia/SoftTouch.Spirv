@@ -141,7 +141,6 @@
     {
       "opname": "OpSDSLVariable",
       "class": "Memory",
-      "opcode": 59,
       "operands": [
         { "kind": "IdResultType" },
         { "kind": "IdResult" },
@@ -158,9 +157,30 @@
       ]
     },
     {
+      "opname": "OpSDSLIOVariable",
+      "class": "Memory",
+      "operands": [
+        { "kind": "IdResultType" },
+        { "kind": "IdResult" },
+        { "kind": "StorageClass" },
+        {
+          "kind": "LiteralString",
+          "name": "name"
+        },
+        {
+          "kind": "LiteralString",
+          "name": "semantic"
+        },
+        {
+          "kind": "IdRef",
+          "quantifier": "?",
+          "name": "'Initializer'"
+        }
+      ]
+    },
+    {
       "opname": "OpSDSLFunction",
       "class": "Function",
-      "opcode": 54,
       "operands": [
         { "kind": "IdResultType" },
         { "kind": "IdResult" },

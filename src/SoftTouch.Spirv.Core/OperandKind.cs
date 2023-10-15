@@ -52,4 +52,5 @@ public enum OperandKind {
     PairLiteralIntegerIdRef,
     PairIdRefLiteralInteger,
     PairIdRefIdRef,
+    CooperativeMatrixOperands
 }
