@@ -43,6 +43,22 @@ public class SpirvBuffer : ExpandableBuffer<int>, ISpirvBuffer, IDisposable
         header.GeneratorMagicNumber = 42;
         Length = 5;
     }
+    public SpirvBuffer(MultiBuffer buffer)
+    {
+        _owner = MemoryOwner<int>.Allocate(buffer.Length, AllocationMode.Clear);
+        var header = Header;
+        header.MagicNumber = Spv.Specification.MagicNumber;
+        header.VersionNumber = new(1, 3);
+        header.GeneratorMagicNumber = 42;
+        header.Bound = buffer.Bound;
+        Length = 5;
+        foreach (var i in buffer.Declarations)
+            if (i.OpCode != SDSLOp.OpNop)
+                Add(i.Words.Span);
+        foreach(var (_,f) in buffer.Functions)
+            Add(f.InstructionSpan);
+        buffer.Dispose();
+    }
 
     public InstructionEnumerator GetEnumerator() => new(this);
 

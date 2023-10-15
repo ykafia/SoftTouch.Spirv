@@ -7,7 +7,7 @@ namespace SoftTouch.Spirv.Processing;
 
 public struct CapabilitiesCompute : INanoPass
 {
-    public void Apply(SpirvBuffer buffer)
+    public void Apply(MultiBuffer buffer)
     {
         throw new NotImplementedException("Needs to finish checking the spec");
     }

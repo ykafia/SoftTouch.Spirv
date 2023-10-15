@@ -13,34 +13,39 @@ public static class PostProcessor
     {
         var buffer = new MultiBuffer();
         var mixin = MixinSourceProvider.Get(mixinName);
-        #if DEBUG
-        Console.WriteLine($"Processing {mixinName}");
-        #endif
-        foreach (var m in mixin.Parents)
+        var parents = MixinSourceProvider.GetMixinGraph(mixinName);
+        var bound = 0;
+        foreach(var p in parents)
         {
-            buffer.Declarations.Add(m.Declarations.InstructionSpan);
-            foreach (var (nf,f) in buffer.Functions)
-                buffer.Functions.Add(nf, f);
+            foreach(var i in p.Instructions)
+                buffer.Duplicate(i.AsRef(), bound);
+            bound += p.Bound;
         }
-        //buffer.Add(mixin.Declarations);
+        foreach(var i in mixin.Instructions)
+        {
+            if(i.OpCode == SDSLOp.OpLabel)
+            {
+                var x = 0;
+            }
+            buffer.Duplicate(i.AsRef(), bound);
+        }
 
         Apply(buffer);
 
-        return buffer;
+        return new(buffer);
     }
 
-    static void Apply(SpirvBuffer buffer)
+    static void Apply(MultiBuffer buffer)
     {
-        Apply<IdRefOffsetter>(buffer);
-        Apply<MemoryModelDuplicatesRemover>(buffer);
+        Apply<FunctionVariableOrderer>(buffer);
         Apply<TypeDuplicateRemover>(buffer);
+        Apply<MemoryModelDuplicatesRemover>(buffer);
         Apply<BoundReducer>(buffer);
         Apply<SDSLOpRemover>(buffer);
-        Apply<MixinMerger>(buffer);
-        Apply<FunctionVariableOrderer>(buffer);
+        Apply<CompressBuffer>(buffer);
     }
 
-    static void Apply<T>(SpirvBuffer buffer)
+    static void Apply<T>(MultiBuffer buffer)
         where T : struct, INanoPass
     {
         var p = new T();

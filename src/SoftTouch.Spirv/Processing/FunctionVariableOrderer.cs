@@ -7,27 +7,11 @@ namespace SoftTouch.Spirv.Processing;
 /// </summary>
 public struct FunctionVariableOrderer : INanoPass
 {
-    public void Apply(SpirvBuffer buffer)
+    public void Apply(MultiBuffer buffer)
     {
-        var started = false;
-        var foundLabel = false;
-        var start = 0; var end = 0;
-        foreach(var i in buffer)
+        foreach(var (_,f) in buffer.Functions)
         {
-            if(!started && i.OpCode == SDSLOp.OpFunction)
-            {
-                started = true;
-            }
-            if(started && !foundLabel && i.OpCode == SDSLOp.OpLabel)
-            {
-                foundLabel = true;
-                start = i.WordCount + i.WordIndex;
-            }
-            if(foundLabel && i.OpCode == SDSLOp.OpFunctionEnd)
-            {
-                end = i.WordIndex + i.WordCount;
-                ProcessFunction(new(buffer.InstructionSpan[start..end]));
-            }
+            ProcessFunction(new(f.InstructionSpan));
         }
     }
     public static void ProcessFunction(SpirvSpan function)

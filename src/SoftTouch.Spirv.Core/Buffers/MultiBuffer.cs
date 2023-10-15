@@ -1,4 +1,5 @@
 using SoftTouch.Spirv.Core.Parsing;
+using System.Text;
 using System.Transactions;
 
 namespace SoftTouch.Spirv.Core.Buffers;
@@ -36,6 +37,16 @@ public sealed partial class MultiBuffer
             funcInstruction.OpCode = SDSLOp.OpFunction;
             return Functions.Insert(funcInstruction, name.Value);
         }
+        else if(instruction.OpCode == SDSLOp.OpFunction)
+        {
+            var n = "";
+            foreach(var i in Declarations)
+            {
+                if (i.OpCode == SDSLOp.OpName && i.Words.Span[1] == instruction.Words[2])
+                    n = i.GetOperand<LiteralString>("name").Value;
+            }
+            return Functions.Insert(instruction, n);
+        }
         else
         {
             return InstructionInfo.GetGroupOrder(instruction) switch
@@ -45,12 +56,30 @@ public sealed partial class MultiBuffer
             };
         }
     }
-    public Instruction Duplicate(RefInstruction instruction)
+    public Instruction Duplicate(RefInstruction instruction, int offset = 0)
     {
         var m = new MutRefInstruction(stackalloc int[instruction.WordCount]);
         m.OpCode = instruction.OpCode;
         m.WordCount = instruction.WordCount;
         instruction.Operands.CopyTo(m.Words[1..]);
+        if (offset > 0)
+        {
+            foreach (var op in m)
+            {
+                if (
+                    op.Kind == OperandKind.IdResult
+                    || op.Kind == OperandKind.IdResultType
+                    || op.Kind == OperandKind.IdRef
+                    || op.Kind == OperandKind.PairIdRefIdRef
+                    || op.Kind == OperandKind.PairIdRefLiteralInteger
+                    )
+                    op.Words[0] += offset;
+                if (op.Kind == OperandKind.PairIdRefIdRef || op.Kind == OperandKind.PairLiteralIntegerIdRef)
+                {
+                    op.Words[1] += offset;
+                }
+            }
+        }
         return Add(m);
     }
 
@@ -84,7 +113,7 @@ public sealed partial class MultiBuffer
     {
         Declarations.Dispose();
         foreach (var function in Functions)
-            function.Dispose();
+            function.Value.Dispose();
     }
 
     public struct MultiBufferInstructions
@@ -143,6 +172,33 @@ public sealed partial class MultiBuffer
         }
     }
 
+    public void RecomputeBound()
+    {
+        var b = 0;
+        foreach(var i in Declarations.UnorderedInstructions)
+        {
+            var id = i.ResultId;
+            if (id != null && id > b)
+                b = id ?? -1;
+        }
+        foreach(var (_,f) in Functions)
+        foreach (var i in f.UnorderedInstructions)
+        {
+            var id = i.ResultId;
+            if (id != null && id > b)
+                b = id ?? -1;
+        }
+        Bound = b + 1;
+    }
+    public override string ToString()
+    {
+        return
+            new StringBuilder()
+            .Append(Disassembler.Disassemble(Declarations))
+            .Append(string.Join("\n", Functions.Buffers.Select(x => Disassembler.Disassemble(x.Value))))
+            .ToString();
+    }
+
 
     internal static int GetWordLength(Span<int> values) => values.Length;
     internal static int GetWordLength(Span<LiteralInteger> values) => values.Length * values[0].WordCount;
@@ -151,4 +207,6 @@ public sealed partial class MultiBuffer
     internal static int GetWordLength(Span<PairIdRefIdRef> values) => values.Length * 2;
     internal static int GetWordLength(Span<PairIdRefLiteralInteger> values) => values.Length * 2;
     internal static int GetWordLength(Span<PairLiteralIntegerIdRef> values) => values.Length * 2;
+
+    
 }

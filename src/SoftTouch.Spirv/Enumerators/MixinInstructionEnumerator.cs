@@ -12,7 +12,7 @@ public ref struct MixinInstructionEnumerator
 {
     MixinGraph Mixins { get; init; }
 
-    InstructionEnumerator lastEnumerator;
+    MixinBuffer.InstructionsWrapper.Enumerator lastEnumerator;
     int lastMixin;
     public int MixinResultId { get; set; }
 
@@ -36,7 +36,7 @@ public ref struct MixinInstructionEnumerator
         {
             lastMixin = 0;
             MixinResultId = 1;
-            lastEnumerator = Mixins[lastMixin].Buffer.GetEnumerator();
+            lastEnumerator = Mixins[lastMixin].Instructions.GetEnumerator();
             return lastEnumerator.MoveNext();
         }
         else
@@ -53,7 +53,7 @@ public ref struct MixinInstructionEnumerator
                 {
                     lastMixin += 1;
                     if (lastMixin < count)
-                        lastEnumerator = Mixins[lastMixin].Buffer.GetEnumerator();
+                        lastEnumerator = Mixins[lastMixin].Instructions.GetEnumerator();
                 }
             }
             return false;

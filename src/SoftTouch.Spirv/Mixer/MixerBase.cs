@@ -24,11 +24,11 @@ public abstract class MixerBase
         DisposeBuffers = buffer.Dispose;
     }
 
-    public virtual Mixin Build()
+    public virtual MixinBuffer Build()
     {
         buffer.AddOpSDSLMixinEnd();
         // TODO : do some validation here
-        MixinSourceProvider.Register(new(Name, new(buffer)));
+        MixinSourceProvider.Register(new(Name, buffer));
         DisposeBuffers.Invoke();
         return MixinSourceProvider.Get(Name);
     }

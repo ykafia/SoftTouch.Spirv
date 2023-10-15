@@ -41,6 +41,8 @@ public ref struct InstructionEnumerator
         }
         else
         {
+            if (wordIndex >= buffer.InstructionSpan.Length)
+                return false;
             var sizeToStep = buffer.InstructionSpan[wordIndex] >> 16;
             wordIndex += sizeToStep;
             index += 1;

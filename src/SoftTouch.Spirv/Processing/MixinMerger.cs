@@ -20,17 +20,17 @@ public record struct OrderedSpvBuffer(SpirvBuffer Buffer)
 /// </summary>
 public struct MixinMerger : INanoPass
 {
-    public readonly void Apply(SpirvBuffer buffer)
+    public readonly void Apply(MultiBuffer buffer)
     {
-        var temp = new SpirvBuffer();
-        var ordered = new OrderedSpvBuffer(buffer);
-        foreach (var e in ordered)
-            if(e.OpCode != SDSLOp.OpNop)
-                temp.Add(e.Words.Span);
+        //var temp = new SpirvBuffer();
+        //var ordered = new OrderedSpvBuffer(buffer);
+        //foreach (var e in ordered)
+        //    if(e.OpCode != SDSLOp.OpNop)
+        //        temp.Add(e.Words.Span);
         
-        buffer.Replace(temp, out var dispose);
-        if(dispose)
-            temp.Dispose();
-        buffer.RecomputeBound();
+        //buffer.Replace(temp, out var dispose);
+        //if(dispose)
+        //    temp.Dispose();
+        //buffer.RecomputeBound();
     }
 }

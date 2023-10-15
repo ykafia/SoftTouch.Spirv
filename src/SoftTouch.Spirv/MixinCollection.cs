@@ -86,7 +86,7 @@ public ref struct MixinEnumerator
         enumerator = mixinNames.GetEnumerator();
     }
 
-    public MixinMultiBuffer Current => MixinSourceProvider.Get(enumerator.Current);
+    public MixinBuffer Current => MixinSourceProvider.Get(enumerator.Current);
 
     public bool MoveNext() => enumerator.MoveNext();
 }

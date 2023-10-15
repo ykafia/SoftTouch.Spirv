@@ -33,7 +33,7 @@ public ref struct OrderedEnumerator
         wbuff = buffer;
     }
 
-    public Instruction Current => ParseCurrentInstruction();
+    public readonly Instruction Current => new(wbuff, wbuff.InstructionMemory.Slice(wordIndex, wbuff.InstructionSpan[wordIndex] >> 16), index, wordIndex);
 
     public bool MoveNext()
     {
@@ -132,12 +132,5 @@ public ref struct OrderedEnumerator
     {
         var op = (SDSLOp)(instructionWords[wid] & 0xFFFF);
         return InstructionInfo.GetGroupOrder(op, op == SDSLOp.OpVariable ? (StorageClass)instructionWords[wid + 3] : null);
-    }
-
-
-    public Instruction ParseCurrentInstruction()
-    {
-        var result = new Instruction(wbuff,wbuff.InstructionMemory.Slice(wordIndex, wbuff.InstructionSpan[wordIndex] >> 16), index, wordIndex);
-        return result;
     }
 }

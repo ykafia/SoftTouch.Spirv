@@ -8,7 +8,7 @@ public class MixinSourceProvider
 
     internal static MixinSourceProvider Instance { get; } = new();
 
-    readonly Dictionary<string, MixinMultiBuffer> Mixins;
+    readonly Dictionary<string, MixinBuffer> Mixins;
     readonly Dictionary<string, MixinGraph> MixinGraph;
 
     private MixinSourceProvider()
@@ -17,12 +17,12 @@ public class MixinSourceProvider
         MixinGraph = new();
     }
 
-    public static void Register(MixinMultiBuffer mixin)
+    public static void Register(MixinBuffer mixin)
     {
         Instance.Mixins.Add(mixin.Name, mixin);
         Instance.MixinGraph.Add(mixin.Name, mixin.Parents);
     }
-    public static MixinMultiBuffer Get(string name)
+    public static MixinBuffer Get(string name)
     {
         return Instance.Mixins[name];
     }

@@ -9,24 +9,24 @@ namespace SoftTouch.Spirv.Core.Buffers;
 public class SortedFunctionBufferCollection
 {
     bool functionStarted;
-    SortedList<string, SortedWordBuffer> buffers;
-    public SortedWordBuffer? Current => functionStarted ? buffers.Values[^1] : null;
+    public SortedList<string, SortedWordBuffer> Buffers { get; }
+    public SortedWordBuffer? Current => functionStarted ? Buffers.Values[^1] : null;
 
     public FunctionsInstructions Instructions => new(this);
 
-    public int BuffersLength => buffers.Sum(static (x) => x.Value.Length);
+    public int BuffersLength => Buffers.Sum(static (x) => x.Value.Length);
 
 
     public SortedFunctionBufferCollection(FunctionBufferCollection functions)
     {
-        buffers = new(functions.FunctionCount);
-        foreach(var func in functions.buffers)
+        Buffers = new(functions.FunctionCount);
+        foreach(var func in functions.Buffers)
         {
-            buffers.Add(func.Key, new(func.Value));
+            Buffers.Add(func.Key, new(func.Value));
         }
     }
 
-    public IEnumerator<SortedWordBuffer> GetEnumerator() => buffers.Values.GetEnumerator();
+    public IEnumerator<KeyValuePair<string,SortedWordBuffer>> GetEnumerator() => Buffers.GetEnumerator();
     
     public struct FunctionsInstructions
     {
@@ -41,7 +41,7 @@ public class SortedFunctionBufferCollection
 
         public ref struct Enumerator
         {
-            IEnumerator<SortedWordBuffer> lastBuffer;
+            IEnumerator<KeyValuePair<string,SortedWordBuffer>> lastBuffer;
             InstructionEnumerator lastEnumerator;
             bool started;
             public Enumerator(SortedFunctionBufferCollection buffers)
@@ -59,12 +59,12 @@ public class SortedFunctionBufferCollection
                     started = true;
                     if (!lastBuffer.MoveNext())
                         return false;
-                    lastEnumerator = lastBuffer.Current.GetEnumerator();
+                    lastEnumerator = lastBuffer.Current.Value.GetEnumerator();
                     while (!lastEnumerator.MoveNext())
                     {
                         if (!lastBuffer.MoveNext())
                             return false;
-                        lastEnumerator = lastBuffer.Current.GetEnumerator();
+                        lastEnumerator = lastBuffer.Current.Value.GetEnumerator();
                     }
                     return true;
                 }
@@ -76,7 +76,7 @@ public class SortedFunctionBufferCollection
                     {
                         while (lastBuffer.MoveNext())
                         {
-                            lastEnumerator = lastBuffer.Current.GetEnumerator();
+                            lastEnumerator = lastBuffer.Current.Value.GetEnumerator();
                             if (lastEnumerator.MoveNext())
                                 return true;
                         }

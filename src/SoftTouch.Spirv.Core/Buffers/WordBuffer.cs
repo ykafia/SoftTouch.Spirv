@@ -21,6 +21,10 @@ public sealed partial class WordBuffer : ExpandableBuffer<int>, ISpirvBuffer
 
     public Memory<int> this[Range range] => Memory[range];
 
+    public WordBufferInstructions OrderedInstructions => new(this, true);
+    public WordBufferInstructions UnorderedInstructions => new(this, false);
+
+
     public Instruction this[int index]
     {
         get
@@ -32,7 +36,7 @@ public sealed partial class WordBuffer : ExpandableBuffer<int>, ISpirvBuffer
                 wid += Span[wid] >> 16;
                 id++;
             }
-            return new Instruction(this, Memory[wid..(wid+Span[wid] >> 16)],index, wid);
+            return new Instruction(this, Memory[wid..(wid + Span[wid] >> 16)], index, wid);
         }
     }
     public WordBuffer()
@@ -84,7 +88,7 @@ public sealed partial class WordBuffer : ExpandableBuffer<int>, ISpirvBuffer
     public Instruction Add(MutRefInstruction instruction, int? start = null)
     {
         Insert(instruction.Words, start);
-        return new(this, InstructionCount - 1);
+        return new(this, InstructionMemory.Slice(Length - instruction.WordCount, instruction.WordCount), InstructionCount - 1, Length - instruction.WordCount);
     }
 
     public Instruction Duplicate(RefInstruction instruction)
@@ -138,6 +142,21 @@ public sealed partial class WordBuffer : ExpandableBuffer<int>, ISpirvBuffer
         };
     }
 
+    public void RecomputeLength()
+    {
+        var wid = 0;
+        while(wid < _owner.Length)
+        {
+            if (_owner.Span[wid] >> 16 == 0)
+            {
+                Length = wid;
+                return;
+            }
+            else
+                wid += _owner.Span[wid] >> 16;
+        }
+    }
+
     public SpirvSpan AsSpan() => new(Span);
     public SpirvMemory AsMemory() => new(this);
 
@@ -153,5 +172,41 @@ public sealed partial class WordBuffer : ExpandableBuffer<int>, ISpirvBuffer
     public override string ToString()
     {
         return Disassembler.Disassemble(this);
+    }
+
+
+    public ref struct WordBufferInstructions
+    {
+        bool ordered;
+        WordBuffer buffer;
+        public WordBufferInstructions(WordBuffer buffer, bool ordered)
+        {
+            this.buffer = buffer;
+            this.ordered = ordered;
+        }
+
+        public Enumerator GetEnumerator() => new(buffer, ordered);
+
+        public ref struct Enumerator
+        {
+            bool ordered;
+            WordBuffer buffer;
+
+            OrderedEnumerator orderedEnumerator;
+            InstructionEnumerator unorderedEnumerator;
+
+            public Enumerator(WordBuffer buffer, bool ordered)
+            {
+                this.buffer = buffer;
+                this.ordered = ordered;
+                if (ordered)
+                    orderedEnumerator = new(buffer);
+                else
+                    unorderedEnumerator = new(buffer);
+            }
+
+            public Instruction Current => ordered ? orderedEnumerator.Current : unorderedEnumerator.Current;
+            public bool MoveNext() => ordered ? orderedEnumerator.MoveNext() : unorderedEnumerator.MoveNext();
+        }
     }
 }

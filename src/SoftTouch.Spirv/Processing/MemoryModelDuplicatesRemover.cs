@@ -15,15 +15,21 @@ namespace SoftTouch.Spirv.Processing;
 public struct MemoryModelDuplicatesRemover : INanoPass
 {
 
-    public void Apply(SpirvBuffer buffer)
+    public void Apply(MultiBuffer buffer)
     {
         var found = false;
-        foreach (var i in buffer)
+        var wid = 0;
+        var span = buffer.Declarations.InstructionSpan;
+        while(wid < buffer.Declarations.Length)
         {
-            if (!found && i.OpCode == SDSLOp.OpMemoryModel)
-                found = true;
-            else if (found && i.OpCode == SDSLOp.OpMemoryModel)
-                SetOpNop(i.Words.Span);
+            if ((span[wid] & 0xFFFF) == (int)SDSLOp.OpMemoryModel)
+            {
+                if (!found)
+                    found = true;
+                else
+                    SetOpNop(span.Slice(wid, span[wid] >> 16));
+            }
+            wid += span[wid] >> 16;
         }
     }
 

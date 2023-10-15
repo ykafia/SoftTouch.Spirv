@@ -15,11 +15,12 @@ public partial class InstructionInfo
 {
     Dictionary<(SDSLOp, StorageClass?), int> OrderGroup = new();
 
-    public static ImmutableArray<SDSLOp> SDSLOperators { get; } = ImmutableArray.Create(Enum.GetValues<SDSLOp>().Where(x => x.ToString().StartsWith("SDSL")).ToArray());
+    public static ImmutableArray<SDSLOp> SDSLOperators { get; } = ImmutableArray.Create(Enum.GetValues<SDSLOp>().Where(x => x.ToString().Contains("SDSL")).ToArray());
     public static ImmutableArray<SDSLOp> OpTypes { get; } = ImmutableArray.Create(Enum.GetValues<SDSLOp>().Where(x => x.ToString().StartsWith("OpType")).ToArray());
 
     void InitOrder()
     {
+        OrderGroup[(SDSLOp.OpNop, null)] = 0;
         OrderGroup[(SDSLOp.OpSDSLMixinName, null)] = 0;
         OrderGroup[(SDSLOp.OpCapability, null)] = 0;
         OrderGroup[(SDSLOp.OpSDSLMixinOffset, null)] = 0;

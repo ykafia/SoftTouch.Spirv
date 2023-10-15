@@ -13,5 +13,5 @@ namespace SoftTouch.Spirv.Processing;
 /// </summary>
 public interface INanoPass
 {
-    void Apply(SpirvBuffer buffer);
+    void Apply(MultiBuffer buffer);
 }
