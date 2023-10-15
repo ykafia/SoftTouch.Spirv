@@ -17,15 +17,24 @@ public struct FunctionVariableOrderer : INanoPass
     public static void ProcessFunction(SpirvSpan function)
     {
         using var tmp = new SpirvBuffer(function.Span.Length);
-        foreach(var i in function)
+        var enumerator = function.GetEnumerator();
+        enumerator.MoveNext();
+        var opf = enumerator.Current;
+        tmp.Insert(tmp.Length, opf.Words);
+        enumerator.MoveNext();
+        var opl = enumerator.Current;
+        tmp.Insert(tmp.Length, opl.Words);
+
+        foreach (var i in function)
         {
             if(i.OpCode == SDSLOp.OpVariable)
             {
                 tmp.Insert(tmp.Length,i.Words);
             }
         }
-        foreach (var i in function)
+        while(enumerator.MoveNext())
         {
+            var i = enumerator.Current;
             if (i.OpCode != SDSLOp.OpVariable)
             {
                 tmp.Insert(tmp.Length, i.Words);

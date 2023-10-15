@@ -61,11 +61,13 @@ public class FunctionBufferCollection
 
         public ref struct Enumerator
         {
+            FunctionBufferCollection buffers;
             IEnumerator<KeyValuePair<string,WordBuffer>> lastBuffer;
-            OrderedEnumerator lastEnumerator;
+            InstructionEnumerator lastEnumerator;
             bool started;
             public Enumerator(FunctionBufferCollection buffers)
             {
+                this.buffers = buffers;
                 lastBuffer = buffers.GetEnumerator();
                 started = false;
             }
@@ -79,12 +81,12 @@ public class FunctionBufferCollection
                     started = true;
                     if (!lastBuffer.MoveNext())
                         return false;
-                    lastEnumerator = lastBuffer.Current.Value.GetEnumerator();
+                    lastEnumerator = new(lastBuffer.Current.Value);
                     while (!lastEnumerator.MoveNext())
                     {
                         if (!lastBuffer.MoveNext())
                             return false;
-                        lastEnumerator = lastBuffer.Current.Value.GetEnumerator();
+                        lastEnumerator = new(lastBuffer.Current.Value);
                     }
                     return true;
                 }
@@ -96,7 +98,7 @@ public class FunctionBufferCollection
                     {
                         while (lastBuffer.MoveNext())
                         {
-                            lastEnumerator = lastBuffer.Current.Value.GetEnumerator();
+                            lastEnumerator = new(lastBuffer.Current.Value);
                             if (lastEnumerator.MoveNext())
                                 return true;
                         }

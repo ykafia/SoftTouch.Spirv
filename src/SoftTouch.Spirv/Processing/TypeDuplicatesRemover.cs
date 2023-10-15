@@ -38,6 +38,42 @@ public struct TypeDuplicateRemover : INanoPass
                 }
             }
         }
+        foreach (var i in buffer.Declarations.UnorderedInstructions)
+        {
+            if (i.OpCode == SDSLOp.OpTypeVector)
+            {
+                foreach (var j in buffer.Declarations.UnorderedInstructions)
+                {
+                    if (
+                        j.OpCode == SDSLOp.OpTypeVector
+                        && i.ResultId != j.ResultId
+                        && MemoryExtensions.SequenceEqual(i.Operands.Span[1..], j.Operands.Span[1..])
+                        )
+                    {
+                        ReplaceRefs(j.ResultId ?? -1, i.ResultId ?? -1, buffer);
+                        SetOpNop(j.Words.Span);
+                    }
+                }
+            }
+        }
+        foreach (var i in buffer.Declarations.UnorderedInstructions)
+        {
+            if (i.OpCode == SDSLOp.OpTypeMatrix)
+            {
+                foreach (var j in buffer.Declarations.UnorderedInstructions)
+                {
+                    if (
+                        j.OpCode == SDSLOp.OpTypeMatrix
+                        && i.ResultId != j.ResultId
+                        && MemoryExtensions.SequenceEqual(i.Operands.Span[1..], j.Operands.Span[1..])
+                        )
+                    {
+                        ReplaceRefs(j.ResultId ?? -1, i.ResultId ?? -1, buffer);
+                        SetOpNop(j.Words.Span);
+                    }
+                }
+            }
+        }
         //var idx1 = 0;
         //// First base types
         //foreach (var i in buffer.Declarations.UnorderedInstructions)
@@ -91,24 +127,24 @@ public struct TypeDuplicateRemover : INanoPass
         //}
         //idx1 = 0;
 
-            //// Then matrices
-            //foreach (var i in buffer.Declarations.UnorderedInstructions)
-            //{
-            //    if (i.OpCode == SDSLOp.OpTypeMatrix)
-            //    {
-            //        var idx2 = 0;
-            //        foreach (var j in buffer.Declarations)
-            //        {
-            //            if (j.OpCode == i.OpCode && idx1 != idx2 && i.Operands.Span[1..].SequenceEqual(j.Operands.Span[1..]))
-            //            {
-            //                ReplaceRefs(j.ResultId ?? -1, i.ResultId ?? -1, buffer);
-            //                SetOpNop(j.Words.Span);
-            //            }
-            //            idx2 += 1;
-            //        }
-            //    }
-            //    idx1 += 1;
-            //}
+        //// Then matrices
+        //foreach (var i in buffer.Declarations.UnorderedInstructions)
+        //{
+        //    if (i.OpCode == SDSLOp.OpTypeMatrix)
+        //    {
+        //        var idx2 = 0;
+        //        foreach (var j in buffer.Declarations)
+        //        {
+        //            if (j.OpCode == i.OpCode && idx1 != idx2 && i.Operands.Span[1..].SequenceEqual(j.Operands.Span[1..]))
+        //            {
+        //                ReplaceRefs(j.ResultId ?? -1, i.ResultId ?? -1, buffer);
+        //                SetOpNop(j.Words.Span);
+        //            }
+        //            idx2 += 1;
+        //        }
+        //    }
+        //    idx1 += 1;
+        //}
 
     }
 

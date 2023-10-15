@@ -20,36 +20,50 @@ public struct BoundReducer : INanoPass
 
     public void Apply(MultiBuffer buffer)
     {
-        throw new NotImplementedException();
+        // First step is to find the next idResult
+        // If it's previous + 1 then it's okay, previous is now updated
+        // If it's above previous + 1, then it's not okay and we switch
 
+        var finished = false;
+        var previousId = 0;
         var next = Instruction.Empty;
-        var previous = Instruction.Empty;
-
-        foreach(var i in buffer.Declarations.UnorderedInstructions)
-        {
-            if (i.ResultId == 1)
-            {
-                previous = i;
-                break;
-            }
-            if (previous.IsEmpty)
-                previous = i;
-            else if (previous.ResultId != null && i.ResultId < previous.ResultId)
-                previous = i;
-        }
+        var countIds = 0;
         
-        var shouldContinue = true;
-        while(shouldContinue)
+        foreach (var i in buffer.Instructions)
+            countIds += i.ResultId != null ? 1 : 0;
+        while (!finished && previousId < countIds)
         {
-            foreach (var i in buffer.Instructions)
+            var countAbove = 0;
+            foreach(var i in buffer.Instructions)
             {
-                if (next.IsEmpty && i.Words.Span != previous.Words.Span)
-                    next = i;
-                else if(!next.IsEmpty)
+                if(i.ResultId == previousId + 1)
                 {
+                    countAbove += 1;
+                    previousId += 1;
+                    next = i;
+                    break;
+                }
+                else if (next.IsEmpty && i.ResultId > previousId + 1)
+                {
+                    countAbove += 1;
+                    next = i;
+                }
+                else if(!next.IsEmpty && i.ResultId > previousId + 1 &&  i.ResultId < next.ResultId)
+                {
+                    countAbove += 1;
+                    next = i;
                 }
             }
+            if (countAbove == 0)
+                finished = true;
+            else if(next.ResultId > previousId + 1)
+            {
+                next.AsRef().SetResultId(previousId + 1);
+                ReplaceRefs(next.ResultId ?? -1, previousId + 1, buffer);
+            }
         }
+
+
         buffer.RecomputeBound();
     }
     static void ReplaceRefs(int from, int to, MultiBuffer buffer)
