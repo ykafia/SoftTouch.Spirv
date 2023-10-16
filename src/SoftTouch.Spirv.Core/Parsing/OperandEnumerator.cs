@@ -33,9 +33,7 @@ public ref struct OperandEnumerator
         }
         else
         {
-            oid += 1;
-            if (oid >= logicalOperands.Count)
-                return false;
+            
             var logOp = logicalOperands[oid];
 
             if (logOp.Quantifier == OperandQuantifier.One)
@@ -78,12 +76,15 @@ public ref struct OperandEnumerator
                     throw new NotImplementedException("params of strings is not yet implemented");
                 else if (
                     pairs.Contains(logOp.Kind ?? throw new Exception())
-                    && wid < operands.Length
+                    && wid < operands.Length - 2
                 )
-                    return true;
-                else if (wid < operands.Length)
-                    return true;
+                    wid += 2;
+                else if (wid < operands.Length - 1)
+                    wid += 1;
             }
+            oid += 1;
+            if (oid >= logicalOperands.Count)
+                return false;
             return wid < operands.Length;
         }
 
@@ -92,25 +93,28 @@ public ref struct OperandEnumerator
     public SpvOperand ParseCurrent()
     {
         var logOp = logicalOperands[oid];
-        
-        if (logOp.Kind == OperandKind.LiteralString)
+        if (logOp.Quantifier != OperandQuantifier.ZeroOrMore)
         {
-            var length = 0;
-            while (!operands[wid + length].HasEndString())
+            if (logOp.Kind == OperandKind.LiteralString)
+            {
+                var length = 0;
+                while (!operands[wid + length].HasEndString())
+                    length += 1;
                 length += 1;
-            length += 1;
-            var result = new SpvOperand(OperandKind.LiteralString, operands.Slice(wid,length));
+                var result = new SpvOperand(OperandKind.LiteralString, logOp.Quantifier ?? OperandQuantifier.One, operands.Slice(wid, length));
 
-            return result;
+                return result;
+            }
+            else if (pairs.Contains(logOp.Kind ?? throw new NotImplementedException("")))
+            {
+                var result = new SpvOperand(logOp.Kind ?? OperandKind.None, logOp.Quantifier ?? OperandQuantifier.One, operands.Slice(wid, 2));
+                return result;
+            }
+            else
+                return new(logOp.Kind ?? OperandKind.None, logOp.Quantifier ?? OperandQuantifier.One, operands.Slice(wid, 1));
         }
-        else if (pairs.Contains(logOp.Kind ?? throw new NotImplementedException("")))
-        {
-            var result = new SpvOperand(logOp.Kind ?? OperandKind.None, operands.Slice(wid,2));
-            return result;
-        }
-        else 
-            return new(logOp.Kind ?? OperandKind.None, operands.Slice(wid,1));
-        
+        else
+            return new(logOp.Kind ?? OperandKind.None, logOp.Quantifier ?? OperandQuantifier.One, operands[wid..]);
         throw new NotImplementedException();
     }
 

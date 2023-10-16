@@ -8,7 +8,7 @@ namespace SoftTouch.Spirv.Core.Buffers;
 /// <summary>
 /// A buffer to assembler spirv byte code.
 /// </summary>
-public sealed partial class WordBuffer : ExpandableBuffer<int>, ISpirvBuffer
+public sealed partial class WordBuffer : ExpandableBuffer<int>, ISpirvBuffer, IDisposable
 {
     public Bound Bound { get; private set; }
     public int InstructionCount => new SpirvReader(Memory).Count;

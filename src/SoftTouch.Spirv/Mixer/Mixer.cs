@@ -29,7 +29,7 @@ public sealed partial class Mixer : MixerBase
     public Mixer(string name) : base(name)
     {
         buffer.AddOpMemoryModel(AddressingModel.Logical, MemoryModel.GLSL450);
-        buffer.AddOpExtension("SPV_GOOGLE_decorate_string");
+        //buffer.AddOpExtension("SPV_GOOGLE_decorate_string");
     }
 
     public Mixer WithCapability(Capability capability)

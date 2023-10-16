@@ -17,19 +17,12 @@ public static class PostProcessor
         var bound = 0;
         foreach(var p in parents)
         {
-            foreach(var i in p.Instructions)
+            foreach (var i in p.Instructions)
                 buffer.Duplicate(i.AsRef(), bound);
             bound += p.Bound;
         }
         foreach(var i in mixin.Instructions)
-        {
-            if(i.OpCode == SDSLOp.OpLabel)
-            {
-                var x = 0;
-            }
             buffer.Duplicate(i.AsRef(), bound);
-        }
-
         Apply(buffer);
 
         return new(buffer);

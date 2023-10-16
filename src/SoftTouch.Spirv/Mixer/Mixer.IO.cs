@@ -45,7 +45,7 @@ public partial class Mixer
             {
                 while (enumerator.MoveNext())
                 {
-                    if (Current.OpCode == SDSLOp.OpVariable && (((StorageClass)Current.Words.Span[2]) == StorageClass.Input || ((StorageClass)Current.Words.Span[2]) == StorageClass.Output))
+                    if (Current.OpCode == SDSLOp.OpSDSLIOVariable)
                         return true;
                 }
                 return false;

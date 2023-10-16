@@ -8,12 +8,14 @@ namespace SoftTouch.Spirv.Core;
 public ref struct SpvOperand
 {
     public OperandKind Kind { get; init; }
+    public OperandQuantifier Quantifier { get; init; }
     public Span<int> Words { get; init; }
     public int Offset { get; init; }
 
-    public SpvOperand(OperandKind kind, Span<int> words, int idRefOffset = 0)
+    public SpvOperand(OperandKind kind, OperandQuantifier quantifier, Span<int> words, int idRefOffset = 0)
     {
         Kind = kind;
+        Quantifier = quantifier;
         Words = words;
         Offset = idRefOffset;
     }
