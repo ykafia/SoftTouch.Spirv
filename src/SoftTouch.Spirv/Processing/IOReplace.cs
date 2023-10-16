@@ -46,8 +46,11 @@ public struct SDSLVariableReplace : INanoPass
                     var sclass = StorageClass.Private;
                     if (sclassv != null)
                         sclass = (StorageClass)sclassv.Value.Words;
-                    var variable = f.AddOpVariable(i.GetOperand<IdResultType>("resultType") ?? -1, sclass, i.GetOperand<IdRef>("initializer"));
-                    f.AddOpName(variable, i.GetOperand<LiteralString>("name") ?? $"var{Guid.NewGuid()}");
+                    var name = i.GetOperand<LiteralString>("name");
+                    var resultType = i.GetOperand<IdResultType>("resultType") ?? -1;
+                    var initializer = i.GetOperand<IdRef>("initializer");
+                    var variable = f.AddOpVariable(resultType, sclass, initializer);
+                    f.AddOpName(variable, name ?? $"var{Guid.NewGuid()}");
                     SetOpNop(i.Words.Span);
                 }
             }

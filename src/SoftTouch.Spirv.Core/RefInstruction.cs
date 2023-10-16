@@ -45,10 +45,12 @@ public ref struct RefInstruction
         var operandEnumerator = GetEnumerator();
         while(infoEnumerator.MoveNext())
         {
-            operandEnumerator.MoveNext();
-            if(infoEnumerator.Current.Name == name)
+            if(operandEnumerator.MoveNext())
             {
-                return operandEnumerator.Current.To<T>();
+                if(infoEnumerator.Current.Name == name)
+                {
+                    return operandEnumerator.Current.To<T>();
+                }
             }
         }
         return null;

@@ -39,6 +39,10 @@ public struct FunctionVariableOrderer : INanoPass
             {
                 tmp.Insert(tmp.Length, i.Words);
             }
+            if (i.OpCode == SDSLOp.OpSDSLVariable)
+            {
+                var t = 0;
+            }
         }
         tmp.InstructionSpan.CopyTo(function.Span);
     }
