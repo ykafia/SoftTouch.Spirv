@@ -5,7 +5,9 @@ namespace SoftTouch.Spirv.Core.Parsing;
 /// </summary>
 public ref struct OperandEnumerator
 {
+    static OperandKind[] pairs { get; } = Enum.GetValues<OperandKind>().Where(x => x.ToString().StartsWith("Pair")).ToArray();
     RefInstruction instruction;
+    Span<int> operands => instruction.Operands;
     readonly LogicalOperandArray logicalOperands;
     int wid;
     int oid;
@@ -15,7 +17,7 @@ public ref struct OperandEnumerator
         this.instruction = instruction;
         logicalOperands = InstructionInfo.GetInfo(instruction.OpCode);
         oid = -1;
-        wid = 1;
+        wid = 0;
     }
 
     public SpvOperand Current => ParseCurrent();
@@ -25,115 +27,64 @@ public ref struct OperandEnumerator
         if (oid < 0)
         {
             oid = 0;
-            if (instruction.OpCode == SDSLOp.OpNop)
+            if (logicalOperands[0].Kind == OperandKind.None)
                 return false;
             return true;
         }
         else
         {
-            if (oid + 1 >= logicalOperands.Count && (wid >= instruction.Words.Length - 1))
-                return false;
-
-            var logOp = logicalOperands[oid];
-            if (logOp.Kind == OperandKind.LiteralString && logOp.Quantifier == OperandQuantifier.One)
-            {
-                while (!instruction.Words[wid].HasEndString())
-                    wid += 1;
-                wid += 1;
-            }
-            else if (
-                    logOp.Kind switch
-                    {
-                        OperandKind.PairIdRefIdRef
-                        or OperandKind.PairLiteralIntegerIdRef
-                        or OperandKind.PairIdRefLiteralInteger => true,
-                        _ => false
-                    }
-
-                    && logOp.Quantifier == OperandQuantifier.One
-                )
-            {
-                wid += 2;
-            }
-            else if (
-                    logOp.Kind switch
-                    {
-                        OperandKind.PairIdRefIdRef
-                        or OperandKind.PairLiteralIntegerIdRef
-                        or OperandKind.PairIdRefLiteralInteger => true,
-                        _ => false
-                    }
-
-                    && logOp.Quantifier == OperandQuantifier.ZeroOrOne
-                    && wid < instruction.Words.Length - 2
-                )
-            {
-                wid += 2;
-                return true;
-            }
-            else if (
-                    logOp.Kind switch
-                    {
-                        OperandKind.PairIdRefIdRef
-                        or OperandKind.PairLiteralIntegerIdRef
-                        or OperandKind.PairIdRefLiteralInteger => true,
-                        _ => false
-                    }
-
-                    && logOp.Quantifier == OperandQuantifier.ZeroOrOne
-                    && wid == instruction.Words.Length - 2
-                )
-            {
-                return false;
-            }
-            else if (
-                    logOp.Kind switch
-                    {
-                        OperandKind.PairIdRefIdRef
-                        or OperandKind.PairLiteralIntegerIdRef
-                        or OperandKind.PairIdRefLiteralInteger => true,
-                        _ => false
-                    }
-
-                    && logOp.Quantifier == OperandQuantifier.ZeroOrMore
-                    && wid < instruction.Words.Length - 2
-                )
-            {
-                wid += 2;
-                return true;
-            }
-            else if (
-                    logOp.Kind switch
-                    {
-                        OperandKind.PairIdRefIdRef
-                        or OperandKind.PairLiteralIntegerIdRef
-                        or OperandKind.PairIdRefLiteralInteger => true,
-                        _ => false
-                    }
-
-                    && logOp.Quantifier == OperandQuantifier.ZeroOrMore
-                    && wid == instruction.Words.Length - 2
-                )
-            {
-                return false;
-            }
-            else if (logOp.Quantifier == OperandQuantifier.One)
-            {
-                wid += 1;
-            }
-            else if (logOp.Quantifier == OperandQuantifier.ZeroOrOne && wid < instruction.Words.Length - 1)
-                wid += 1;
-            else if (logOp.Quantifier == OperandQuantifier.ZeroOrOne && wid == instruction.Words.Length - 1)
-                return false;
-            else if (logOp.Quantifier == OperandQuantifier.ZeroOrMore && wid < instruction.Words.Length - 1)
-            {
-                wid += 1;
-                return true;
-            }
-            else if (logOp.Quantifier == OperandQuantifier.ZeroOrMore && wid == instruction.Words.Length - 1)
-                return false;
             oid += 1;
-            return wid < instruction.Words.Length;
+            if (oid >= logicalOperands.Count)
+                return false;
+            var logOp = logicalOperands[oid];
+
+            if (logOp.Quantifier == OperandQuantifier.One)
+            {
+                if (logOp.Kind == OperandKind.LiteralString)
+                {
+                    while (!operands[wid].HasEndString())
+                        wid += 1;
+                    wid += 1;
+                }
+                else if (pairs.Contains(logOp.Kind ?? throw new Exception("kind is inexistent")))
+                    wid += 2;
+                else
+                    wid += 1;
+            }
+            else if (logOp.Quantifier == OperandQuantifier.ZeroOrOne)
+            {
+                if (
+                    pairs.Contains(logOp.Kind ?? throw new Exception("kind is inexistent"))
+                    && wid < operands.Length - 1
+                )
+                {
+                    wid += 2;
+                }
+                else if (
+                    logOp.Kind == OperandKind.LiteralString
+                    && wid < operands.Length
+                )
+                {
+                    while (!operands[wid].HasEndString())
+                        wid += 1;
+                    wid += 1;
+                }
+                else if (wid < operands.Length)
+                    wid += 1;
+            }
+            else if (logOp.Quantifier == OperandQuantifier.ZeroOrMore)
+            {
+                if (logOp.Kind == OperandKind.LiteralString)
+                    throw new NotImplementedException("params of strings is not yet implemented");
+                else if (
+                    pairs.Contains(logOp.Kind ?? throw new Exception())
+                    && wid < operands.Length
+                )
+                    return true;
+                else if (wid < operands.Length)
+                    return true;
+            }
+            return wid < operands.Length;
         }
 
     }
@@ -141,18 +92,26 @@ public ref struct OperandEnumerator
     public SpvOperand ParseCurrent()
     {
         var logOp = logicalOperands[oid];
+        
         if (logOp.Kind == OperandKind.LiteralString)
         {
-            var twid = wid;
-            while (!instruction.Words[twid].HasEndString())
-                twid += 1;
-            twid += 1;
-            var result = new SpvOperand(OperandKind.LiteralString, instruction.Words[wid..twid]);
+            var length = 0;
+            while (!operands[wid + length].HasEndString())
+                length += 1;
+            length += 1;
+            var result = new SpvOperand(OperandKind.LiteralString, operands.Slice(wid,length));
 
             return result;
         }
-        else if(logOp.Kind == OperandKind.None) return new(logOp.Kind.Value, Span<int>.Empty);
-        else return new(logOp.Kind.Value, instruction.Words[wid..(wid + 1)]);
+        else if (pairs.Contains(logOp.Kind ?? throw new NotImplementedException("")))
+        {
+            var result = new SpvOperand(logOp.Kind ?? OperandKind.None, operands.Slice(wid,2));
+            return result;
+        }
+        else 
+            return new(logOp.Kind ?? OperandKind.None, operands.Slice(wid,1));
+        
+        throw new NotImplementedException();
     }
 
 }

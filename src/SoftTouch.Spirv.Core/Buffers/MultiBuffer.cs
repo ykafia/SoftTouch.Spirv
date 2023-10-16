@@ -43,7 +43,7 @@ public sealed partial class MultiBuffer
             foreach(var i in Declarations)
             {
                 if (i.OpCode == SDSLOp.OpName && i.Words.Span[1] == instruction.Words[2])
-                    n = i.GetOperand<LiteralString>("name").Value;
+                    n = i.GetOperand<LiteralString>("name")?.Value ?? "";
             }
             return Functions.Insert(instruction, n);
         }

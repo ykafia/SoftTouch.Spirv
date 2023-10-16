@@ -55,6 +55,7 @@ public partial class InstructionInfo
 
         foreach (var e in Enum.GetValues<StorageClass>().Where(x => x != StorageClass.Function))
             OrderGroup[(SDSLOp.OpVariable, e)] = 10;
+        OrderGroup[(SDSLOp.OpSDSLIOVariable, null)] = 10;
 
         OrderGroup[(SDSLOp.OpUndef, null)] = 10;
         OrderGroup[(SDSLOp.OpLine, null)] = 11;

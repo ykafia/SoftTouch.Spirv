@@ -47,7 +47,7 @@ public sealed class MixinBuffer
         foreach(var i in Declarations)
         {
             if (i.OpCode == Core.SDSLOp.OpSDSLMixinInherit)
-                Parents.Add(i.GetOperand<LiteralString>("mixinName").Value);
+                Parents.Add(i.GetOperand<LiteralString>("mixinName")?.Value!);
         }
     }
 

@@ -16,16 +16,16 @@ public struct CapabilitiesCompute : INanoPass
     {
         if(instruction.OpCode == SDSLOp.OpEntryPoint)
         {
-            if(instruction.GetOperand<LiteralInteger>("executionModel").Words == (int)ExecutionModel.Geometry)
+            if(instruction.GetOperand<LiteralInteger>("executionModel")?.Words == (int)ExecutionModel.Geometry)
             {
                 //Add capability geometry
             }
-            else if (instruction.GetOperand<LiteralInteger>("executionModel").Words == (int)ExecutionModel.TessellationControl)
+            else if (instruction.GetOperand<LiteralInteger>("executionModel")?.Words == (int)ExecutionModel.TessellationControl)
             {
                 //Add capability tess
 
             }
-            else if (instruction.GetOperand<LiteralInteger>("executionModel").Words == (int)ExecutionModel.TessellationEvaluation)
+            else if (instruction.GetOperand<LiteralInteger>("executionModel")?.Words == (int)ExecutionModel.TessellationEvaluation)
             {
                 //Add capability tess
             }

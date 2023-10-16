@@ -21,22 +21,9 @@ public sealed partial class MultiBuffer
         {
             get
             {
-                if (buffer.Functions.Current == null)
-                    throw new Exception("Not in function scope");
-                var filtered = new LambdaFilteredEnumerator<WordBuffer>(buffer.Declarations, static (i) => i.OpCode == SDSLOp.OpName);
-                while(filtered.MoveNext())
-                {
-                    if(filtered.Current.GetOperand<LiteralString>("name").Value == name)
-                    {
-                        var id = filtered.Current.Words.Span[1];
-                        foreach(var i in buffer.Functions.Current.AsMemory())
-                        {
-                            if (i.ResultId == id)
-                                return i;
-                        }
-                    }
-                }
-                throw new Exception($"Variable {name} does not exist");
+                if(TryGet(name, out var instruction))
+                    return instruction;
+                throw new Exception($"Variable {name} not found");
             }
         }
 
@@ -44,20 +31,14 @@ public sealed partial class MultiBuffer
         {
             if (buffer.Functions.Current == null)
                 throw new Exception("Not in function scope");
-            var filtered = new LambdaFilteredEnumerator<WordBuffer>(buffer.Declarations, static (i) => i.OpCode == SDSLOp.OpName);
+            var filtered = new LambdaFilteredEnumerator<WordBuffer>(buffer.Functions.Current, static (i) => i.OpCode == SDSLOp.OpSDSLVariable);
             while (filtered.MoveNext())
             {
-                if (filtered.Current.GetOperand<LiteralString>("name").Value == name)
+                var vname = filtered.Current.GetOperand<LiteralString>("name");
+                if (vname?.Value == name)
                 {
-                    var id = filtered.Current.Words.Span[1];
-                    foreach (var i in buffer.Functions.Current.AsMemory())
-                    {
-                        if (i.ResultId == id)
-                        {
-                            instruction = i;
-                            return true;
-                        }
-                    }
+                    instruction = filtered.Current;
+                    return true;
                 }
             }
             instruction = Instruction.Empty;

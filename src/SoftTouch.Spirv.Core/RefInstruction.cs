@@ -37,7 +37,7 @@ public ref struct RefInstruction
     public OperandEnumerator GetEnumerator() => new(this);
 
 
-    public T GetOperand<T>(string name)
+    public T? GetOperand<T>(string name)
         where T : struct, IFromSpirv<T>
     {
         var info = InstructionInfo.GetInfo(OpCode);
@@ -51,7 +51,7 @@ public ref struct RefInstruction
                 return operandEnumerator.Current.To<T>();
             }
         }
-        throw new Exception($"Instruction {OpCode} has no operand named \"{name}\"");
+        return null;
     }
 
 

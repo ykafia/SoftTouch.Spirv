@@ -1,4 +1,5 @@
-﻿using SoftTouch.Spirv.Core.Buffers;
+﻿using SoftTouch.Spirv.Core;
+using SoftTouch.Spirv.Core.Buffers;
 using SoftTouch.Spirv.Processing;
 
 namespace SoftTouch.Spirv.PostProcessing;
@@ -9,38 +10,51 @@ public struct CompressBuffer : INanoPass
     {
         var span = buffer.Declarations.InstructionSpan;
         var wid = 0;
-        var previous = 0;
         while(wid < span.Length)
         {
             if (span[wid] >> 16 == 0)
                 break;
-            previous = wid;
-            wid += span[wid] >> 16;
-            if ((span[previous] & 0xFFFF) == 0 && (span[previous] >> 16) != 0)
+            var offset = 0;
+            var i = RefInstruction.ParseRef(span.Slice(wid,span[wid] >> 16));
+            if(i.OpCode == SDSLOp.OpNop)
             {
-                span[wid..].CopyTo(span[previous..]);
-                wid = previous;
+                var tmp = i;
+                while (tmp.OpCode == SDSLOp.OpNop)
+                {
+                    offset =+ tmp.WordCount;
+                    if(span[wid+offset] >> 16 == 0)
+                        break;
+                    tmp = RefInstruction.ParseRef(span.Slice(wid + offset, span[wid + offset] >> 16));
+                }
+                span[(wid + offset)..].CopyTo(span[wid..]);
             }
-            
-            
+            wid += span[wid] >> 16;
+
         }
         buffer.Declarations.RecomputeLength();
         foreach (var (_, f) in buffer.Functions)
         {
             span = f.InstructionSpan;
             wid = 0;
-            previous = 0;
             while (wid < span.Length)
             {
                 if (span[wid] >> 16 == 0)
                     break;
-                previous = wid;
-                wid += span[wid] >> 16;
-                if ((span[previous] & 0xFFFF) == 0 && (span[previous] >> 16) != 0)
+                var offset = 0;
+                var i = RefInstruction.ParseRef(span.Slice(wid, span[wid] >> 16));
+                if (i.OpCode == SDSLOp.OpNop)
                 {
-                    span[wid..].CopyTo(span[previous..]);
-                    wid = previous;
+                    var tmp = i;
+                    while (tmp.OpCode == SDSLOp.OpNop)
+                    {
+                        offset = +tmp.WordCount;
+                        if (span[wid + offset] >> 16 == 0)
+                            break;
+                        tmp = RefInstruction.ParseRef(span.Slice(wid + offset, span[wid + offset] >> 16));
+                    }
+                    span[(wid + offset)..].CopyTo(span[wid..]);
                 }
+                wid += span[wid] >> 16;
             }
             f.RecomputeLength();
 

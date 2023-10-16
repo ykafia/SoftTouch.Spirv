@@ -19,7 +19,7 @@ public partial class Mixer
         {
             if(i.OpCode == SDSLOp.OpName)
             {
-                var name = i.GetOperand<LiteralString>("name");
+                var name = i.GetOperand<LiteralString>("name") ?? throw new Exception("Name is null");
                 var newName = $"{variableName}_{name}";
                 var buff = nameBuffer[0..(1 + 1 + name.WordLength)];
                 buff.Clear();

@@ -48,8 +48,7 @@ public partial class Mixer
         {
             var t = mixer.GetOrCreateBaseType(type.AsMemory());
             var p_t = mixer.buffer.AddOpTypePointer(StorageClass.Function, t);
-            var v = mixer.buffer.AddOpVariable(p_t, StorageClass.Function, null);
-            mixer.buffer.AddOpName(v, name);
+            mixer.buffer.AddOpSDSLVariable(p_t, StorageClass.Function, name, null);
             return this;
         }
         /// <summary>
@@ -66,8 +65,7 @@ public partial class Mixer
             var ptr = mixer.buffer.AddOpTypePointer(StorageClass.Function, resultType.ResultId ?? -1);
             var value = mixer.CreateConstant(constant);
             MixinInstruction variable;
-            variable = mixer.buffer.AddOpVariable(ptr, StorageClass.Function, value.ResultId);
-            mixer.buffer.AddOpName(variable, name);
+            mixer.buffer.AddOpSDSLVariable(ptr, StorageClass.Function, name, value.ResultId);
             return this;
         }
         public FunctionBuilder Assign(string name, ValueDelegate initializer)
