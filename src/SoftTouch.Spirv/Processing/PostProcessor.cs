@@ -36,7 +36,6 @@ public static class PostProcessor
         Apply<MemoryModelDuplicatesRemover>(buffer);
         Apply<BoundReducer>(buffer);
         Apply<SDSLOpRemover>(buffer);
-        Apply<CompressBuffer>(buffer);
     }
 
     static void Apply<T>(MultiBuffer buffer)

@@ -36,7 +36,7 @@ public partial class Mixer
             InstructionEnumerator enumerator;
             public Enumerator(IOVariablesFinder finder)
             {
-                enumerator = new InstructionEnumerator(finder.mixer.buffer.Declarations);
+                enumerator = new InstructionEnumerator(finder.mixer.Buffer.Declarations);
             }
 
             public Instruction Current => enumerator.Current;

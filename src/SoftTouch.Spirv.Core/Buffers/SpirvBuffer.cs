@@ -56,7 +56,9 @@ public class SpirvBuffer : ExpandableBuffer<int>, ISpirvBuffer, IDisposable
             if (i.OpCode != SDSLOp.OpNop)
                 Add(i.Words.Span);
         foreach(var (_,f) in buffer.Functions)
-            Add(f.InstructionSpan);
+            foreach (var i in f)
+                if (i.OpCode != SDSLOp.OpNop)
+                    Add(i.Words.Span);
         buffer.Dispose();
     }
 

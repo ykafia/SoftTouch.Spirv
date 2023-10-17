@@ -9,18 +9,31 @@ public struct SDSLVariableReplace : INanoPass
 {
     public void Apply(MultiBuffer buffer)
     {
-        var userSemanticId = 0;
-        foreach(var i in buffer.Declarations.UnorderedInstructions)
+        var inputSemanticLocation = -1;
+        var outputSemanticLocation = -1;
+        foreach (var i in buffer.Declarations.UnorderedInstructions)
         {
-            if(i.OpCode == SDSLOp.OpSDSLIOVariable)
+            if (i.OpCode == SDSLOp.OpSDSLIOVariable)
             {
 
                 var sclassv = i.GetOperand<LiteralInteger>("storageclass");
                 var sclass = StorageClass.Private;
-                if(sclassv != null)
+                if (sclassv != null)
                     sclass = (StorageClass)sclassv.Value.Words;
+
+                var semantic = i.GetOperand<LiteralString>("semantic");
                 var variable = buffer.Declarations.AddOpVariable(i.GetOperand<IdResultType>("resultType") ?? -1, sclass, i.GetOperand<IdRef>("initializer"));
                 variable.Operands.Span[1] = i.ResultId ?? -1;
+                if (sclass == StorageClass.Input)
+                {
+                    inputSemanticLocation += 1;
+                    buffer.Declarations.AddOpDecorate(variable, Decoration.Location, inputSemanticLocation);
+                }
+                else if (sclass == StorageClass.Output)
+                {
+                    outputSemanticLocation += 1;
+                    buffer.Declarations.AddOpDecorate(variable, Decoration.Location, outputSemanticLocation);
+                }
                 buffer.Declarations.AddOpName(variable, i.GetOperand<LiteralString>("name") ?? $"var{Guid.NewGuid()}");
                 SetOpNop(i.Words.Span);
             }
@@ -37,7 +50,7 @@ public struct SDSLVariableReplace : INanoPass
                 SetOpNop(i.Words.Span);
             }
         }
-        foreach(var (_,f) in buffer.Functions)
+        foreach (var (n, f) in buffer.Functions)
         {
             foreach (var i in f.UnorderedInstructions)
             {
@@ -53,8 +66,9 @@ public struct SDSLVariableReplace : INanoPass
                     var initializer = i.GetOperand<IdRef>("initializer");
                     var variable = f.AddOpVariable(resultType, sclass, initializer);
                     variable.Operands.Span[1] = i.ResultId ?? -1;
-                    f.AddOpName(variable, name ?? $"var{Guid.NewGuid()}");
+                    buffer.Declarations.AddOpName(variable, name ?? $"var{Guid.NewGuid()}");
                     SetOpNop(i.Words.Span);
+                    f.RecomputeLength();
                 }
             }
         }

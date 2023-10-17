@@ -7,8 +7,8 @@ namespace SoftTouch.Spirv;
 /// </summary>
 public abstract class MixerBase
 {
-    protected MixinGraph mixins;
-    protected MultiBuffer buffer;
+    public MixinGraph Mixins {get; protected set;}
+    public MultiBuffer Buffer {get; protected set;}
 
     protected Action DisposeBuffers;
 
@@ -18,17 +18,17 @@ public abstract class MixerBase
     public MixerBase(string name)
     {
         Name = name;
-        buffer = new();
-        buffer.AddOpSDSLMixinName(Name);
-        mixins = new();
-        DisposeBuffers = buffer.Dispose;
+        Buffer = new();
+        Buffer.AddOpSDSLMixinName(Name);
+        Mixins = new();
+        DisposeBuffers = Buffer.Dispose;
     }
 
     public virtual MixinBuffer Build()
     {
-        buffer.AddOpSDSLMixinEnd();
+        Buffer.AddOpSDSLMixinEnd();
         // TODO : do some validation here
-        MixinSourceProvider.Register(new(Name, buffer));
+        MixinSourceProvider.Register(new(Name, Buffer));
         DisposeBuffers.Invoke();
         return MixinSourceProvider.Get(Name);
     }

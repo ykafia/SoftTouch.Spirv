@@ -30,14 +30,14 @@ public partial class Mixer
 
         public Mixer FinishEntryPoint()
         {
-            mixer.buffer.AddOpEntryPoint(ExecutionModel, function, Name, Span<IdRef>.Empty);
-            mixer.buffer.AddOpExecutionMode(
+            mixer.Buffer.AddOpEntryPoint(ExecutionModel, function, Name, Span<IdRef>.Empty);
+            mixer.Buffer.AddOpExecutionMode(
                 function,
                 ExecutionMode.OriginLowerLeft
             );
-            mixer.buffer.AddOpCapability(Capability.Shader);
-            mixer.buffer.AddOpExtInstImport("GLSL.std.450");
-            mixer.buffer.AddOpMemoryModel(AddressingModel.Logical, MemoryModel.GLSL450);
+            mixer.Buffer.AddOpCapability(Capability.Shader);
+            mixer.Buffer.AddOpExtInstImport("GLSL.std.450");
+            mixer.Buffer.AddOpMemoryModel(AddressingModel.Logical, MemoryModel.GLSL450);
             return mixer;
         }
     }

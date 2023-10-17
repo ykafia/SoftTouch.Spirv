@@ -30,9 +30,9 @@ public record struct Instruction(ISpirvBuffer Buffer, Memory<int> Words, int Ind
         WordIndex = wid;
     }
 
-    public readonly SDSLOp OpCode => AsRef().OpCode;
-    public readonly int? ResultId => AsRef().ResultId;
-    public readonly int? ResultType => AsRef().ResultType;
+    public SDSLOp OpCode => AsRef().OpCode;
+    public readonly int? ResultId { get => AsRef().ResultId; set => AsRef().SetResultId(value); }
+    public readonly int? ResultType { get => AsRef().ResultType; set => AsRef().SetResultType(value); }
     public readonly int WordCount => Words.Length;
     public readonly Memory<int> Operands => Words[1..];
 
@@ -40,7 +40,7 @@ public record struct Instruction(ISpirvBuffer Buffer, Memory<int> Words, int Ind
 
     public readonly RefInstruction AsRef() => RefInstruction.ParseRef(Words.Span);
 
-    public T? GetOperand<T>(string name) where T : struct, IFromSpirv<T> 
+    public T? GetOperand<T>(string name) where T : struct, IFromSpirv<T>
         => AsRef().GetOperand<T>(name);
 
     public readonly OperandEnumerator GetEnumerator() => AsRef().GetEnumerator();

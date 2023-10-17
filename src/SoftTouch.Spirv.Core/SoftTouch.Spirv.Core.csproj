@@ -9,7 +9,6 @@
 
 	<ItemGroup>
 		<Compile Include="../../submodules/SPIRV-Headers/include/spirv/unified1/spirv.cs" />
-		<!--<None Include="../../submodules/SPIRV-Headers/include/spirv/unified1/spirv.core.grammar.json" />-->
 	</ItemGroup>
 
 	<ItemGroup>
