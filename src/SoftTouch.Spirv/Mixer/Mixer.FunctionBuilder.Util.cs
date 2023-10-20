@@ -1,5 +1,6 @@
 using System.Reflection.Metadata;
 using System.Reflection.Metadata.Ecma335;
+using System.Runtime.InteropServices;
 using System.Runtime.Serialization.Formatters;
 using SoftTouch.Spirv.Core;
 using SoftTouch.Spirv.Core.Buffers;
@@ -32,17 +33,17 @@ public ref partial struct FunctionBuilder
     {
         var variable = FindVariable(name);
         var rtype = Instruction.Empty;
-        foreach(var i in mixer.Buffer.Declarations.UnorderedInstructions)
+        foreach (var i in mixer.Buffer.Declarations.UnorderedInstructions)
         {
-            if(i.ResultId != null && i.ResultId == variable.ResultType && i.OpCode != SDSLOp.OpTypePointer)
+            if (i.ResultId != null && i.ResultId == variable.ResultType && i.OpCode != SDSLOp.OpTypePointer)
             {
                 rtype = i;
                 break;
             }
-            else if(i.ResultId != null && i.ResultId == variable.ResultType && i.OpCode == SDSLOp.OpTypePointer)
+            else if (i.ResultId != null && i.ResultId == variable.ResultType && i.OpCode == SDSLOp.OpTypePointer)
             {
                 var toFind = i.GetOperand<IdRef>("type");
-                foreach(var j in mixer.Buffer.Declarations.UnorderedInstructions)
+                foreach (var j in mixer.Buffer.Declarations.UnorderedInstructions)
                 {
                     if (j.ResultId != null && j.ResultId == toFind && j.OpCode != SDSLOp.OpTypePointer)
                     {
@@ -53,9 +54,9 @@ public ref partial struct FunctionBuilder
                 break;
             }
         }
-        if(rtype.IsEmpty)
+        if (rtype.IsEmpty)
             throw new Exception("type of variable was not found");
-        
+
         return mixer.Buffer.AddOpLoad(rtype, variable, null);
     }
     public readonly Instruction FindById(int id)
@@ -194,5 +195,160 @@ public ref partial struct FunctionBuilder
         return mixer.Buffer.AddOpDot(rtype, vector1, vector2);
     }
 
+
+    public readonly Instruction And(string resultType, IdRef operand1, IdRef operand2)
+    {
+        return mixer.Buffer.AddOpBitwiseAnd(mixer.GetOrCreateBaseType(resultType.AsMemory()), operand1, operand2);
+    }
+
+    public readonly Instruction Or(string resultType, IdRef operand1, IdRef operand2)
+    {
+        return mixer.Buffer.AddOpBitwiseOr(mixer.GetOrCreateBaseType(resultType.AsMemory()), operand1, operand2);
+    }
+    public readonly Instruction Xor(string resultType, IdRef operand1, IdRef operand2)
+    {
+        return mixer.Buffer.AddOpBitwiseXor(mixer.GetOrCreateBaseType(resultType.AsMemory()), operand1, operand2);
+    }
+
+    public readonly Instruction VectorShuffle(string resultType, IdRef vector1, IdRef vector2, Span<int> values)
+    {
+        return mixer.Buffer.AddOpVectorShuffle(mixer.GetOrCreateBaseType(resultType.AsMemory()), vector1, vector2, MemoryMarshal.Cast<int,LiteralInteger>(values));
+    }
+
+
+    public readonly Instruction ShiftRightLogical(string resultType, IdRef baseId, IdRef shift)
+    {
+        return mixer.Buffer.AddOpShiftRightLogical(mixer.GetOrCreateBaseType(resultType.AsMemory()), baseId, shift);
+    }
+    public readonly Instruction ShiftRightArithmetic(string resultType, IdRef baseId, IdRef shift)
+    {
+        return mixer.Buffer.AddOpShiftRightArithmetic(mixer.GetOrCreateBaseType(resultType.AsMemory()), baseId, shift);
+    }
+    public readonly Instruction ShiftLeft(string resultType, IdRef baseId, IdRef shift)
+    {
+        return mixer.Buffer.AddOpShiftLeftLogical(mixer.GetOrCreateBaseType(resultType.AsMemory()), baseId, shift);
+    }
+
+    public readonly Instruction GreaterThan(string resultType, IdRef value1, IdRef value2)
+    {
+        return resultType switch
+        {
+
+            string f when
+                f.StartsWith("half")
+                || f.StartsWith("float")
+                || f.StartsWith("double")
+                => mixer.Buffer.AddOpFOrdGreaterThan(mixer.GetOrCreateBaseType(resultType.AsMemory()), value1, value2),
+            string f when
+                f.StartsWith("sbyte")
+                || f.StartsWith("short")
+                || f.StartsWith("int")
+                || f.StartsWith("long")
+                => mixer.Buffer.AddOpSGreaterThan(mixer.GetOrCreateBaseType(resultType.AsMemory()), value1, value2),
+            string f when
+                f.StartsWith("byte")
+                || f.StartsWith("ushort")
+                || f.StartsWith("uint")
+                || f.StartsWith("ulong")
+                => mixer.Buffer.AddOpUGreaterThan(mixer.GetOrCreateBaseType(resultType.AsMemory()), value1, value2),
+            _ => throw new NotImplementedException()
+        };
+    }
+    public readonly Instruction LessThan(string resultType, IdRef value1, IdRef value2)
+    {
+        return resultType switch
+        {
+
+            string f when
+                f.StartsWith("half")
+                || f.StartsWith("float")
+                || f.StartsWith("double")
+                => mixer.Buffer.AddOpFOrdLessThan(mixer.GetOrCreateBaseType(resultType.AsMemory()), value1, value2),
+            string f when
+                f.StartsWith("sbyte")
+                || f.StartsWith("short")
+                || f.StartsWith("int")
+                || f.StartsWith("long")
+                => mixer.Buffer.AddOpSLessThan(mixer.GetOrCreateBaseType(resultType.AsMemory()), value1, value2),
+            string f when
+                f.StartsWith("byte")
+                || f.StartsWith("ushort")
+                || f.StartsWith("uint")
+                || f.StartsWith("ulong")
+                => mixer.Buffer.AddOpULessThan(mixer.GetOrCreateBaseType(resultType.AsMemory()), value1, value2),
+            _ => throw new NotImplementedException()
+        };
+    }
+    public readonly Instruction GreaterThanEqual(string resultType, IdRef value1, IdRef value2)
+    {
+        return resultType switch
+        {
+
+            string f when
+                f.StartsWith("half")
+                || f.StartsWith("float")
+                || f.StartsWith("double")
+                => mixer.Buffer.AddOpFOrdGreaterThanEqual(mixer.GetOrCreateBaseType(resultType.AsMemory()), value1, value2),
+            string f when
+                f.StartsWith("sbyte")
+                || f.StartsWith("short")
+                || f.StartsWith("int")
+                || f.StartsWith("long")
+                => mixer.Buffer.AddOpSGreaterThanEqual(mixer.GetOrCreateBaseType(resultType.AsMemory()), value1, value2),
+            string f when
+                f.StartsWith("byte")
+                || f.StartsWith("ushort")
+                || f.StartsWith("uint")
+                || f.StartsWith("ulong")
+                => mixer.Buffer.AddOpUGreaterThanEqual(mixer.GetOrCreateBaseType(resultType.AsMemory()), value1, value2),
+            _ => throw new NotImplementedException()
+        };
+    }
+    public readonly Instruction LessThanEqual(string resultType, IdRef value1, IdRef value2)
+    {
+        return resultType switch
+        {
+
+            string f when
+                f.StartsWith("half")
+                || f.StartsWith("float")
+                || f.StartsWith("double")
+                => mixer.Buffer.AddOpFOrdLessThanEqual(mixer.GetOrCreateBaseType(resultType.AsMemory()), value1, value2),
+            string f when
+                f.StartsWith("sbyte")
+                || f.StartsWith("short")
+                || f.StartsWith("int")
+                || f.StartsWith("long")
+                => mixer.Buffer.AddOpSLessThanEqual(mixer.GetOrCreateBaseType(resultType.AsMemory()), value1, value2),
+            string f when
+                f.StartsWith("byte")
+                || f.StartsWith("ushort")
+                || f.StartsWith("uint")
+                || f.StartsWith("ulong")
+                => mixer.Buffer.AddOpULessThanEqual(mixer.GetOrCreateBaseType(resultType.AsMemory()), value1, value2),
+            _ => throw new NotImplementedException()
+        };
+    }
+
+    public readonly Instruction LogicalEqual(string resultType, IdRef value1, IdRef value2)
+    {
+        return mixer.Buffer.AddOpLogicalEqual(mixer.GetOrCreateBaseType(resultType.AsMemory()), value1, value2);
+    }
+    public readonly Instruction LogicalNotEqual(string resultType, IdRef value1, IdRef value2)
+    {
+        return mixer.Buffer.AddOpLogicalNotEqual(mixer.GetOrCreateBaseType(resultType.AsMemory()), value1, value2);
+    }
+    public readonly Instruction LogicalAnd(string resultType, IdRef value1, IdRef value2)
+    {
+        return mixer.Buffer.AddOpLogicalAnd(mixer.GetOrCreateBaseType(resultType.AsMemory()), value1, value2);
+    }
+    public readonly Instruction LogicalOr(string resultType, IdRef value1, IdRef value2)
+    {
+        return mixer.Buffer.AddOpLogicalAnd(mixer.GetOrCreateBaseType(resultType.AsMemory()), value1, value2);
+    }
+    public readonly Instruction LogicalNot(string resultType, IdRef value)
+    {
+        return mixer.Buffer.AddOpLogicalNot(mixer.GetOrCreateBaseType(resultType.AsMemory()), value);
+    }
 
 }
