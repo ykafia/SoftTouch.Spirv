@@ -157,6 +157,18 @@
       ]
     },
     {
+      "opname": "OpSDSLFunctionParameter",
+      "class": "Function",
+      "operands": [
+        { "kind": "IdResultType" },
+        { "kind": "IdResult" },
+        {
+          "kind": "LiteralString",
+          "name": "name"
+        }
+      ]
+    },
+    {
       "opname": "OpSDSLIOVariable",
       "class": "Memory",
       "operands": [

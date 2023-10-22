@@ -31,7 +31,7 @@ public sealed partial class MultiBuffer
         {
             if (buffer.Functions.Current == null)
                 throw new Exception("Not in function scope");
-            var filtered = new LambdaFilteredEnumerator<WordBuffer>(buffer.Functions.Current, static (i) => i.OpCode == SDSLOp.OpSDSLVariable);
+            var filtered = new LambdaFilteredEnumerator<WordBuffer>(buffer.Functions.Current, static (i) => i.OpCode == SDSLOp.OpSDSLVariable || i.OpCode == SDSLOp.OpSDSLFunctionParameter);
             while (filtered.MoveNext())
             {
                 var vname = filtered.Current.GetOperand<LiteralString>("name");

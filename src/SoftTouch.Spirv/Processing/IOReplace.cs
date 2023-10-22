@@ -54,7 +54,16 @@ public struct SDSLVariableReplace : INanoPass
         {
             foreach (var i in f.UnorderedInstructions)
             {
-                if (i.OpCode == SDSLOp.OpSDSLVariable)
+                if(i.OpCode == SDSLOp.OpSDSLFunctionParameter)
+                {
+                    var name = i.GetOperand<LiteralString>("name");
+                    var resultType = i.ResultType ?? -1;
+                    var variable = f.AddOpFunctionParameter(resultType);
+                    variable.Operands.Span[1] = i.ResultId ?? -1;
+                    buffer.AddOpName(variable, name ?? $"var{Guid.NewGuid()}");
+                    SetOpNop(i.Words.Span);
+                }
+                else if (i.OpCode == SDSLOp.OpSDSLVariable)
                 {
 
                     var sclassv = i.GetOperand<LiteralInteger>("storageclass");
@@ -68,7 +77,6 @@ public struct SDSLVariableReplace : INanoPass
                     variable.Operands.Span[1] = i.ResultId ?? -1;
                     buffer.AddOpName(variable, name ?? $"var{Guid.NewGuid()}");
                     SetOpNop(i.Words.Span);
-                    f.RecomputeLength();
                 }
             }
         }

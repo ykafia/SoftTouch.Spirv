@@ -42,6 +42,10 @@ public sealed partial class Mixer : MixerBase
     {
         return new EntryPoint(this, model, name);
     }
+    public FunctionBuilder WithFunction(string type, string name, FunctionBuilder.CreateFunctionParameters parameterCreate)
+    {
+        return new FunctionBuilder(this, type, name, parameterCreate);
+    }
 
     public Mixer Inherit(string mixin)
     {

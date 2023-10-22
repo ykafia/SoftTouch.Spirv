@@ -1,4 +1,5 @@
 using SoftTouch.Spirv.Core;
+using SoftTouch.Spirv.Core.Buffers;
 using static SoftTouch.Spirv.Mixer;
 using static Spv.Specification;
 
@@ -19,17 +20,16 @@ public ref partial struct FunctionBuilder
     Instruction function;
     EntryPoint? entryPoint;
 
-    public FunctionBuilder(Mixer mixer, string returnType, string name, int parameterNumber, ParameterTypesDelegate parameterTypesDelegate)
+    public FunctionBuilder(Mixer mixer, string returnType, string name, CreateFunctionParameters parameterTypesDelegate)
     {
         this.mixer = mixer;
-        Span<IdRef> parameters = stackalloc IdRef[parameterNumber];
-        var p = new ParameterBuilder(mixer, parameters);
+        var p = new ParameterBuilder(mixer, stackalloc IdRef[16]);
         parameterTypesDelegate.Invoke(ref p);
+
         var t = mixer.GetOrCreateBaseType(returnType.AsMemory());
-        var t_func = mixer.Buffer.AddOpTypeFunction(t.ResultId ?? -1, parameters);
+        var t_func = mixer.Buffer.AddOpTypeFunction(t.ResultId ?? -1, p.Parameters);
         function = mixer.Buffer.AddOpSDSLFunction(t.ResultId ?? -1, FunctionControlMask.MaskNone, t_func, name);
         mixer.Buffer.AddOpLabel();
-
     }
     public FunctionBuilder(Mixer mixer, EntryPoint entryPoint)
     {
@@ -129,9 +129,8 @@ public ref partial struct FunctionBuilder
 
     public FunctionBuilder CallFunction(string functionName, Span<IdRef> parameters)
     {
-        throw new NotImplementedException();
-        //var function = mixer.functions[functionName];
-        //mixer.buffer.AddOpFunctionCall(function.Type, function.Id, parameters);
+        var function = mixer.Buffer.Functions[functionName][0];
+        mixer.Buffer.AddOpFunctionCall(function.ResultType ?? -1, function.ResultId ?? -1, parameters);
         return this;
     }
 
@@ -161,30 +160,29 @@ public ref partial struct FunctionBuilder
         return mixer;
     }
 
-    public delegate void ParameterTypesDelegate(ref ParameterBuilder typeIds);
-
+    public delegate void CreateFunctionParameters(ref ParameterBuilder typeIds);
     public ref struct ParameterBuilder
     {
-        Span<IdRef> typeIds;
         Mixer mixer;
-        int currentIndex;
-
-        public ParameterBuilder(Mixer mixer, Span<IdRef> typeIds)
+        public Span<IdRef> Parameters { get; }
+        int count;
+        public ParameterBuilder(Mixer mixer, Span<IdRef> parameters)
         {
             this.mixer = mixer;
-            this.typeIds = typeIds;
-            currentIndex = 0;
+            parameters.Clear();
+            Parameters = parameters;
+            count = 0;
         }
 
-        public ParameterBuilder With(string typeName)
+        public void With(string type, string name)
         {
-            if (currentIndex >= typeIds.Length)
-                throw new Exception("Too many arguments were given");
-            var t = mixer.GetOrCreateBaseType(typeName.AsMemory());
-            typeIds[currentIndex] = t.ResultId ?? -1;
-            currentIndex += 1;
-            return this;
+            Add(mixer.Buffer.AddOpSDSLFunctionParameter(mixer.GetOrCreateBaseType(type.AsMemory()), name));
         }
-        public void Finish() { }
+
+        void Add(Instruction i)
+        {
+            Parameters[count] = i.ResultId ?? -1;
+            count += 1;
+        }
     }
 }

@@ -17,6 +17,8 @@ public class FunctionBufferCollection
     public int BuffersLength => Buffers.Sum(static (x) => x.Value.Length);
     public int FunctionCount => Buffers.Count;
 
+    public WordBuffer this[string name] => Buffers[name];
+
     public FunctionBufferCollection()
     {
         functionStarted = false;
