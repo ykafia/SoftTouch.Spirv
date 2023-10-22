@@ -100,6 +100,7 @@ public sealed partial class MultiBuffer
             int _ => 1,
             IdRef _ => 1,
             IdResultType _ => 1,
+            IdResult _ => 1,
             string v => new LiteralString(v).WordLength,
             LiteralString v => v.WordLength,
             int[] a => a.Length,

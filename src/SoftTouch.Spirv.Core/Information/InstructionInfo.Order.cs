@@ -60,7 +60,6 @@ public partial class InstructionInfo
         OrderGroup[(SDSLOp.OpUndef, null)] = 10;
         OrderGroup[(SDSLOp.OpLine, null)] = 11;
         OrderGroup[(SDSLOp.OpNoLine, null)] = 11;
-        OrderGroup[(SDSLOp.OpExtInst, null)] = 12;
 
         foreach (var e in Enum.GetValues<SDSLOp>().Except(OrderGroup.Keys.Select(x => x.Item1)))
             OrderGroup[(e, null)] = 13;

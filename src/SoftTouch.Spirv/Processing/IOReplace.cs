@@ -22,19 +22,19 @@ public struct SDSLVariableReplace : INanoPass
                     sclass = (StorageClass)sclassv.Value.Words;
 
                 var semantic = i.GetOperand<LiteralString>("semantic");
-                var variable = buffer.Declarations.AddOpVariable(i.GetOperand<IdResultType>("resultType") ?? -1, sclass, i.GetOperand<IdRef>("initializer"));
+                var variable = buffer.AddOpVariable(i.GetOperand<IdResultType>("resultType") ?? -1, sclass, i.GetOperand<IdRef>("initializer"));
                 variable.Operands.Span[1] = i.ResultId ?? -1;
                 if (sclass == StorageClass.Input)
                 {
                     inputSemanticLocation += 1;
-                    buffer.Declarations.AddOpDecorate(variable, Decoration.Location, inputSemanticLocation);
+                    buffer.AddOpDecorate(variable, Decoration.Location, inputSemanticLocation);
                 }
                 else if (sclass == StorageClass.Output)
                 {
                     outputSemanticLocation += 1;
-                    buffer.Declarations.AddOpDecorate(variable, Decoration.Location, outputSemanticLocation);
+                    buffer.AddOpDecorate(variable, Decoration.Location, outputSemanticLocation);
                 }
-                buffer.Declarations.AddOpName(variable, i.GetOperand<LiteralString>("name") ?? $"var{Guid.NewGuid()}");
+                buffer.AddOpName(variable, i.GetOperand<LiteralString>("name") ?? $"var{Guid.NewGuid()}");
                 SetOpNop(i.Words.Span);
             }
             else if (i.OpCode == SDSLOp.OpSDSLVariable)
@@ -44,9 +44,9 @@ public struct SDSLVariableReplace : INanoPass
                 var sclass = StorageClass.Private;
                 if (sclassv != null)
                     sclass = (StorageClass)sclassv.Value.Words;
-                var variable = buffer.Declarations.AddOpVariable(i.GetOperand<IdResultType>("resultType") ?? -1, sclass, i.GetOperand<IdRef>("initializer"));
+                var variable = buffer.AddOpVariable(i.GetOperand<IdResultType>("resultType") ?? -1, sclass, i.GetOperand<IdRef>("initializer"));
                 variable.Operands.Span[1] = i.ResultId ?? -1;
-                buffer.Declarations.AddOpName(variable, i.GetOperand<LiteralString>("name") ?? $"var{Guid.NewGuid()}");
+                buffer.AddOpName(variable, i.GetOperand<LiteralString>("name") ?? $"var{Guid.NewGuid()}");
                 SetOpNop(i.Words.Span);
             }
         }
@@ -66,7 +66,7 @@ public struct SDSLVariableReplace : INanoPass
                     var initializer = i.GetOperand<IdRef>("initializer");
                     var variable = f.AddOpVariable(resultType, sclass, initializer);
                     variable.Operands.Span[1] = i.ResultId ?? -1;
-                    buffer.Declarations.AddOpName(variable, name ?? $"var{Guid.NewGuid()}");
+                    buffer.AddOpName(variable, name ?? $"var{Guid.NewGuid()}");
                     SetOpNop(i.Words.Span);
                     f.RecomputeLength();
                 }

@@ -239,6 +239,7 @@ namespace SoftTouch.Spirv.Generators
                     .Append("public Instruction AddGLSL")
                     .Append(opname)
                     .Append('(')
+                    .Append("IdResultType resultType, ")
                     .Append(string.Join(", ", normalParameters))
                     .Append(nullableParameters.Count() == 0 ? "" : (normalParameters.Count() > 0 ? ", " : "") + string.Join(", ", nullableParameters))
                     .Append(paramsParameters.Count() == 0 ? "" : (normalParameters.Count() + nullableParameters.Count() > 0 ? ", " : "") + paramsParameters.First())
@@ -250,8 +251,7 @@ namespace SoftTouch.Spirv.Generators
                         .Append("return AddOpExtInst(")
                             .Append("set, ")
                             .Append(opcode)
-                            .Append(parameterNames.Any(x => x == "resultId") ? ", resultId, " : ", null")
-                            .Append(parameterNames.Any(x => x == "resultType") ? ", resultType, " : ", null")
+                            .Append(", resultId, resultType ")
                             .AppendLine(", refs);")
                     .Dedent()
                     .AppendLine("}");

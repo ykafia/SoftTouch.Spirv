@@ -56,7 +56,15 @@ namespace SoftTouch.Spirv.Generators
         {
             var opname = op.GetProperty("opname").GetString();
             var spvClass = op.GetProperty("class").GetString();
-            if (op.TryGetProperty("operands", out var operands))
+            if(opname == "OpExtInst")
+            {
+                code.AppendLine("Instance.Register(SDSLOp.OpExtInst, OperandKind.IdResultType, OperandQuantifier.One, \"resultType\", \"GLSL\");");
+                code.AppendLine("Instance.Register(SDSLOp.OpExtInst, OperandKind.IdResult, OperandQuantifier.One, \"resultId\", \"GLSL\");");
+                code.AppendLine("Instance.Register(SDSLOp.OpExtInst, OperandKind.IdRef, OperandQuantifier.One, \"set\", \"GLSL\");");
+                code.AppendLine("Instance.Register(SDSLOp.OpExtInst, OperandKind.LiteralInteger, OperandQuantifier.One, \"instruction\", \"GLSL\");");
+                code.AppendLine("Instance.Register(SDSLOp.OpExtInst, OperandKind.IdRef, OperandQuantifier.ZeroOrMore, \"values\", \"GLSL\");");
+            }
+            else if (op.TryGetProperty("operands", out var operands))
             {
                 foreach (var operand in operands.EnumerateArray())
                 {

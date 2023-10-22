@@ -100,6 +100,8 @@ public ref struct MutRefInstruction
                 AddInt(id);
             else if (value is IdResultType result)
                 AddInt(result);
+            else if (value is IdResult resultid)
+                AddInt(resultid);
             else if (value is float f)
                 AddFloat(f);
             else if (value is LiteralFloat lf)
