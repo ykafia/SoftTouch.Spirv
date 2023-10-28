@@ -12,6 +12,7 @@ public struct FunctionVariableOrderer : INanoPass
         foreach(var (_,f) in buffer.Functions)
         {
             ProcessFunction(new(f.InstructionSpan));
+            f.RecomputeLength();
         }
     }
     public static void ProcessFunction(SpirvSpan function)
@@ -21,9 +22,15 @@ public struct FunctionVariableOrderer : INanoPass
         enumerator.MoveNext();
         var opf = enumerator.Current;
         tmp.Insert(tmp.Length, opf.Words);
-        enumerator.MoveNext();
-        var opl = enumerator.Current;
-        tmp.Insert(tmp.Length, opl.Words);
+        foreach(var i in function)
+        {
+            if(i.OpCode == SDSLOp.OpFunctionParameter)
+                tmp.Insert(tmp.Length, i.Words);
+        }
+        while(enumerator.Current.OpCode != SDSLOp.OpLabel)
+            enumerator.MoveNext();
+        
+        tmp.Insert(tmp.Length, enumerator.Current.Words);
 
         foreach (var i in function)
         {
@@ -35,7 +42,7 @@ public struct FunctionVariableOrderer : INanoPass
         while(enumerator.MoveNext())
         {
             var i = enumerator.Current;
-            if (i.OpCode != SDSLOp.OpVariable)
+            if (i.OpCode != SDSLOp.OpVariable && i.OpCode != SDSLOp.OpFunctionParameter)
             {
                 tmp.Insert(tmp.Length, i.Words);
             }
@@ -44,6 +51,7 @@ public struct FunctionVariableOrderer : INanoPass
                 var t = 0;
             }
         }
+        function.Span.Clear();
         tmp.InstructionSpan.CopyTo(function.Span);
     }
 }

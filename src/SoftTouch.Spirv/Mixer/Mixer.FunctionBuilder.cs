@@ -23,12 +23,14 @@ public ref partial struct FunctionBuilder
     public FunctionBuilder(Mixer mixer, string returnType, string name, CreateFunctionParameters parameterTypesDelegate)
     {
         this.mixer = mixer;
-        var p = new ParameterBuilder(mixer, stackalloc IdRef[16]);
-        parameterTypesDelegate.Invoke(ref p);
+        
 
         var t = mixer.GetOrCreateBaseType(returnType.AsMemory());
-        var t_func = mixer.Buffer.AddOpTypeFunction(t.ResultId ?? -1, p.Parameters);
-        function = mixer.Buffer.AddOpSDSLFunction(t.ResultId ?? -1, FunctionControlMask.MaskNone, t_func, name);
+        function = mixer.Buffer.AddOpSDSLFunction(t.ResultId ?? -1, FunctionControlMask.MaskNone, -1, name);
+        var p = new ParameterBuilder(mixer, stackalloc IdRef[16], stackalloc IdRef[16]);
+        parameterTypesDelegate.Invoke(ref p);
+        var t_func = mixer.Buffer.AddOpTypeFunction(t.ResultId ?? -1, p.Types);
+        function.Operands.Span[3] = t_func.ResultId ?? -1;
         mixer.Buffer.AddOpLabel();
     }
     public FunctionBuilder(Mixer mixer, EntryPoint entryPoint)
@@ -157,13 +159,17 @@ public ref partial struct FunctionBuilder
     public ref struct ParameterBuilder
     {
         Mixer mixer;
-        public Span<IdRef> Parameters { get; }
+        Span<IdRef> inner { get; }
+        Span<IdRef> innerTypes { get; }
+        public Span<IdRef> Parameters => inner[..count];
+        public Span<IdRef> Types => innerTypes[..count];
         int count;
-        public ParameterBuilder(Mixer mixer, Span<IdRef> parameters)
+        public ParameterBuilder(Mixer mixer, Span<IdRef> parameters, Span<IdRef> types)
         {
             this.mixer = mixer;
             parameters.Clear();
-            Parameters = parameters;
+            inner = parameters;
+            innerTypes = types;
             count = 0;
         }
 
@@ -174,7 +180,8 @@ public ref partial struct FunctionBuilder
 
         void Add(Instruction i)
         {
-            Parameters[count] = i.ResultId ?? -1;
+            inner[count] = i.ResultId ?? -1;
+            innerTypes[count] = i.ResultType ?? -1;
             count += 1;
         }
     }

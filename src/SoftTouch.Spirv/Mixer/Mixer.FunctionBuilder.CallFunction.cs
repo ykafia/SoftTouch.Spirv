@@ -9,7 +9,8 @@ public ref struct FunctionCallerParameters
 {
     public FunctionBuilder Builder {get; private set;}
     readonly Mixer mixer => Builder.mixer;
-    public Span<IdRef> ParameterVariables { get; private set; }
+    Span<IdRef> inner;
+    public Span<IdRef> ParameterVariables => inner[..Length];
     public int Length { get; private set; }
 
     public FunctionCallerParameters(FunctionBuilder builder, Span<IdRef> array)
@@ -17,15 +18,16 @@ public ref struct FunctionCallerParameters
         if (array.Length != 16)
             throw new ArgumentException("Length must be 16");
         Builder = builder;
-        ParameterVariables = array;
+        inner = array;
         Length = 0;
     }
 
     public FunctionCallerParameters With(Instruction value)
     {
-        var p = mixer.Buffer.AddOpVariable(mixer.FindType(value), StorageClass.Function, null);
+        var p = mixer.Buffer.AddOpVariable(mixer.FindType(value.ResultType ?? -1), StorageClass.Function, null);
         mixer.Buffer.AddOpStore(p, value, null);
-        ParameterVariables[Length] = p.ResultId ?? -1;
+        inner[Length] = p.ResultId ?? -1;
+        Length += 1;
         return this;
     }
 }
