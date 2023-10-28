@@ -16,7 +16,7 @@ public ref partial struct FunctionBuilder
     public delegate Variable InitializerDelegate(Mixer mixer, ref FunctionBuilder functionBuilder);
     public delegate Value ValueDelegate(Mixer mixer, ref FunctionBuilder functionBuilder);
 
-    Mixer mixer;
+    internal Mixer mixer;
     Instruction function;
     EntryPoint? entryPoint;
 
@@ -124,13 +124,6 @@ public ref partial struct FunctionBuilder
             var load = mixer.Buffer.AddOpLoad(srcType, src, null);
             mixer.Buffer.AddOpStore(global, load, null);
         }
-        return this;
-    }
-
-    public FunctionBuilder CallFunction(string functionName, Span<IdRef> parameters)
-    {
-        var function = mixer.Buffer.Functions[functionName][0];
-        mixer.Buffer.AddOpFunctionCall(function.ResultType ?? -1, function.ResultId ?? -1, parameters);
         return this;
     }
 
