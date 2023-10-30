@@ -48,6 +48,8 @@ public ref struct OperandEnumerator
                     wid += 2;
                 else
                     wid += 1;
+                oid += 1;
+
             }
             else if (logOp.Quantifier == OperandQuantifier.ZeroOrOne)
             {
@@ -69,6 +71,8 @@ public ref struct OperandEnumerator
                 }
                 else if (wid < operands.Length)
                     wid += 1;
+                oid += 1;
+
             }
             else if (logOp.Quantifier == OperandQuantifier.ZeroOrMore)
             {
@@ -81,8 +85,10 @@ public ref struct OperandEnumerator
                     wid += 2;
                 else if (wid < operands.Length - 1)
                     wid += 1;
+                else
+                    oid += 1;
+                
             }
-            oid += 1;
             if (oid >= logicalOperands.Count)
                 return false;
             return wid < operands.Length;

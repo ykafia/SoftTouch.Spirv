@@ -152,6 +152,7 @@ public struct TypeDuplicateRemover : INanoPass
     {
         foreach (var i in buffer.Declarations.UnorderedInstructions)
         {
+            var opcode = i.OpCode;
             foreach (var op in i)
             {
                 if (op.Kind == OperandKind.IdRef && op.Words[0] == from)

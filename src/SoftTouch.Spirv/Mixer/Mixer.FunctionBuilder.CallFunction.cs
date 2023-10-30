@@ -24,9 +24,9 @@ public ref struct FunctionCallerParameters
 
     public FunctionCallerParameters With(Instruction value)
     {
-        var p = mixer.Buffer.AddOpVariable(mixer.FindType(value.ResultType ?? -1), StorageClass.Function, null);
-        mixer.Buffer.AddOpStore(p, value, null);
-        inner[Length] = p.ResultId ?? -1;
+        //var p = mixer.Buffer.AddOpVariable(mixer.FindType(value.ResultType ?? -1), StorageClass.Function, null);
+        //mixer.Buffer.AddOpStore(p, value, null);
+        inner[Length] = value.ResultId ?? -1;
         Length += 1;
         return this;
     }

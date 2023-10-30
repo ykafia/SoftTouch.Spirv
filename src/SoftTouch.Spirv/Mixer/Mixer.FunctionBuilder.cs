@@ -173,9 +173,10 @@ public ref partial struct FunctionBuilder
             count = 0;
         }
 
-        public void With(string type, string name)
+        public ParameterBuilder With(string type, string name)
         {
             Add(mixer.Buffer.AddOpSDSLFunctionParameter(mixer.GetOrCreateBaseType(type.AsMemory()), name));
+            return this;
         }
 
         void Add(Instruction i)
