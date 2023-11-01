@@ -32,19 +32,27 @@ public ref struct FunctionCallerParameters
     }
 }
 
-public delegate void CreateCallFunctionParameter(ref FunctionCallerParameters p);
+public delegate FunctionCallerParameters CreateCallFunctionParameter(FunctionCallerParameters p);
 
 public ref partial struct FunctionBuilder
 {
+    public Instruction Call(string functionName, CreateCallFunctionParameter fp)
+    {
+        var parameters = new FunctionCallerParameters(this, stackalloc IdRef[16]);
+        parameters = fp.Invoke(parameters);
+        var function = mixer.Buffer.Functions[functionName][0];
+        return mixer.Buffer.AddOpFunctionCall(function.ResultType ?? -1, function.ResultId ?? -1, parameters.ParameterVariables);
+    }
 
     public FunctionBuilder CallFunction(string functionName, CreateCallFunctionParameter fp)
     {
         var parameters = new FunctionCallerParameters(this, stackalloc IdRef[16]);
-        fp.Invoke(ref parameters);
+        parameters = fp.Invoke(parameters);
         var function = mixer.Buffer.Functions[functionName][0];
         mixer.Buffer.AddOpFunctionCall(function.ResultType ?? -1, function.ResultId ?? -1, parameters.ParameterVariables);
         return this;
     }
+    
 
     public FunctionBuilder CallFunction(string functionName)
     {

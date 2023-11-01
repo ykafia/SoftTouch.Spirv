@@ -120,8 +120,12 @@ public ref struct OperandEnumerator
                 return new(logOp.Kind ?? OperandKind.None, logOp.Quantifier ?? OperandQuantifier.One, operands.Slice(wid, 1));
         }
         else
-            return new(logOp.Kind ?? OperandKind.None, logOp.Quantifier ?? OperandQuantifier.One, operands[wid..]);
-        throw new NotImplementedException();
+        {
+            if(pairs.Contains(logOp.Kind ?? OperandKind.None))
+                return new(logOp.Kind ?? OperandKind.None, logOp.Quantifier ?? OperandQuantifier.One, operands.Slice(wid,2));
+            else
+                return new(logOp.Kind ?? OperandKind.None, logOp.Quantifier ?? OperandQuantifier.One, operands.Slice(wid, 1));
+        }
     }
 
 }

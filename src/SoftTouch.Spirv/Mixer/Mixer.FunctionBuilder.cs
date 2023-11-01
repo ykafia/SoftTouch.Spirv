@@ -8,13 +8,13 @@ namespace SoftTouch.Spirv;
 
 public ref partial struct FunctionBuilder
 {
-    public record struct Variable(IdRef Id, bool IsConstant);
-    public record struct Value(IdRef Id, IdResultType Type, bool IsConstant)
+    public record struct Variable(IdRef Id, bool IsVariable);
+    public record struct Value(IdRef Id, IdResultType Type, bool IsVariable = false)
     {
         public static implicit operator Value(Instruction i) => new(i, i.ResultType ?? -1, false);
     };
     public delegate Variable InitializerDelegate(Mixer mixer, ref FunctionBuilder functionBuilder);
-    public delegate Value ValueDelegate(Mixer mixer, ref FunctionBuilder functionBuilder);
+    public delegate Value ValueDelegate(Mixer mixer, FunctionBuilder functionBuilder);
 
     internal Mixer mixer;
     Instruction function;
@@ -28,7 +28,7 @@ public ref partial struct FunctionBuilder
         var t = mixer.GetOrCreateBaseType(returnType.AsMemory());
         function = mixer.Buffer.AddOpSDSLFunction(t.ResultId ?? -1, FunctionControlMask.MaskNone, -1, name);
         var p = new ParameterBuilder(mixer, stackalloc IdRef[16], stackalloc IdRef[16]);
-        parameterTypesDelegate.Invoke(ref p);
+        p = parameterTypesDelegate.Invoke(p);
         var t_func = mixer.Buffer.AddOpTypeFunction(t.ResultId ?? -1, p.Types);
         function.Operands.Span[3] = t_func.ResultId ?? -1;
         mixer.Buffer.AddOpLabel();
@@ -72,15 +72,19 @@ public ref partial struct FunctionBuilder
     public FunctionBuilder Assign(string name, ValueDelegate initializer)
     {
         // TODO : If the value delegate is a constant no need to be loaded on a register
-        var result = initializer.Invoke(mixer, ref this);
+        var result = initializer.Invoke(mixer, this);
         if (mixer.LocalVariables.TryGet(name, out var local))
         {
-            var load = mixer.Buffer.AddOpLoad(result.Type, result.Id, null);
+            var load = result.Id;
+            if(result.IsVariable)
+                load = mixer.Buffer.AddOpLoad(result.Type, result.Id, null).ResultId ?? -1;
             mixer.Buffer.AddOpStore(local, load, null);
         }
         else if (mixer.GlobalVariables.TryGet(name, out var global))
         {
-            var load = mixer.Buffer.AddOpLoad(result.Type, result.Id, null);
+            var load = result.Id;
+            if (result.IsVariable)
+                load = mixer.Buffer.AddOpLoad(result.Type, result.Id, null);
             mixer.Buffer.AddOpStore(global, load, null);
         }
         return this;
@@ -128,6 +132,11 @@ public ref partial struct FunctionBuilder
         }
         return this;
     }
+    public FunctionBuilder Return(ValueDelegate vd)
+    {
+        Return(vd.Invoke(mixer, this).Id);
+        return this;
+    }
 
     public FunctionBuilder Return(IdRef? value = null)
     {
@@ -155,7 +164,7 @@ public ref partial struct FunctionBuilder
         return mixer;
     }
 
-    public delegate void CreateFunctionParameters(ref ParameterBuilder typeIds);
+    public delegate ParameterBuilder CreateFunctionParameters(ParameterBuilder typeIds);
     public ref struct ParameterBuilder
     {
         Mixer mixer;
@@ -175,15 +184,11 @@ public ref partial struct FunctionBuilder
 
         public ParameterBuilder With(string type, string name)
         {
-            Add(mixer.Buffer.AddOpSDSLFunctionParameter(mixer.GetOrCreateBaseType(type.AsMemory()), name));
-            return this;
-        }
-
-        void Add(Instruction i)
-        {
+            var i = mixer.Buffer.AddOpSDSLFunctionParameter(mixer.GetOrCreateBaseType(type.AsMemory()), name);
             inner[count] = i.ResultId ?? -1;
             innerTypes[count] = i.ResultType ?? -1;
             count += 1;
+            return this;
         }
     }
 }
