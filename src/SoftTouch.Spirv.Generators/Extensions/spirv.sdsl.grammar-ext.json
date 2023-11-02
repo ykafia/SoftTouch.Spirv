@@ -175,6 +175,7 @@
         { "kind": "IdResultType" },
         { "kind": "IdResult" },
         { "kind": "StorageClass" },
+        { "kind": "ExecutionModel" },
         {
           "kind": "LiteralString",
           "name": "name"

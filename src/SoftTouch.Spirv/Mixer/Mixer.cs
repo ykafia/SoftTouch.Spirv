@@ -63,18 +63,18 @@ public sealed partial class Mixer : MixerBase
         return this;
     }
 
-    public Mixer WithInput(string type, string name, string semantic)
+    public Mixer WithInput(string type, string name, string semantic, ExecutionModel execution)
     {
         var t_variable = GetOrCreateBaseType(type.AsMemory());
         var p_t_variable = Buffer.AddOpTypePointer(StorageClass.Input, t_variable.ResultId ?? -1);
-        Buffer.AddOpSDSLIOVariable(p_t_variable.ResultId ?? -1, StorageClass.Input, name, semantic, null);
+        Buffer.AddOpSDSLIOVariable(p_t_variable.ResultId ?? -1, StorageClass.Input, execution, name, semantic, null);
         return this;
     }
-    public Mixer WithOutput(string type, string name, string semantic)
+    public Mixer WithOutput(string type, string name, string semantic, ExecutionModel execution)
     {
         var t_variable = GetOrCreateBaseType(type.AsMemory());
         var p_t_variable = Buffer.AddOpTypePointer(StorageClass.Output, t_variable.ResultId ?? -1);
-        Buffer.AddOpSDSLIOVariable(p_t_variable.ResultId ?? -1, StorageClass.Output, name, semantic, null);
+        Buffer.AddOpSDSLIOVariable(p_t_variable.ResultId ?? -1, StorageClass.Output, execution, name, semantic, null);
         return this;
     }
 
