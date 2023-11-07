@@ -9,8 +9,6 @@ public struct SDSLVariableReplace : INanoPass
 {
     public void Apply(MultiBuffer buffer)
     {
-        var inputSemanticLocation = -1;
-        var outputSemanticLocation = -1;
         foreach (var i in buffer.Declarations.UnorderedInstructions)
         {
             if (i.OpCode == SDSLOp.OpSDSLIOVariable)
@@ -20,26 +18,13 @@ public struct SDSLVariableReplace : INanoPass
                 var sclass = StorageClass.Private;
                 if (sclassv != null)
                     sclass = (StorageClass)sclassv.Value.Words;
-
-                var semantic = i.GetOperand<LiteralString>("semantic");
                 var variable = buffer.AddOpVariable(i.GetOperand<IdResultType>("resultType") ?? -1, sclass, i.GetOperand<IdRef>("initializer"));
                 variable.Operands.Span[1] = i.ResultId ?? -1;
-                if (sclass == StorageClass.Input)
-                {
-                    inputSemanticLocation += 1;
-                    buffer.AddOpDecorate(variable, Decoration.Location, inputSemanticLocation);
-                }
-                else if (sclass == StorageClass.Output)
-                {
-                    outputSemanticLocation += 1;
-                    buffer.AddOpDecorate(variable, Decoration.Location, outputSemanticLocation);
-                }
                 buffer.AddOpName(variable, i.GetOperand<LiteralString>("name") ?? $"var{Guid.NewGuid()}");
                 SetOpNop(i.Words.Span);
             }
             else if (i.OpCode == SDSLOp.OpSDSLVariable)
             {
-
                 var sclassv = i.GetOperand<LiteralInteger>("storageclass");
                 var sclass = StorageClass.Private;
                 if (sclassv != null)

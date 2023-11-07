@@ -9,13 +9,15 @@ public struct IOVariableDecorator : INanoPass
 {
     public void Apply(MultiBuffer buffer)
     {
-        foreach(var i in buffer.Declarations)
+        int inputLocation = -1;
+        int outputLocation = -1;
+        foreach (var i in buffer.Declarations)
         {
             if(i.OpCode == SDSLOp.OpSDSLIOVariable)
             {
                 var execution = (ExecutionModel)(i.GetOperand<LiteralInteger>("executionModel")?.Words ?? -1);
                 var storage = (StorageClass)(i.GetOperand<LiteralInteger>("storageclass")?.Words ?? -1);
-                var semantic = i.GetOperand<LiteralString>("semanticName")?.Value ?? throw new NotImplementedException();
+                var semantic = i.GetOperand<LiteralString>("semantic")?.Value ?? throw new NotImplementedException();
                 if (semantic == "SV_Position")
                 {
                     buffer.AddOpDecorate(
@@ -478,6 +480,21 @@ public struct IOVariableDecorator : INanoPass
                                 or ExecutionModel.MeshNV
                             )
                                 => (int)BuiltIn.CullPrimitiveEXT,
+                            _ => throw new NotImplementedException()
+                        }
+                    );
+                }
+                else 
+                {
+                    buffer.AddOpDecorate(
+                        i.ResultId ?? -1,
+                        Decoration.Location,
+                        (storage, execution) switch
+                        {
+                            (StorageClass.Input, _)
+                                => ++inputLocation,
+                            (StorageClass.Output, _)
+                                => ++outputLocation,
                             _ => throw new NotImplementedException()
                         }
                     );
