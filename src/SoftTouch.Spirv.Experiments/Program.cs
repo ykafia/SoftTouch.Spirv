@@ -2,10 +2,12 @@
 using CommunityToolkit.HighPerformance.Buffers;
 using SoftTouch.Spirv.Core;
 using SoftTouch.Spirv.Core.Parsing;
+using SoftTouch.Spirv.Core.Buffers;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using static Spv.Specification;
-// IInstruction nop = new OpNop();
+
+
 Console.WriteLine("Hello, world!");
 
 
@@ -16,21 +18,12 @@ static void ParseShader()
 {
     Console.WriteLine(Unsafe.SizeOf<Memory<int>>());
 
-    InstructionInfo.GetInfo(Op.OpCapability);
+    InstructionInfo.GetInfo(SDSLOp.OpCapability);
 
     var shader = File.ReadAllBytes("../../shader.spv");
 
-    var data = MemoryOwner<int>.Allocate(shader.Length / 4, AllocationMode.Clear);
-    var slice = data.Memory[..5];
-    var slice2 = data.Memory[5..10];
 
-    var bytes = shader.AsSpan();
-
-    var ints = MemoryMarshal.Cast<byte, int>(bytes);
-
-    ints.CopyTo(data.Span);
-
-    var list = SpirvReader.ParseToList(data);
+    SpirvReader.ParseToList(shader, new(8));
 
     var x = 0;
 }
@@ -131,19 +124,27 @@ static void CreateShader()
 
 
     var main = buffer.AddOpFunction(t_void, FunctionControlMask.MaskNone, t_func);
-    buffer.AddOpEntryPoint(ExecutionModel.Fragment, main, "main", stackalloc IdRef[] { v_output, v_input, v_input_2, v_input_3 });
+    buffer.AddOpEntryPoint(ExecutionModel.Fragment, main, "PSMain", stackalloc IdRef[] { v_output, v_input, v_input_2, v_input_3 });
     buffer.AddOpExecutionMode(main, ExecutionMode.OriginLowerLeft);
 
     buffer.AddOpLabel();
     buffer.AddOpReturn();
     buffer.AddOpFunctionEnd();
-    var list = new List<Instruction>(buffer.Count);
-    foreach(var e in buffer)
-        list.Add(e);
 
-    var bytes = buffer.GenerateSpirv();
+    var main2 = buffer.AddOpFunction(t_void, FunctionControlMask.MaskNone, t_func);
+    buffer.AddOpEntryPoint(ExecutionModel.Vertex, main, "VSMain", stackalloc IdRef[] { v_output, v_input, v_input_2, v_input_3 });
 
-    File.WriteAllBytes("C:\\Users\\kafia\\source\\repos\\SoftTouch.Spirv\\shader.spv", bytes); ;
+    var sorted = new SortedWordBuffer(buffer);
+
+    Console.WriteLine(Disassembler.Disassemble(sorted));
+    
+    //var list = new List<Instruction>(buffer.Count);
+    //foreach(var e in buffer)
+    //    list.Add(e);
+
+    //var bytes = buffer.GenerateSpirv();
+
+    //File.WriteAllBytes("C:\\Users\\kafia\\source\\repos\\SoftTouch.Spirv\\shader.spv", bytes); ;
 
     var x = 0;
 }
@@ -151,16 +152,22 @@ static void CreateShader()
 
 static void ParseWorking()
 {
-    var path = @"C:\Users\kafia\source\repos\SoftTouch.Spirv\working1-6.spv";
+    var path = @"C:\Users\youness_kafia\Documents\dotnetProjs\SDSLParser\src\SoftTouch.Spirv\working1-6.spv";
 
     var bytes = File.ReadAllBytes(path);
 
     var buffer = WordBuffer.Parse(bytes);
     var extInst = buffer[1];
-    LiteralString.Parse(extInst.Operands);
+    foreach(var o in extInst)
+    {
+        if(o.Kind == OperandKind.LiteralString)
+        {
+            Console.WriteLine(o.To<LiteralString>().Value);
+        }
+    }
     var tmp = 0;
 }
 
 CreateShader();
 
-ParseWorking();
+//ParseWorking();

@@ -7,12 +7,12 @@ using static Spv.Specification;
 namespace SoftTouch.Spirv.Core;
 
 
-public struct LiteralString : ISpirvElement, IFromSpirv<LiteralString>
+public readonly struct LiteralString : ISpirvElement, IFromSpirv<LiteralString>
 {
-    // internal static Dictionary<string, LiteralString> Cache { get;} = new();
+    readonly static StringPool pool = new(); 
 
     public string Value { get; init; }
-    public int Length => Value.Length + 1;
+    public readonly int Length => Value.Length + 1;
 
     public int WordLength => (Length / 4) + (HasRest ? 1 : 0);
     internal bool HasRest => Length % 4 > 0;
@@ -20,41 +20,39 @@ public struct LiteralString : ISpirvElement, IFromSpirv<LiteralString>
 
     internal LiteralString(string value)
     {
-        Value = value;
+        Value = pool.GetOrAdd(value);
     }
     internal LiteralString(Span<int> words)
     {
-        var chars = MemoryMarshal.Cast<int, char>(words);
-        Value = chars.ToString();
+        Span<char> chars = stackalloc char[words.Length * 4];
+        for (int i = 0; i < words.Length; i++)
+        {
+            chars[i * 4] = (char)(words[i] & 0xFF); 
+            chars[i * 4 + 1] = (char)(words[i] >> 8 & 0xFF); 
+            chars[i * 4 + 2] = (char)(words[i] >> 16 & 0xFF); 
+            chars[i * 4 + 3] = (char)(words[i] >> 24 & 0xFF); 
+        };
+        var real = chars[..chars.IndexOf('\0')];
+        Value = pool.GetOrAdd(real);
     }
-    public static implicit operator LiteralString(string s) => new LiteralString(s);
+    public static implicit operator LiteralString(string s) => new(s);
 
 
     public void WriteTo(Span<int> slice)
     {
-        for (int i = 0; i < Length + 1; i++)
+        for (int i = 0; i < Length; i++)
         {
             var pos = i / 4;
             var shift = 8 * (i % 4);
             var value = i < Value.Length ? Value[i] : '\0';
             slice[pos] |=  value << shift;
         }
-        var x = 0;
-
-        //Span<byte> bytes = stackalloc byte[WordLength * 4];
-        //Encoding.UTF8.GetBytes(Value.AsSpan(), bytes);
-        //var words = MemoryMarshal.Cast<byte, int>(bytes);
-        //slice.Clear();
-        //words.CopyTo(slice);
     }
 
     public void Write(ref SpirvWriter writer)
     {
         var wordLength = Value.Length / 4;
-        var rest = Value.Length % 4;
-        if (rest > 0)
-            wordLength += 1;
-        var byteLength = wordLength * 4;
+        var rest = RestSize;
         var span = Value.AsSpan();
         for (int i = 0; i < wordLength; i++)
         {
@@ -103,26 +101,8 @@ public struct LiteralString : ISpirvElement, IFromSpirv<LiteralString>
 
     public static string Parse(Span<int> input)
     {
-        //Console.WriteLine((Op)input[0]);
-        //foreach (var e in input)
-        //{
-        //    Console.Write((char)(e & 0xFF) + "-");
-        //    Console.Write((char)(e >> 8 & 0xFF) + "-");
-        //    Console.Write((char)(e >> 16 & 0xFF) + "-");
-        //    Console.WriteLine((char)(e >> 24 & 0xFF));
-        //}
-
-        Span<char> chars = stackalloc char[input.Length * 4];
-        for(int i = 0;  i < input.Length; i++)
-        {
-            chars[i * 4] = (char)(input[i] & 0xFF);
-            chars[i * 4 + 1] = (char)(input[i] >> 8 & 0xFF);
-            chars[i * 4 + 2] = (char)(input[i] >> 16 & 0xFF);
-            chars[i * 4 + 3] = (char)(input[i] >> 24 & 0xFF);
-        }
-        var bytes = MemoryMarshal.Cast<int,byte>(input);
-        var result = Encoding.UTF8.GetString(bytes);
-        return Encoding.ASCII.GetString(bytes);   
+        var lit = new LiteralString(input);
+        return lit.Value;
     }
 
     public static LiteralString From(Span<int> words)

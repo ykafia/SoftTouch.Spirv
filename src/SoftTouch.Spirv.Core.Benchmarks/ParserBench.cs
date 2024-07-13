@@ -16,45 +16,40 @@ namespace SoftTouch.Spirv.Core.Benchmarks;
 public class ParserBench
 {
     public MemoryOwner<int> shader;
-    public List<OwnedInstruction> instructions;
+    public List<Instruction> instructions;
 
     public ParserBench()
     {
-        var bytes = File.ReadAllBytes("C:/Users/youness_kafia/Documents/dotnetProjs/SoftTouch.Spirv/shader.spv");
-        shader = MemoryOwner<int>.Allocate(bytes.Length / 4, AllocationMode.Clear);
-        MemoryMarshal.Cast<byte, int>(bytes.AsSpan()).CopyTo(shader.Span);
-        var reader = new SpirvReader(bytes);
-        instructions = new(reader.Count);
-        InstructionInfo.GetInfo(Spv.Specification.Op.OpCapability);
+        
 
     }
 
 
-    [Benchmark]
-    public void MemorySlice()
-    {
-        var slice = shader.Memory[5..];
-    }
-    [Benchmark]
-    public void Count()
-    {
-        var reader = new SpirvReader(shader);
-        var count = reader.Count;
-    }
+    // [Benchmark]
+    // public void MemorySlice()
+    // {
+    //     var slice = shader.Memory[5..];
+    // }
+    // [Benchmark]
+    // public void Count()
+    // {
+    //     var reader = new SpirvReader(shader);
+    //     var count = reader.Count;
+    // }
 
-    [Benchmark]
-    public void Parse()
-    {
-        var reader = new SpirvReader(shader);
-        foreach (var i in reader)
-        {
+    // [Benchmark]
+    // public void Parse()
+    // {
+    //     var reader = new SpirvReader(shader);
+    //     foreach (var i in reader)
+    //     {
             
-        }
-    }
-    [Benchmark]
-    public void ParseToList()
-    {
-        SpirvReader.ParseToList(shader, instructions);
-        instructions.Clear();
-    }
+    //     }
+    // }
+    // [Benchmark]
+    // public void ParseToList()
+    // {
+    //     SpirvReader.ParseToList(shader, instructions);
+    //     instructions.Clear();
+    // }
 }

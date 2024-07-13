@@ -37,6 +37,10 @@ namespace SoftTouch.Spirv.Generators
             {
                 GenerateInfo(instruction, code);
             }
+            foreach (var instruction in spirvSDSL.RootElement.GetProperty("instructions").EnumerateArray().ToList())
+            {
+                GenerateInfo(instruction, code);
+            }
             code
             .AppendLine("Instance.InitOrder();")
             .Dedent()
@@ -52,7 +56,15 @@ namespace SoftTouch.Spirv.Generators
         {
             var opname = op.GetProperty("opname").GetString();
             var spvClass = op.GetProperty("class").GetString();
-            if (op.TryGetProperty("operands", out var operands))
+            if(opname == "OpExtInst")
+            {
+                code.AppendLine("Instance.Register(SDSLOp.OpExtInst, OperandKind.IdResultType, OperandQuantifier.One, \"resultType\", \"GLSL\");");
+                code.AppendLine("Instance.Register(SDSLOp.OpExtInst, OperandKind.IdResult, OperandQuantifier.One, \"resultId\", \"GLSL\");");
+                code.AppendLine("Instance.Register(SDSLOp.OpExtInst, OperandKind.IdRef, OperandQuantifier.One, \"set\", \"GLSL\");");
+                code.AppendLine("Instance.Register(SDSLOp.OpExtInst, OperandKind.LiteralInteger, OperandQuantifier.One, \"instruction\", \"GLSL\");");
+                code.AppendLine("Instance.Register(SDSLOp.OpExtInst, OperandKind.IdRef, OperandQuantifier.ZeroOrMore, \"values\", \"GLSL\");");
+            }
+            else if (op.TryGetProperty("operands", out var operands))
             {
                 foreach (var operand in operands.EnumerateArray())
                 {
@@ -66,7 +78,7 @@ namespace SoftTouch.Spirv.Generators
                         if(!hasQuant)
                         {
                             code
-                                .Append("Instance.Register(Op.")
+                                .Append("Instance.Register(SDSLOp.")
                                 .Append(opname)
                                 .Append(", OperandKind.")
                                 .Append(kindJson.GetString())
@@ -79,7 +91,7 @@ namespace SoftTouch.Spirv.Generators
                         {
                             var quant = quantifierJson.GetString();
                             code
-                                .Append("Instance.Register(Op.")
+                                .Append("Instance.Register(SDSLOp.")
                                 .Append(opname)
                                 .Append(", OperandKind.")
                                 .Append(kindJson.GetString())
@@ -95,7 +107,7 @@ namespace SoftTouch.Spirv.Generators
             }
             else
             {
-                code.Append("Instance.Register(Op.").Append(opname).AppendLine(", null, null, \"Debug\");");
+                code.Append("Instance.Register(SDSLOp.").Append(opname).AppendLine(", OperandKind.None, null, \"Debug\");");
             }
         }
 

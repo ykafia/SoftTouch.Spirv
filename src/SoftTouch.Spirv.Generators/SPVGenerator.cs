@@ -1,14 +1,8 @@
 ﻿using Microsoft.CodeAnalysis;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Text.Json;
-using System.Security.Claims;
 
 namespace SoftTouch.Spirv.Generators
 {
@@ -18,6 +12,7 @@ namespace SoftTouch.Spirv.Generators
     {
         JsonDocument spirvCore;
         JsonDocument spirvGlsl;
+        JsonDocument spirvSDSL;
 
         public void Initialize(GeneratorInitializationContext context)
         {
@@ -33,31 +28,39 @@ namespace SoftTouch.Spirv.Generators
             string resourceGlslName =
                 assembly.GetManifestResourceNames()
                 .Single(str => str.EndsWith("extinst.glsl.std.450.grammar.json"));
+            
+            string resourceSDSLName =
+                assembly.GetManifestResourceNames()
+                .Single(str => str.EndsWith("spirv.sdsl.grammar-ext.json"));
 
             spirvCore = JsonDocument.Parse(new StreamReader(assembly.GetManifestResourceStream(resourceCoreName)).ReadToEnd());
             spirvGlsl = JsonDocument.Parse(new StreamReader(assembly.GetManifestResourceStream(resourceGlslName)).ReadToEnd());
+            spirvSDSL = JsonDocument.Parse(new StreamReader(assembly.GetManifestResourceStream(resourceSDSLName)).ReadToEnd());
+        
         }
 
 
         public void Execute(GeneratorExecutionContext context)
         {
-
             CreateInfo(context);
+            CreateSDSLOp(context);
 
             var code = new CodeWriter();
 
             code
             .AppendLine("using static Spv.Specification;")
-            .AppendLine("namespace SoftTouch.Spirv.Core;")
+            .AppendLine("namespace SoftTouch.Spirv.Core.Buffers;")
             .AppendLine("")
             .AppendLine("public partial class WordBuffer")
             .AppendLine("{")
             .Indent();
 
             var instructions = spirvCore.RootElement.GetProperty("instructions").EnumerateArray().ToList();
+            var sdslInstructions = spirvSDSL.RootElement.GetProperty("instructions").EnumerateArray().ToList();
             var glslInstruction = spirvGlsl.RootElement.GetProperty("instructions").EnumerateArray().ToList();
 
             instructions.ForEach(x => CreateOperation(x, code));
+            sdslInstructions.ForEach(x => CreateOperation(x, code));
             glslInstruction.ForEach(x => CreateGlslOperation(x, code));
 
             code
@@ -66,6 +69,10 @@ namespace SoftTouch.Spirv.Generators
             context.AddSource(
                 "WordBuffer.gen.cs",
                 code.ToString()
+            );
+            context.AddSource(
+                "MultiBuffer.gen.cs",
+                code.ToString().Replace("WordBuffer", "MultiBuffer")
             );
         }
 
@@ -78,10 +85,10 @@ namespace SoftTouch.Spirv.Generators
                     .AppendLine("public Instruction AddOpConstant<T>(IdResultType? resultType, T value) where T : ILiteralNumber")
                     .AppendLine("{")
                     .Indent()
-                        .AppendLine("var resultId = bound.Next();")
+                        .AppendLine("var resultId = GetNextId();")
                         .AppendLine("var wordLength = 1 + GetWordLength(resultType) + GetWordLength(resultId) + value.WordCount;")
                         .AppendLine("var mutInstruction = new MutRefInstruction(stackalloc int[wordLength]);")
-                        .AppendLine("mutInstruction.OpCode = Op.OpConstant;")
+                        .AppendLine("mutInstruction.OpCode = SDSLOp.OpConstant;")
                         .AppendLine("mutInstruction.Add(resultType);")
                         .AppendLine("mutInstruction.Add(resultId);")
                         .AppendLine("mutInstruction.Add(value);")
@@ -96,10 +103,10 @@ namespace SoftTouch.Spirv.Generators
                     .AppendLine("public Instruction AddOpSpecConstant<T>(IdResultType? resultType, T value) where T : ILiteralNumber")
                     .AppendLine("{")
                     .Indent()
-                        .AppendLine("var resultId = bound.Next();")
+                        .AppendLine("var resultId = GetNextId();")
                         .AppendLine("var wordLength = 1 + GetWordLength(resultType) + GetWordLength(resultId) + value.WordCount;")
                         .AppendLine("var mutInstruction = new MutRefInstruction(stackalloc int[wordLength]);")
-                        .AppendLine("mutInstruction.OpCode = Op.OpSpecConstant;")
+                        .AppendLine("mutInstruction.OpCode = SDSLOp.OpSpecConstant;")
                         .AppendLine("mutInstruction.Add(resultType);")
                         .AppendLine("mutInstruction.Add(resultId);")
                         .AppendLine("mutInstruction.Add(value);")
@@ -107,15 +114,15 @@ namespace SoftTouch.Spirv.Generators
                     .Dedent()
                     .AppendLine("}");
             }
-            else if(opname == "OpDecorate")
+            else if(opname.StartsWith("OpDecorate"))
             {
                 code
-                    .AppendLine("public Instruction AddOpDecorate(IdRef target, Decoration decoration, int? additional1 = null, int? additional2 = null, string? additionalString = null)")
+                    .Append("public Instruction Add").Append(opname).AppendLine("(IdRef target, Decoration decoration, int? additional1 = null, int? additional2 = null, string? additionalString = null)")
                     .AppendLine("{")
                     .Indent()
                         .AppendLine("var wordLength = 1 + GetWordLength(target) + GetWordLength(decoration) + GetWordLength(additional1) + GetWordLength(additional2) + GetWordLength(additionalString);")
                         .AppendLine("var mutInstruction = new MutRefInstruction(stackalloc int[wordLength]);")
-                        .AppendLine("mutInstruction.OpCode = Op.OpDecorate;")
+                        .AppendLine("mutInstruction.OpCode = SDSLOp.OpDecorate;")
                         .AppendLine("mutInstruction.Add(target);")
                         .AppendLine("mutInstruction.Add(decoration);")
                         .AppendLine("mutInstruction.Add(additional1);")
@@ -125,15 +132,15 @@ namespace SoftTouch.Spirv.Generators
                     .Dedent()
                     .AppendLine("}");
             }
-            else if(opname == "OpMemberDecorate")
+            else if(opname.StartsWith("OpMemberDecorate"))
             {
                 code
-                    .AppendLine("public Instruction AddOpMemberDecorate(IdRef structureType, LiteralInteger member, Decoration decoration, int? additional1 = null, int? additional2 = null, string? additionalString = null)")
+                    .Append("public Instruction Add").Append(opname).AppendLine("(IdRef structureType, LiteralInteger member, Decoration decoration, int? additional1 = null, int? additional2 = null, string? additionalString = null)")
                     .AppendLine("{")
                     .Indent()
                         .AppendLine("var wordLength = 1 + GetWordLength(structureType) + GetWordLength(member) + GetWordLength(decoration) + GetWordLength(additional1) + GetWordLength(additional2) + GetWordLength(additionalString);")
                         .AppendLine("var mutInstruction = new MutRefInstruction(stackalloc int[wordLength]);")
-                        .AppendLine("mutInstruction.OpCode = Op.OpMemberDecorate;")
+                        .AppendLine("mutInstruction.OpCode = SDSLOp.OpMemberDecorate;")
                         .AppendLine("mutInstruction.Add(structureType);")
                         .AppendLine("mutInstruction.Add(member);")
                         .AppendLine("mutInstruction.Add(decoration);")
@@ -170,11 +177,11 @@ namespace SoftTouch.Spirv.Generators
                     .Indent();
                 if(hasResultId)
                 {
-                    code.AppendLine("var resultId = bound.Next();");
+                    code.AppendLine("var resultId = GetNextId();");
                 }
                 code.Append("var wordLength = 1").Append(parameterNames.Any() ? " + " : "").Append(string.Join(" + ", parameterNames.Select(x => $"GetWordLength({x})"))).AppendLine(";");
                 code.AppendLine("var mutInstruction = new MutRefInstruction(stackalloc int[wordLength]);");
-                code.Append("mutInstruction.OpCode = Op.").Append(opname).AppendLine(";");
+                code.Append("mutInstruction.OpCode = SDSLOp.").Append(opname).AppendLine(";");
                 
                 foreach(var p in parameterNames)
                 {
@@ -195,7 +202,7 @@ namespace SoftTouch.Spirv.Generators
                     .AppendLine("{")
                     .Indent()
                         .AppendLine("var mutInstruction = new MutRefInstruction(stackalloc int[1]);")
-                        .Append("mutInstruction.OpCode = Op.").Append(opname).AppendLine(";")
+                        .Append("mutInstruction.OpCode = SDSLOp.").Append(opname).AppendLine(";")
                         .AppendLine("return Add(mutInstruction);")
                     .Dedent()
                     .AppendLine("}");
@@ -232,19 +239,19 @@ namespace SoftTouch.Spirv.Generators
                     .Append("public Instruction AddGLSL")
                     .Append(opname)
                     .Append('(')
+                    .Append("IdResultType resultType, ")
                     .Append(string.Join(", ", normalParameters))
                     .Append(nullableParameters.Count() == 0 ? "" : (normalParameters.Count() > 0 ? ", " : "") + string.Join(", ", nullableParameters))
                     .Append(paramsParameters.Count() == 0 ? "" : (normalParameters.Count() + nullableParameters.Count() > 0 ? ", " : "") + paramsParameters.First())
                     .AppendLine(")")
                     .AppendLine("{")
                     .Indent()
-                        .AppendLine("var resultId = bound.Next();")
+                        .AppendLine("var resultId = GetNextId();")
                         .Append("Span<IdRef> refs = stackalloc IdRef[]{").Append(string.Join(", ", other)).AppendLine("};")
                         .Append("return AddOpExtInst(")
                             .Append("set, ")
                             .Append(opcode)
-                            .Append(parameterNames.Any(x => x == "resultId") ? ", resultId, " : ", null")
-                            .Append(parameterNames.Any(x => x == "resultType") ? ", resultType, " : ", null")
+                            .Append(", resultId, resultType ")
                             .AppendLine(", refs);")
                     .Dedent()
                     .AppendLine("}");

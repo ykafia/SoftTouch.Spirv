@@ -6,20 +6,23 @@ using System.Threading.Tasks;
 
 namespace SoftTouch.Spirv.Core;
 
-
+/// <summary>
+/// Represents the index bound for instructions in a spirv module
+/// </summary>
 public struct Bound
 {
-    public int Start { get; }
-    public int End { get; private set; }
+    public int Offset { get; set; }
+    public int Count { get; set; }
 
-    public Bound(int start = 1)
+    public Bound()
     {
-        Start = start;
-        End = start;
+        Offset = 0;
+        Count = 0;
     }
 
     public int Next()
     {
-        return ++End;
+        Count += 1;
+        return Offset + Count;
     }
 }

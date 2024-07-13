@@ -1,22 +1,26 @@
+using SoftTouch.Spirv.Core.Parsing;
 using System.Runtime.CompilerServices;
-using static Spv.Specification;
 
 namespace SoftTouch.Spirv.Core;
 
-
+/// <summary>
+/// Helps create instruction through stack allocations instead of buffers
+/// </summary>
 public ref struct MutRefInstruction
 {
-    public Span<int> Words { get;}
-    public Op OpCode 
+    public Span<int> Words { get; }
+    public Span<int> Operands => Words [1..];
+    public SDSLOp OpCode 
     {
-        get => (Op)(Words[0] & 0xFF); 
+        get => (SDSLOp)(Words[0] & 0xFFFF); 
         set { unchecked { Words[0] = (Words[0] & (int)0xFFFF0000) | (int)value;}}
     }
     public int WordCount
     {
         get => Words[0] >> 16; 
-        private set => Words[0] = value << 16 | Words[0] & 0xFF;
+        set => Words[0] = value << 16 | Words[0] & 0xFFFF;
     }
+
 
     private int _index;
 
@@ -96,6 +100,8 @@ public ref struct MutRefInstruction
                 AddInt(id);
             else if (value is IdResultType result)
                 AddInt(result);
+            else if (value is IdResult resultid)
+                AddInt(resultid);
             else if (value is float f)
                 AddFloat(f);
             else if (value is LiteralFloat lf)
@@ -122,5 +128,23 @@ public ref struct MutRefInstruction
             else if (value is Enum e)
                 Add(Convert.ToInt32(e));
         }
+    }
+
+    public OperandEnumerator GetEnumerator() => new OperandEnumerator(RefInstruction.ParseRef(Words));
+    public T GetOperand<T>(string name)
+        where T : struct, IFromSpirv<T>
+    {
+        var info = InstructionInfo.GetInfo(OpCode);
+        var infoEnumerator = info.GetEnumerator();
+        var operandEnumerator = GetEnumerator();
+        while (infoEnumerator.MoveNext())
+        {
+            operandEnumerator.MoveNext();
+            if (infoEnumerator.Current.Name == name)
+            {
+                return operandEnumerator.Current.To<T>();
+            }
+        }
+        throw new Exception($"Instruction {OpCode} has no operand named \"{name}\"");
     }
 }

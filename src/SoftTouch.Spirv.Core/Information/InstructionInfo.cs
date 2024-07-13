@@ -9,14 +9,16 @@ using static Spv.Specification;
 namespace SoftTouch.Spirv.Core;
 
 
-
+/// <summary>
+/// Singleton object containing informations on every spirv instructions, used for spirv parsing.
+/// </summary>
 public partial class InstructionInfo
 {
     public static InstructionInfo Instance { get; } = new();
-    Dictionary<Op, LogicalOperandArray> Info = new();
+    Dictionary<SDSLOp, LogicalOperandArray> Info = new();
     InstructionInfo(){}
 
-    internal void Register(Op op, OperandKind? kind, OperandQuantifier? quantifier, string? name = null, string? spvClass = null)
+    internal void Register(SDSLOp op, OperandKind? kind, OperandQuantifier? quantifier, string? name = null, string? spvClass = null)
     {
         if(Info.TryGetValue(op, out var list))
         {
@@ -27,8 +29,12 @@ public partial class InstructionInfo
             Info.Add(op, new(spvClass) { new(kind, quantifier, name)});
         }
     }
-
-    public static LogicalOperandArray GetInfo(Op op)
+    /// <summary>
+    /// Gets information for the instruction operation.
+    /// </summary>
+    /// <param name="op"></param>
+    /// <returns></returns>
+    public static LogicalOperandArray GetInfo(SDSLOp op)
     {
         return Instance.Info[op];
     }

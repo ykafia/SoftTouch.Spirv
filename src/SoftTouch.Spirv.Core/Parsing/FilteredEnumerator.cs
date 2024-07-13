@@ -1,4 +1,5 @@
 using CommunityToolkit.HighPerformance.Buffers;
+using SoftTouch.Spirv.Core.Buffers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,23 +10,29 @@ using static Spv.Specification;
 
 namespace SoftTouch.Spirv.Core.Parsing;
 
-public ref struct FilteredEnumerator
+/// <summary>
+/// A spirv buffer enumerator with filters on operations
+/// </summary>
+/// <typeparam name="T"></typeparam>
+public ref struct FilteredEnumerator<T>
+    where T : ISpirvBuffer
 {
     int wordIndex;
+    int index;
     bool started;
-    WordBuffer buffer;
-    readonly Span<int> instructionWords => buffer.buffer.Span;
+    T buffer;
+    readonly Span<int> instructionWords => buffer.InstructionSpan;
 
     string? classFilter;
-    Op? filter1;
-    Op? filter2;
-    Op? filter3;
-    Op? filter4;
+    SDSLOp? filter1;
+    SDSLOp? filter2;
+    SDSLOp? filter3;
+    SDSLOp? filter4;
 
     FilterType filterType;
 
 
-    public FilteredEnumerator(WordBuffer buff, string classFilt)
+    public FilteredEnumerator(T buff, string classFilt)
     {
         started = false;
         wordIndex = 0;
@@ -33,7 +40,7 @@ public ref struct FilteredEnumerator
         classFilter = classFilt;
         filterType = FilterType.ClassName;
     }
-    public FilteredEnumerator(WordBuffer buff, Op filt1)
+    public FilteredEnumerator(T buff, SDSLOp filt1)
     {
         started = false;
         wordIndex = 0;
@@ -41,7 +48,7 @@ public ref struct FilteredEnumerator
         filter1 = filt1;
         filterType = FilterType.Op1;
     }
-    public FilteredEnumerator(WordBuffer buff, Op filt1, Op filt2)
+    public FilteredEnumerator(T buff, SDSLOp filt1, SDSLOp filt2)
     {
         started = false;
         wordIndex = 0;
@@ -50,7 +57,7 @@ public ref struct FilteredEnumerator
         filter2 = filt2;
         filterType = FilterType.Op2;
     }
-    public FilteredEnumerator(WordBuffer buff, Op filt1, Op filt2, Op filt3)
+    public FilteredEnumerator(T buff, SDSLOp filt1, SDSLOp filt2, SDSLOp filt3)
     {
         started = false;
         wordIndex = 0;
@@ -60,7 +67,7 @@ public ref struct FilteredEnumerator
         filter3 = filt3;
         filterType = FilterType.Op3;
     }
-    public FilteredEnumerator(WordBuffer buff, Op filt1, Op filt2, Op filt3, Op filt4)
+    public FilteredEnumerator(T buff, SDSLOp filt1, SDSLOp filt2, SDSLOp filt3, SDSLOp filt4)
     {
         started = false;
         wordIndex = 0;
@@ -72,9 +79,9 @@ public ref struct FilteredEnumerator
         filterType = FilterType.Op4;
     }
 
-    public RefInstruction Current => ParseCurrentInstruction();
+    public Instruction Current => ParseCurrentInstruction();
 
-    bool Matches(Op toCheck)
+    bool Matches(SDSLOp toCheck)
     {
         return filterType switch 
         {
@@ -91,14 +98,25 @@ public ref struct FilteredEnumerator
         if (!started)
         {
             started = true;
+            index = 0;
+            var sizeToStep = 0;
+            while (wordIndex + sizeToStep < instructionWords.Length && !Matches((SDSLOp)(instructionWords[wordIndex + sizeToStep] & 0xFFFF)))
+            {
+                sizeToStep += instructionWords[wordIndex + sizeToStep] >> 16;
+                index += 1;
+            }
+            wordIndex += sizeToStep;
+            if (wordIndex >= instructionWords.Length)
+                return false;
             return true;
         }
         else
         {
             var sizeToStep = instructionWords[wordIndex] >> 16;
-            while(!Matches((Op)(instructionWords[wordIndex + sizeToStep] & 0xFFFF)) && wordIndex + sizeToStep < instructionWords.Length)
+            while(wordIndex + sizeToStep < instructionWords.Length && !Matches((SDSLOp)(instructionWords[wordIndex + sizeToStep] & 0xFFFF)))
             {
                 sizeToStep += instructionWords[wordIndex + sizeToStep] >> 16;
+                index += 1;
             }
             wordIndex += sizeToStep;
             if (wordIndex >= instructionWords.Length)
@@ -109,10 +127,10 @@ public ref struct FilteredEnumerator
     }
 
 
-    public RefInstruction ParseCurrentInstruction()
+    public Instruction ParseCurrentInstruction()
     {
-        var wordNumber = instructionWords[wordIndex] >> 16;
-        return RefInstruction.Parse(buffer.buffer.Memory, wordIndex);
+        var wordCount= instructionWords[wordIndex] >> 16;
+        return new(buffer, buffer.Memory.Slice(wordIndex, wordCount), index, wordIndex);
     }
 
     internal enum FilterType
