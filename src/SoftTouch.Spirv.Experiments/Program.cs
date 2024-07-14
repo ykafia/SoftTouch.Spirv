@@ -48,33 +48,28 @@ static void CreateShader()
     buffer.AddOpMemoryModel(AddressingModel.Logical, MemoryModel.GLSL450);
 
 
-    // declarations
-
-    Span<IdRef> c = stackalloc IdRef[10]; // This is for use in parameters
-
-
     var t_void = buffer.AddOpTypeVoid();
 
     var t_bool = buffer.AddOpTypeBool();
 
-    var t_func = buffer.AddOpTypeFunction(t_void, Span<IdRef>.Empty);
+    var t_func = buffer.AddOpTypeFunction(t_void, []);
     var t_float = buffer.AddOpTypeFloat(32, null);
     var t_uint = buffer.AddOpTypeInt(32, 0);
     var t_int = buffer.AddOpTypeInt(32, 1);
     var t_float4 = buffer.AddOpTypeVector(t_float, 4);
     var t_p_float4_func = buffer.AddOpTypePointer(StorageClass.Function, t_float4);
-    var constant1 = buffer.AddOpConstant<WordBuffer, LiteralFloat>(t_float, 5);
-    var constant2 = buffer.AddOpConstant<WordBuffer, LiteralFloat>(t_float, 2);
+    var constant1 = buffer.AddOpConstant<WordBuffer, LiteralFloat>(t_float, 5f);
+    var constant2 = buffer.AddOpConstant<WordBuffer, LiteralFloat>(t_float, 2f);
     var constant3 = buffer.AddOpConstant<WordBuffer, LiteralInteger>(t_uint, 5);
     var compositeType = buffer.AddOpConstantComposite(
         t_float4, 
-        stackalloc IdRef[] { constant1, constant1, constant2, constant1 }
+        [constant1, constant1, constant2, constant1]
     );
 
     var t_array = buffer.AddOpTypeArray(t_float4, constant3);
 
-    var t_struct = buffer.AddOpTypeStruct(stackalloc IdRef[] { t_uint, t_array, t_int });
-    var t_struct2 = buffer.AddOpTypeStruct(stackalloc IdRef[] { t_struct, t_uint });
+    var t_struct = buffer.AddOpTypeStruct([t_uint, t_array, t_int]);
+    var t_struct2 = buffer.AddOpTypeStruct([t_struct, t_uint]);
 
     var t_p_struct2 = buffer.AddOpTypePointer(StorageClass.Uniform, t_struct2);
 
@@ -124,7 +119,7 @@ static void CreateShader()
 
 
     var main = buffer.AddOpFunction(t_void, FunctionControlMask.MaskNone, t_func);
-    buffer.AddOpEntryPoint(ExecutionModel.Fragment, main, "PSMain", stackalloc IdRef[] { v_output, v_input, v_input_2, v_input_3 });
+    buffer.AddOpEntryPoint(ExecutionModel.Fragment, main, "PSMain", [v_output, v_input, v_input_2, v_input_3]);
     buffer.AddOpExecutionMode(main, ExecutionMode.OriginLowerLeft);
 
     buffer.AddOpLabel();
@@ -132,7 +127,7 @@ static void CreateShader()
     buffer.AddOpFunctionEnd();
 
     var main2 = buffer.AddOpFunction(t_void, FunctionControlMask.MaskNone, t_func);
-    buffer.AddOpEntryPoint(ExecutionModel.Vertex, main, "VSMain", stackalloc IdRef[] { v_output, v_input, v_input_2, v_input_3 });
+    buffer.AddOpEntryPoint(ExecutionModel.Vertex, main, "VSMain", [v_output, v_input, v_input_2, v_input_3]);
 
     var sorted = new SortedWordBuffer(buffer);
 
