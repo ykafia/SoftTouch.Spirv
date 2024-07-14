@@ -121,6 +121,7 @@ namespace SoftTouch.Spirv.Generators
                 "LiteralFloat" => "LiteralFloat",
                 "LiteralString" => "LiteralString",
                 "ImageOperands" => "ImageOperandsMask",
+                "RawAccessChainOperands" => "RawAccessChainOperandsMask",
                 "FunctionControl" => "FunctionControlMask",
                 "MemoryAccess" => "MemoryAccessMask",
                 "LoopControl" => "LoopControlMask",

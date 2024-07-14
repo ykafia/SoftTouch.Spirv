@@ -18,8 +18,8 @@ public ref struct RefInstruction
     /// Word Count is the high-order 16 bits of word 0 of the instruction, holding its total WordCount. 
     /// <br/> If the instruction takes a variable number of operands, Word Count also says "+ variable", after stating the minimum size of the instruction.
     /// </summary>
-    public int WordCount => Words[0] >> 16;
-    public SDSLOp OpCode => (SDSLOp)(Words[0] & 0xFFFF);
+    public readonly int WordCount => Words[0] >> 16;
+    public readonly SDSLOp OpCode => (SDSLOp)(Words[0] & 0xFFFF);
     public int? ResultId { get => GetResultId(); set => SetResultId(value); }
     public int? ResultType { get => GetResultType(); set => SetResultType(value); }
     public Span<int> Operands { get; init; }
@@ -55,10 +55,6 @@ public ref struct RefInstruction
         }
         return null;
     }
-
-
-    public static bool operator ==(RefInstruction r1, RefInstruction r2) => r1.Words == r2.Words;
-    public static bool operator !=(RefInstruction r1, RefInstruction r2) => r1.Words != r2.Words;
 
     public static RefInstruction Parse(Memory<int> owner, int ownerIndex)
     {

@@ -33,7 +33,7 @@ static void CreateShader()
 {
     LiteralString sname = "S";
 
-    var ssize = sname.WordLength;
+    var ssize = sname.WordCount;
     var array = new byte[] {0,0,0,8};
 
     var s = array.AsSpan();
@@ -58,14 +58,14 @@ static void CreateShader()
     var t_bool = buffer.AddOpTypeBool();
 
     var t_func = buffer.AddOpTypeFunction(t_void, Span<IdRef>.Empty);
-    var t_float = buffer.AddOpTypeFloat(32);
+    var t_float = buffer.AddOpTypeFloat(32, null);
     var t_uint = buffer.AddOpTypeInt(32, 0);
     var t_int = buffer.AddOpTypeInt(32, 1);
     var t_float4 = buffer.AddOpTypeVector(t_float, 4);
     var t_p_float4_func = buffer.AddOpTypePointer(StorageClass.Function, t_float4);
-    var constant1 = buffer.AddOpConstant<LiteralFloat>(t_float, 5);
-    var constant2 = buffer.AddOpConstant<LiteralFloat>(t_float, 2);
-    var constant3 = buffer.AddOpConstant<LiteralInteger>(t_uint, 5);
+    var constant1 = buffer.AddOpConstant<WordBuffer, LiteralFloat>(t_float, 5);
+    var constant2 = buffer.AddOpConstant<WordBuffer, LiteralFloat>(t_float, 2);
+    var constant3 = buffer.AddOpConstant<WordBuffer, LiteralInteger>(t_uint, 5);
     var compositeType = buffer.AddOpConstantComposite(
         t_float4, 
         stackalloc IdRef[] { constant1, constant1, constant2, constant1 }
@@ -80,10 +80,10 @@ static void CreateShader()
 
     var v_struct2 = buffer.AddOpVariable(t_p_struct2, StorageClass.Uniform, null);
 
-    var constant4 = buffer.AddOpConstant<LiteralInteger>(t_int, 1);
+    var constant4 = buffer.AddOpConstant<WordBuffer, LiteralInteger>(t_int, 1);
 
     var t_p_uint = buffer.AddOpTypePointer(StorageClass.Uniform, t_uint);
-    var constant5 = buffer.AddOpConstant<LiteralInteger>(t_uint, 0);
+    var constant5 = buffer.AddOpConstant<WordBuffer, LiteralInteger>(t_uint, 0);
 
     var t_p_output = buffer.AddOpTypePointer(StorageClass.Output, t_float4);
     var v_output = buffer.AddOpVariable(t_p_output, StorageClass.Output, null);
@@ -91,13 +91,13 @@ static void CreateShader()
     var t_p_input = buffer.AddOpTypePointer(StorageClass.Input, t_float4);
     var v_input = buffer.AddOpVariable(t_p_input, StorageClass.Input, null);
 
-    var constant6 = buffer.AddOpConstant<LiteralInteger>(t_int, 0);
-    var constant7 = buffer.AddOpConstant<LiteralInteger>(t_int, 2);
+    var constant6 = buffer.AddOpConstant<WordBuffer, LiteralInteger>(t_int, 0);
+    var constant7 = buffer.AddOpConstant<WordBuffer, LiteralInteger>(t_int, 2);
     var t_p_float4_unif = buffer.AddOpTypePointer(StorageClass.Uniform, t_float4);
 
     var v_input_2 = buffer.AddOpVariable(t_p_input, StorageClass.Input, null);
     var t_p_func = buffer.AddOpTypePointer(StorageClass.Function, t_int);
-    var constant8 = buffer.AddOpConstant<LiteralInteger>(t_int, 4);
+    var constant8 = buffer.AddOpConstant<WordBuffer, LiteralInteger>(t_int, 4);
     var v_input_3 = buffer.AddOpVariable(t_p_input, StorageClass.Input, null);
 
 
@@ -152,7 +152,8 @@ static void CreateShader()
 
 static void ParseWorking()
 {
-    var path = @"C:\Users\youness_kafia\Documents\dotnetProjs\SDSLParser\src\SoftTouch.Spirv\working1-6.spv";
+    // var path = @"C:\Users\youness_kafia\Documents\dotnetProjs\SDSLParser\src\SoftTouch.Spirv\working1-6.spv";
+    var path = @"C:\Users\kafia\source\repos\SDSLParser\src\SoftTouch.Spirv\working1-6.spv";
 
     var bytes = File.ReadAllBytes(path);
 

@@ -1,80 +1,62 @@
+using CommunityToolkit.HighPerformance.Buffers;
 using SoftTouch.Spirv.Core;
 using SoftTouch.Spirv.Core.Parsing;
 
 namespace SoftTouch.Spirv.Core;
 
 
-public struct LiteralInteger : ISpirvElement, IFromSpirv<LiteralInteger>, ILiteralNumber
+public struct LiteralInteger : ILiteralNumber, IFromSpirv<LiteralInteger>
 {
-
-    // internal static Dictionary<byte, LiteralInteger> CacheByte { get; } = new();
-    // internal static Dictionary<sbyte, LiteralInteger> CacheSByte { get; } = new();
-    // internal static Dictionary<ushort, LiteralInteger> CacheUShort { get; } = new();
-    // internal static Dictionary<short, LiteralInteger> CacheShort { get; } = new();
-    // internal static Dictionary<uint, LiteralInteger> CacheUInt { get; } = new();
-    // internal static Dictionary<int, LiteralInteger> CacheInt { get; } = new();
-    // internal static Dictionary<ulong, LiteralInteger> CacheULong { get; } = new();
-    // internal static Dictionary<long, LiteralInteger> CacheLong { get; } = new();
-
     public long Words { get; init; }
     public int Size { get; init; }
-    public int WordCount => Size / 32;
+    public readonly int WordCount => Size / 32;
 
     public LiteralInteger(sbyte value)
     {
         Words = 0 | value;
-        // CacheSByte.Add(value, this);
         Size = sizeof(sbyte) * 8;
     }
     public LiteralInteger(byte value)
     {
         Words = 0 | value;
-        // CacheByte.Add(value, this);
         Size = sizeof(byte) * 8;
     }
 
     public LiteralInteger(short value)
     {
         Words = 0 | value;
-        // CacheInt.Add(value, this);
         Size = sizeof(short) * 8;
     }
     public LiteralInteger(ushort value)
     {
         Words = 0 | value;
-        // CacheUInt.Add(value, this);
         Size = sizeof(ushort) * 8;
     }
 
     public LiteralInteger(int value)
     {
         Words = 0 | value;
-        // CacheInt.Add(value, this);
         Size = sizeof(int) * 8;
     }
     public LiteralInteger(int? value)
     {
         Words = 0 | value ?? 0;
-        // CacheInt.Add(value, this);
         Size = sizeof(int) * 8;
     }
     public LiteralInteger(uint value)
     {
         Words = 0 | value;
-        // CacheUInt.Add(value, this);
         Size = sizeof(uint) * 8;
 
     }
     public LiteralInteger(long value)
     {
         Words = 0 | value;
-        // CacheLong.Add(value, this);
         Size = sizeof(long) * 8;
     }
     public LiteralInteger(ulong value)
     {
         Words = (long)value;
-        // CacheULong.Add(value, this);
         Size = sizeof(ulong) * 8;
 
     }
@@ -94,23 +76,23 @@ public struct LiteralInteger : ISpirvElement, IFromSpirv<LiteralInteger>, ILiter
     }
 
 
-    public static implicit operator LiteralInteger(byte value) => new LiteralInteger(value);
-    public static implicit operator LiteralInteger(sbyte value) => new LiteralInteger(value);
-    public static implicit operator LiteralInteger(ushort value) => new LiteralInteger(value);
-    public static implicit operator LiteralInteger(short value) => new LiteralInteger(value);
-    public static implicit operator LiteralInteger(int value) => new LiteralInteger(value);
-    public static implicit operator LiteralInteger(int? value) => new LiteralInteger(value);
-    public static implicit operator LiteralInteger(uint value) => new LiteralInteger(value);
-    public static implicit operator LiteralInteger(long value) => new LiteralInteger(value);
-    public static implicit operator LiteralInteger(ulong value) => new LiteralInteger(value);
+    public static implicit operator LiteralInteger(byte value) => new(value);
+    public static implicit operator LiteralInteger(sbyte value) => new(value);
+    public static implicit operator LiteralInteger(ushort value) => new(value);
+    public static implicit operator LiteralInteger(short value) => new(value);
+    public static implicit operator LiteralInteger(int value) => new(value);
+    public static implicit operator LiteralInteger(int? value) => new(value);
+    public static implicit operator LiteralInteger(uint value) => new(value);
+    public static implicit operator LiteralInteger(long value) => new(value);
+    public static implicit operator LiteralInteger(ulong value) => new(value);
 
-    public void Write(ref SpirvWriter writer)
+    public readonly void Write(ref SpirvWriter writer)
     {
-        Span<int> span = stackalloc int[]
-        {
+        Span<int> span =
+        [
             (int)(Words >> 32),
             (int)(Words & 0X000000FF)
-        };
+        ];
         if (Size < 64)
             writer.Write(span[1]);
         else
@@ -126,5 +108,14 @@ public struct LiteralInteger : ISpirvElement, IFromSpirv<LiteralInteger>, ILiter
     {
         throw new NotImplementedException();
     }
+
+    public readonly SpanOwner<int> AsSpanOwner()
+    {
+        Span<int> span = WordCount == 1 ? [ (int)Words ] : [ (int)(Words >> 32), (int)(Words & 0xFFFFFFFF) ];
+        var owner = SpanOwner<int>.Allocate(span.Length, AllocationMode.Clear);
+        span.CopyTo(owner.Span);
+        return owner;
+    }
 }
+
 

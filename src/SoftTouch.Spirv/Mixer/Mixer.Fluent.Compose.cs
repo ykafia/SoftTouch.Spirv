@@ -21,7 +21,7 @@ public partial class Mixer
             {
                 var name = i.GetOperand<LiteralString>("name") ?? throw new Exception("Name is null");
                 var newName = $"{variableName}_{name}";
-                var buff = nameBuffer[0..(1 + 1 + name.WordLength)];
+                var buff = nameBuffer[0..(1 + 1 + name.WordCount)];
                 buff.Clear();
                 var newInstruction = new MutRefInstruction(buff);
                 newInstruction.Add(i.ResultId ?? -1);

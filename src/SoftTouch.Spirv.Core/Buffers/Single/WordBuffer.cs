@@ -8,7 +8,7 @@ namespace SoftTouch.Spirv.Core.Buffers;
 /// <summary>
 /// A buffer to assembler spirv byte code.
 /// </summary>
-public sealed partial class WordBuffer : ExpandableBuffer<int>, ISpirvBuffer, IDisposable
+public sealed partial class WordBuffer : ExpandableBuffer<int>, ISpirvBuffer, IDisposable, IMutSpirvBuffer
 {
     public Bound Bound { get; private set; }
     public int InstructionCount => new SpirvReader(Memory).Count;
@@ -84,8 +84,12 @@ public sealed partial class WordBuffer : ExpandableBuffer<int>, ISpirvBuffer, ID
         Insert(start ?? Length, instructions);
     }
 
-
-    public Instruction Add(MutRefInstruction instruction, int? start = null)
+    public Instruction Add(MutRefInstruction instruction)
+    {
+        Insert(instruction.Words);
+        return new(this, InstructionMemory.Slice(Length - instruction.WordCount, instruction.WordCount), InstructionCount - 1, Length - instruction.WordCount);
+    }
+    public Instruction Add(MutRefInstruction instruction, int start)
     {
         Insert(instruction.Words, start);
         return new(this, InstructionMemory.Slice(Length - instruction.WordCount, instruction.WordCount), InstructionCount - 1, Length - instruction.WordCount);
@@ -134,8 +138,9 @@ public sealed partial class WordBuffer : ExpandableBuffer<int>, ISpirvBuffer, ID
             int _ => 1,
             IdRef _ => 1,
             IdResultType _ => 1,
-            string v => new LiteralString(v).WordLength,
-            LiteralString v => v.WordLength,
+            IdResult _ => 1,
+            string v => new LiteralString(v).WordCount,
+            LiteralString v => v.WordCount,
             int[] a => a.Length,
             Enum _ => 1,
             _ => throw new NotImplementedException()
@@ -160,13 +165,7 @@ public sealed partial class WordBuffer : ExpandableBuffer<int>, ISpirvBuffer, ID
     public SpirvSpan AsSpan() => new(Span);
     public SpirvMemory AsMemory() => new(this);
 
-    internal static int GetWordLength(Span<int> values) => values.Length;
-    internal static int GetWordLength(Span<LiteralInteger> values) => values.Length * values[0].WordCount;
-    internal static int GetWordLength(Span<LiteralFloat> values) => values.Length * values[0].WordCount;
-    internal static int GetWordLength(Span<IdRef> values) => values.Length;
-    internal static int GetWordLength(Span<PairIdRefIdRef> values) => values.Length * 2;
-    internal static int GetWordLength(Span<PairIdRefLiteralInteger> values) => values.Length * 2;
-    internal static int GetWordLength(Span<PairLiteralIntegerIdRef> values) => values.Length * 2;
+    
 
 
     public override string ToString()

@@ -79,18 +79,18 @@ public partial class Mixer
                     return found;
                 else return matched.Value.BaseType.Span switch
                 {
-                    "void" => Buffer.AddOpTypeVoid(),
-                    "sbyte" => Buffer.AddOpTypeInt(8, 1),
-                    "byte" => Buffer.AddOpTypeInt(8, 0),
-                    "short" => Buffer.AddOpTypeInt(16, 1),
-                    "ushort" => Buffer.AddOpTypeInt(16, 0),
-                    "int" => Buffer.AddOpTypeInt(32, 1),
-                    "uint" => Buffer.AddOpTypeInt(32, 0),
-                    "long" => Buffer.AddOpTypeInt(64, 1),
-                    "ulong" => Buffer.AddOpTypeInt(64, 0),
-                    "half" => Buffer.AddOpTypeFloat(16),
-                    "float" => Buffer.AddOpTypeFloat(32),
-                    "double" => Buffer.AddOpTypeFloat(64),
+                    "void" => Buffer.AddOpTypeVoid<MultiBuffer>(),
+                    "sbyte" => Buffer.AddOpTypeInt<MultiBuffer>(8, 1),
+                    "byte" => Buffer.AddOpTypeInt<MultiBuffer>(8, 0),
+                    "short" => Buffer.AddOpTypeInt<MultiBuffer>(16, 1),
+                    "ushort" => Buffer.AddOpTypeInt<MultiBuffer>(16, 0),
+                    "int" => Buffer.AddOpTypeInt<MultiBuffer>(32, 1),
+                    "uint" => Buffer.AddOpTypeInt<MultiBuffer>(32, 0),
+                    "long" => Buffer.AddOpTypeInt<MultiBuffer>(64, 1),
+                    "ulong" => Buffer.AddOpTypeInt<MultiBuffer>(64, 0),
+                    "half" => Buffer.AddOpTypeFloat<MultiBuffer>(16, null),
+                    "float" => Buffer.AddOpTypeFloat<MultiBuffer>(32, null),
+                    "double" => Buffer.AddOpTypeFloat<MultiBuffer>(64, null),
                     _ => throw new NotImplementedException()
                 };
             }
