@@ -53,6 +53,7 @@ public static class ISpirvElementExtensions
                 Half v => new LiteralFloat(v).AsSpanOwner(),
                 float v => new LiteralFloat(v).AsSpanOwner(),
                 double v => new LiteralFloat(v).AsSpanOwner(),
+                Enum e => new LiteralInteger(Convert.ToInt32(e)).AsSpanOwner(),
                 _ => throw new NotImplementedException()
             };
             
@@ -83,7 +84,8 @@ public static class ISpirvElementExtensions
                 or uint 
                 or int 
                 or Half 
-                or float => 1,
+                or float 
+                or Enum => 1,
                 long 
                 or ulong 
                 or double => 2,
@@ -133,6 +135,11 @@ public static class ISpirvElementExtensions
             else if(values[i] is int vi)
             {
                 span.Span[i] = vi;
+                length += 1;
+            }
+            else if(values[i] is Enum e)
+            {
+                span.Span[i] = Convert.ToInt32(e);
                 length += 1;
             }
             else if(values[i] is uint vui)
