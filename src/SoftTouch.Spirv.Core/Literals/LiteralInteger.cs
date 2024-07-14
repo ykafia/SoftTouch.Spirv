@@ -119,20 +119,3 @@ public struct LiteralInteger : ILiteralNumber, IFromSpirv<LiteralInteger>
 }
 
 
-
-public static class SpirvIntegerExtensions
-{
-    public static SpanOwner<int> AsSpanOwner(this int? value)
-    {
-        if (value == null)
-        {
-            return SpanOwner<int>.Empty;
-        }
-        else
-        {
-            var span = SpanOwner<int>.Allocate(1, AllocationMode.Clear);
-            span.Span[0] = value.Value;
-            return span;
-        }
-    }
-}

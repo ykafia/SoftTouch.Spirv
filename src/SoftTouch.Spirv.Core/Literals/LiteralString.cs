@@ -121,18 +121,5 @@ public readonly struct LiteralString : ISpirvElement, IFromSpirv<LiteralString>
 public static class SpirvStringExtensions
 {
     public static LiteralString ToLiteralString(this string value) => value;
-    public static SpanOwner<int> AsSpanOwner(this string? value)
-    {
-        if (value == null)
-        {
-            return SpanOwner<int>.Empty;
-        }
-        else
-        {
-            var lit = new LiteralString(value);
-            var span = SpanOwner<int>.Allocate(lit.WordCount, AllocationMode.Clear);
-            lit.WriteTo(span.Span);
-            return span;
-        }
-    }
+    
 }

@@ -152,7 +152,8 @@ static void CreateShader()
 
 static void ParseWorking()
 {
-    var path = @"C:\Users\youness_kafia\Documents\dotnetProjs\SDSLParser\src\SoftTouch.Spirv\working1-6.spv";
+    // var path = @"C:\Users\youness_kafia\Documents\dotnetProjs\SDSLParser\src\SoftTouch.Spirv\working1-6.spv";
+    var path = @"C:\Users\kafia\source\repos\SDSLParser\src\SoftTouch.Spirv\working1-6.spv";
 
     var bytes = File.ReadAllBytes(path);
 
@@ -168,6 +169,6 @@ static void ParseWorking()
     var tmp = 0;
 }
 
-// CreateShader();
+CreateShader();
 
 //ParseWorking();

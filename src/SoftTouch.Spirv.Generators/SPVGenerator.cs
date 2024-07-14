@@ -78,12 +78,12 @@ namespace SoftTouch.Spirv.Generators
             if (opname == "OpConstant")
             {
                 code
-                    .AppendLine("public static Instruction AddOpConstant<TBuffer, TValue>(this TBuffer buffer, IdResultType? resultType, TValue value) where TBuffer : IMutSpirvBuffer where TValue : ILiteralNumber")
+                    .AppendLine("public static Instruction AddOpConstant<TBuffer, TValue>(this TBuffer buffer, IdResultType? resultType, TValue value) where TBuffer : IMutSpirvBuffer where TValue : struct, ILiteralNumber")
                     .AppendLine("{")
                     .Indent()
                         .AppendLine("var resultId = buffer.GetNextId();")
                         .AppendLine("var wordLength = 1 + buffer.GetWordLength(resultType) + buffer.GetWordLength(resultId) + value.WordCount;")
-                        .AppendLine("return buffer.Add(new MutRefInstruction([wordLength << 16 | (int)SDSLOp.OpConstant, ..resultType.AsSpanOwner().Span, resultId, ..value.AsSpanOwner().Span]));")
+                        .AppendLine("return buffer.Add(new MutRefInstruction([wordLength << 16 | (int)SDSLOp.OpConstant, ..resultType.AsSpirvSpan(), resultId, ..value.AsSpirvSpan()]));")
                     .Dedent()
                     .AppendLine("}");
 
@@ -112,7 +112,7 @@ namespace SoftTouch.Spirv.Generators
                     .AppendLine("{")
                     .Indent()
                         .AppendLine("var wordLength = 1 + buffer.GetWordLength(target) + buffer.GetWordLength(decoration) + buffer.GetWordLength(additional1) + buffer.GetWordLength(additional2) + buffer.GetWordLength(additionalString);")
-                        .AppendLine("return buffer.Add(new MutRefInstruction([wordLength << 16 | (int)SDSLOp.OpDecorate, target, (int)decoration, ..additional1.AsSpanOwner().Span, ..additional2.AsSpanOwner().Span, ..additionalString.AsSpanOwner().Span]));")
+                        .AppendLine("return buffer.Add(new MutRefInstruction([wordLength << 16 | (int)SDSLOp.OpDecorate, target, ..decoration.AsSpirvSpan(), ..additional1.AsSpirvSpan(), ..additional2.AsSpirvSpan(), ..additionalString.AsSpirvSpan()]));")
                     .Dedent()
                     .AppendLine("}");
             }
@@ -123,15 +123,7 @@ namespace SoftTouch.Spirv.Generators
                     .AppendLine("{")
                     .Indent()
                         .AppendLine("var wordLength = 1 + buffer.GetWordLength(structureType) + buffer.GetWordLength(member) + buffer.GetWordLength(decoration) + buffer.GetWordLength(additional1) + buffer.GetWordLength(additional2) + buffer.GetWordLength(additionalString);")
-                        .AppendLine("var mutInstruction = new MutRefInstruction(stackalloc int[wordLength]);")
-                        .AppendLine("mutInstruction.OpCode = SDSLOp.OpMemberDecorate;")
-                        .AppendLine("mutInstruction.Add(structureType);")
-                        .AppendLine("mutInstruction.Add(member);")
-                        .AppendLine("mutInstruction.Add(decoration);")
-                        .AppendLine("mutInstruction.Add(additional1);")
-                        .AppendLine("mutInstruction.Add(additional2);")
-                        .AppendLine("mutInstruction.Add(additionalString);")
-                        .AppendLine("return buffer.Add(mutInstruction);")
+                        .AppendLine("return buffer.Add(new([wordLength << 16 | (int)SDSLOp.OpMemberDecorate, ..structureType.AsSpirvSpan(), ..member.AsSpirvSpan(), ..decoration.AsSpirvSpan(), ..additional1.AsSpirvSpan(), ..additional2.AsSpirvSpan(), ..additionalString.AsSpirvSpan()]));")
                     .Dedent()
                     .AppendLine("}");
             }
@@ -165,17 +157,8 @@ namespace SoftTouch.Spirv.Generators
                     code.AppendLine("var resultId = buffer.GetNextId();");
                 }
                 code.Append("var wordLength = 1").Append(parameterNames.Any() ? " + " : "").Append(string.Join(" + ", parameterNames.Select(x => $"buffer.GetWordLength({x})"))).AppendLine(";");
-                code.AppendLine("var mutInstruction = new MutRefInstruction(stackalloc int[wordLength]);");
-                code.Append("mutInstruction.OpCode = SDSLOp.").Append(opname).AppendLine(";");
-                
-                foreach(var p in parameterNames)
-                {
-                    code.Append("mutInstruction.Add(").Append(p).AppendLine(");");
-                }
-
-
                 code
-                    .AppendLine("return buffer.Add(mutInstruction);")
+                    .AppendLine($"return buffer.Add(new([wordLength << 16 | (int)SDSLOp.{opname}, {string.Join(", ", parameterNames.Select(x => $"..{x}.AsSpirvSpan()"))}]));")
                     .Dedent().AppendLine("}");
             }
             else
@@ -186,9 +169,7 @@ namespace SoftTouch.Spirv.Generators
                     .AppendLine("<TBuffer>(this TBuffer buffer) where TBuffer : IMutSpirvBuffer")
                     .AppendLine("{")
                     .Indent()
-                        .AppendLine("var mutInstruction = new MutRefInstruction(stackalloc int[1]);")
-                        .Append("mutInstruction.OpCode = SDSLOp.").Append(opname).AppendLine(";")
-                        .AppendLine("return buffer.Add(mutInstruction);")
+                        .AppendLine($"return buffer.Add(new([1 << 16 | (int)SDSLOp.{opname}]));")
                     .Dedent()
                     .AppendLine("}");
             }
