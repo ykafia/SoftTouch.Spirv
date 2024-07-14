@@ -1,9 +1,12 @@
+﻿using static Spv.Specification;
+
 namespace SoftTouch.Spirv.Core;
 
 
-public enum OperandKind {
-    None,
-    PackedVectorFormat,
+
+public enum OperandKind
+{
+    None = 0,
     ImageOperands,
     FPFastMathMode,
     SelectionControl,
@@ -14,6 +17,7 @@ public enum OperandKind {
     KernelProfilingInfo,
     RayFlags,
     FragmentShadingRate,
+    RawAccessChainOperands,
     SourceLanguage,
     ExecutionModel,
     AddressingModel,
@@ -27,8 +31,13 @@ public enum OperandKind {
     ImageChannelOrder,
     ImageChannelDataType,
     FPRoundingMode,
+    FPDenormMode,
+    QuantizationModes,
+    FPOperationMode,
+    OverflowModes,
     LinkageType,
     AccessQualifier,
+    HostAccessQualifier,
     FunctionParameterAttribute,
     Decoration,
     BuiltIn,
@@ -39,6 +48,15 @@ public enum OperandKind {
     RayQueryIntersection,
     RayQueryCommittedIntersectionType,
     RayQueryCandidateIntersectionType,
+    PackedVectorFormat,
+    CooperativeMatrixOperands,
+    CooperativeMatrixLayout,
+    CooperativeMatrixUse,
+    InitializationModeQualifier,
+    LoadCacheControl,
+    StoreCacheControl,
+    NamedMaximumNumberOfRegisters,
+    FPEncoding,
     IdResultType,
     IdResult,
     IdMemorySemantics,
@@ -46,11 +64,11 @@ public enum OperandKind {
     IdRef,
     LiteralInteger,
     LiteralString,
+    LiteralFloat,
     LiteralContextDependentNumber,
     LiteralExtInstInteger,
     LiteralSpecConstantOpInteger,
     PairLiteralIntegerIdRef,
     PairIdRefLiteralInteger,
     PairIdRefIdRef,
-    CooperativeMatrixOperands
 }

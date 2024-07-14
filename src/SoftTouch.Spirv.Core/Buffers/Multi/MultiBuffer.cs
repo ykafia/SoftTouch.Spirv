@@ -1,6 +1,7 @@
 using SoftTouch.Spirv.Core.Parsing;
 using System.Text;
 using System.Transactions;
+using static Spv.Specification;
 
 namespace SoftTouch.Spirv.Core.Buffers;
 
@@ -8,7 +9,7 @@ namespace SoftTouch.Spirv.Core.Buffers;
 /// <summary>
 /// A spirv buffer composed of many different buffers for declarations and functions
 /// </summary>
-public sealed partial class MultiBuffer
+public sealed partial class MultiBuffer : IMutSpirvBuffer
 {
     public int Bound { get; private set; }
     public int Length => Declarations.Length + Functions.BuffersLength;
@@ -101,8 +102,8 @@ public sealed partial class MultiBuffer
             IdRef _ => 1,
             IdResultType _ => 1,
             IdResult _ => 1,
-            string v => new LiteralString(v).WordLength,
-            LiteralString v => v.WordLength,
+            string v => new LiteralString(v).WordCount,
+            LiteralString v => v.WordCount,
             int[] a => a.Length,
             Enum _ => 1,
             _ => throw new NotImplementedException()
@@ -199,15 +200,15 @@ public sealed partial class MultiBuffer
             .Append(string.Join("\n", Functions.Buffers.Select(x => Disassembler.Disassemble(x.Value))))
             .ToString();
     }
-
-
-    internal static int GetWordLength(Span<int> values) => values.Length;
-    internal static int GetWordLength(Span<LiteralInteger> values) => values.Length * values[0].WordCount;
-    internal static int GetWordLength(Span<LiteralFloat> values) => values.Length * values[0].WordCount;
-    internal static int GetWordLength(Span<IdRef> values) => values.Length;
-    internal static int GetWordLength(Span<PairIdRefIdRef> values) => values.Length * 2;
-    internal static int GetWordLength(Span<PairIdRefLiteralInteger> values) => values.Length * 2;
-    internal static int GetWordLength(Span<PairLiteralIntegerIdRef> values) => values.Length * 2;
-
     
 }
+
+// public static class MBExtensions
+// {
+//     public static Instruction AddOpDecorate(this MultiBuffer mb, IdRef target, Decoration decoration, int? additional1 = null, int? additional2 = null, string? additionalString = null)
+//     {
+//         var wordLength = 1 + MultiBuffer.GetWordLength(target) + MultiBuffer.GetWordLength(decoration) + MultiBuffer.GetWordLength(additional1) + MultiBuffer.GetWordLength(additional2) + MultiBuffer.GetWordLength(additionalString);
+//         var mri = new MutRefInstruction([wordLength << 16 | (int)SDSLOp.OpDecorate, target, (int)decoration, ..additional1.ToSpirvSpanOwner().Span, ..additional2.ToSpirvSpanOwner().Span, ..additionalString.ToSpirvSpanOwner().Span]);
+//         return mb.Add(mri);
+//     }
+// }

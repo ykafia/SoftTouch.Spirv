@@ -10,12 +10,12 @@ public ref struct MutRefInstruction
 {
     public Span<int> Words { get; }
     public Span<int> Operands => Words [1..];
-    public SDSLOp OpCode 
+    public readonly SDSLOp OpCode 
     {
         get => (SDSLOp)(Words[0] & 0xFFFF); 
         set { unchecked { Words[0] = (Words[0] & (int)0xFFFF0000) | (int)value;}}
     }
-    public int WordCount
+    public readonly int WordCount
     {
         get => Words[0] >> 16; 
         set => Words[0] = value << 16 | Words[0] & 0xFFFF;
@@ -30,62 +30,16 @@ public ref struct MutRefInstruction
         WordCount = words.Length;
         _index = 1;
     }
-
-    public void AddInt(LiteralInteger value)
+    public void Add(scoped Span<int> values)
     {
-        if(value.WordCount > 1)
-        {
-            Words[_index++] = (int)(value.Words >> 32);
-            Words[_index++] = (int)(value.Words & 0xFFFF);
-        }
-        else
-        {
-            Words[_index++] = (int)value.Words;
-        }
+        values.CopyTo(Words[_index..]);
+        _index += values.Length;
     }
-    public void AddFloat(LiteralFloat value)
-    {
-        if(value.WordCount > 1)
-        {
-            Words[_index++] = (int)(value.Words >> 32);
-            Words[_index++] = (int)(value.Words & 0xFFFF);
-        }
-        else
-        {
-            Words[_index++] = (int)value.Words;
-        }
-    }
-    
-    public void AddString(LiteralString value)
-    {
-        value.WriteTo(Words[_index..(_index+value.WordLength)]);
-        LiteralString.Parse(Words[1..]);
-        _index += value.WordLength;
-    }
-    public void Add(Span<IdRef> values)
+    public void Add<T>(Span<T> values)
+        where T : ISpirvElement
     {
         foreach(var e in values)
-            Add(e);
-    }
-    public void Add(Span<LiteralInteger> values)
-    {
-        foreach(var e in values)
-            Add(e);
-    }
-    public void Add(Span<PairLiteralIntegerIdRef> values)
-    {
-        foreach(var e in values)
-            Add(e);
-    }
-    public void Add(Span<PairIdRefLiteralInteger> values)
-    {
-        foreach(var e in values)
-            Add(e);
-    }
-    public void Add(Span<PairIdRefIdRef> values)
-    {
-        foreach(var e in values)
-            Add(e);
+            Add(e.AsSpanOwner().Span);
     }
 
     public void Add<T>(T? value)
@@ -93,45 +47,18 @@ public ref struct MutRefInstruction
         if (value != null)
         {
             if (value is int i)
-                AddInt(i);
-            else if (value is LiteralInteger li)
-                AddInt(li);
-            else if (value is IdRef id)
-                AddInt(id);
-            else if (value is IdResultType result)
-                AddInt(result);
-            else if (value is IdResult resultid)
-                AddInt(resultid);
-            else if (value is float f)
-                AddFloat(f);
-            else if (value is LiteralFloat lf)
-                AddFloat(lf);
-            else if (value is PairIdRefIdRef pair)
-            {
-                AddInt(pair.Value.Item1);
-                AddInt(pair.Value.Item2);
-            }
-            else if (value is PairIdRefLiteralInteger pair2)
-            {
-                AddInt(pair2.Value.Item1);
-                AddInt(pair2.Value.Item2);
-            }
-            else if (value is PairLiteralIntegerIdRef pair3)
-            {
-                AddInt(pair3.Value.Item1);
-                AddInt(pair3.Value.Item2);
-            }
+                Add([i]);
+            else if (value is ISpirvElement element)
+                Add(element.AsSpanOwner().Span);
             else if (value is string s)
-                AddString(s);
-            else if (value is LiteralString ls)
-                AddString(ls.Value);
+                Add(s.AsSpanOwner().Span);
             else if (value is Enum e)
-                Add(Convert.ToInt32(e));
+                Add([Convert.ToInt32(e)]);
         }
     }
 
-    public OperandEnumerator GetEnumerator() => new OperandEnumerator(RefInstruction.ParseRef(Words));
-    public T GetOperand<T>(string name)
+    public readonly OperandEnumerator GetEnumerator() => new(RefInstruction.ParseRef(Words));
+    public readonly T GetOperand<T>(string name)
         where T : struct, IFromSpirv<T>
     {
         var info = InstructionInfo.GetInfo(OpCode);

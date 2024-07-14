@@ -89,16 +89,16 @@ public sealed partial class Mixer : MixerBase
     {
         return value switch
         {
-            sbyte v => Buffer.AddOpConstant<LiteralInteger>(GetOrCreateBaseType("sbyte".AsMemory()).ResultId ?? -1, v),
-            short v => Buffer.AddOpConstant<LiteralInteger>(GetOrCreateBaseType("short".AsMemory()).ResultId ?? -1, v),
-            int v => Buffer.AddOpConstant<LiteralInteger>(GetOrCreateBaseType("int".AsMemory()).ResultId ?? -1, v),
-            long v => Buffer.AddOpConstant<LiteralInteger>(GetOrCreateBaseType("long".AsMemory()).ResultId ?? -1, v),
-            byte v => Buffer.AddOpConstant<LiteralInteger>(GetOrCreateBaseType("byte".AsMemory()).ResultId ?? -1, v),
-            ushort v => Buffer.AddOpConstant<LiteralInteger>(GetOrCreateBaseType("ushort".AsMemory()).ResultId ?? -1, v),
-            uint v => Buffer.AddOpConstant<LiteralInteger>(GetOrCreateBaseType("uint".AsMemory()).ResultId ?? -1, v),
-            ulong v => Buffer.AddOpConstant<LiteralInteger>(GetOrCreateBaseType("ulong".AsMemory()).ResultId ?? -1, v),
-            float v => Buffer.AddOpConstant<LiteralFloat>(GetOrCreateBaseType("float".AsMemory()).ResultId ?? -1, v),
-            double v => Buffer.AddOpConstant<LiteralFloat>(GetOrCreateBaseType("double".AsMemory()).ResultId ?? -1, v),
+            sbyte v => Buffer.AddOpConstant<MultiBuffer, LiteralInteger>(GetOrCreateBaseType("sbyte".AsMemory()).ResultId ?? -1, v),
+            short v => Buffer.AddOpConstant<MultiBuffer, LiteralInteger>(GetOrCreateBaseType("short".AsMemory()).ResultId ?? -1, v),
+            int v => Buffer.AddOpConstant<MultiBuffer, LiteralInteger>(GetOrCreateBaseType("int".AsMemory()).ResultId ?? -1, v),
+            long v => Buffer.AddOpConstant<MultiBuffer, LiteralInteger>(GetOrCreateBaseType("long".AsMemory()).ResultId ?? -1, v),
+            byte v => Buffer.AddOpConstant<MultiBuffer, LiteralInteger>(GetOrCreateBaseType("byte".AsMemory()).ResultId ?? -1, v),
+            ushort v => Buffer.AddOpConstant<MultiBuffer, LiteralInteger>(GetOrCreateBaseType("ushort".AsMemory()).ResultId ?? -1, v),
+            uint v => Buffer.AddOpConstant<MultiBuffer, LiteralInteger>(GetOrCreateBaseType("uint".AsMemory()).ResultId ?? -1, v),
+            ulong v => Buffer.AddOpConstant<MultiBuffer, LiteralInteger>(GetOrCreateBaseType("ulong".AsMemory()).ResultId ?? -1, v),
+            float v => Buffer.AddOpConstant<MultiBuffer, LiteralFloat>(GetOrCreateBaseType("float".AsMemory()).ResultId ?? -1, v),
+            double v => Buffer.AddOpConstant<MultiBuffer, LiteralFloat>(GetOrCreateBaseType("double".AsMemory()).ResultId ?? -1, v),
             Vector2 v => CreateConstantVector(v),
             Vector3 v => CreateConstantVector(v),
             Vector4 v => CreateConstantVector(v),
@@ -113,8 +113,8 @@ public sealed partial class Mixer : MixerBase
             var t_const = GetOrCreateBaseType("float".AsMemory());
             var t_const2 = GetOrCreateBaseType("float2".AsMemory());
 
-            var c1 = Buffer.AddOpConstant<LiteralFloat>(t_const.ResultId ?? -1, vec2.X);
-            var c2 = Buffer.AddOpConstant<LiteralFloat>(t_const.ResultId ?? -1, vec2.Y);
+            var c1 = Buffer.AddOpConstant<MultiBuffer, LiteralFloat>(t_const.ResultId ?? -1, vec2.X);
+            var c2 = Buffer.AddOpConstant<MultiBuffer, LiteralFloat>(t_const.ResultId ?? -1, vec2.Y);
             var cons = Buffer.AddOpConstantComposite(t_const2.ResultId ?? -1, stackalloc IdRef[] { c1.ResultId ?? -1, c2.ResultId ?? -1 });
             return cons;
         }
@@ -123,9 +123,9 @@ public sealed partial class Mixer : MixerBase
             var t_const = GetOrCreateBaseType("float".AsMemory());
             var t_const2 = GetOrCreateBaseType("float3".AsMemory());
 
-            var c1 = Buffer.AddOpConstant<LiteralFloat>(t_const.ResultId ?? -1, vec3.X);
-            var c2 = Buffer.AddOpConstant<LiteralFloat>(t_const.ResultId ?? -1, vec3.Y);
-            var c3 = Buffer.AddOpConstant<LiteralFloat>(t_const.ResultId ?? -1, vec3.Z);
+            var c1 = Buffer.AddOpConstant<MultiBuffer, LiteralFloat>(t_const.ResultId ?? -1, vec3.X);
+            var c2 = Buffer.AddOpConstant<MultiBuffer, LiteralFloat>(t_const.ResultId ?? -1, vec3.Y);
+            var c3 = Buffer.AddOpConstant<MultiBuffer, LiteralFloat>(t_const.ResultId ?? -1, vec3.Z);
             var cons = Buffer.AddOpConstantComposite(t_const2.ResultId ?? -1, stackalloc IdRef[] { c1.ResultId ?? -1, c2.ResultId ?? -1, c3.ResultId ?? -1 });
             return cons;
         }
@@ -134,10 +134,10 @@ public sealed partial class Mixer : MixerBase
             var t_const = GetOrCreateBaseType("float".AsMemory());
             var t_const2 = GetOrCreateBaseType("float4".AsMemory());
 
-            var c1 = Buffer.AddOpConstant<LiteralFloat>(t_const.ResultId ?? -1, vec4.X);
-            var c2 = Buffer.AddOpConstant<LiteralFloat>(t_const.ResultId ?? -1, vec4.Y);
-            var c3 = Buffer.AddOpConstant<LiteralFloat>(t_const.ResultId ?? -1, vec4.Z);
-            var c4 = Buffer.AddOpConstant<LiteralFloat>(t_const.ResultId ?? -1, vec4.W);
+            var c1 = Buffer.AddOpConstant<MultiBuffer, LiteralFloat>(t_const.ResultId ?? -1, vec4.X);
+            var c2 = Buffer.AddOpConstant<MultiBuffer, LiteralFloat>(t_const.ResultId ?? -1, vec4.Y);
+            var c3 = Buffer.AddOpConstant<MultiBuffer, LiteralFloat>(t_const.ResultId ?? -1, vec4.Z);
+            var c4 = Buffer.AddOpConstant<MultiBuffer, LiteralFloat>(t_const.ResultId ?? -1, vec4.W);
             var cons = Buffer.AddOpConstantComposite(t_const2.ResultId ?? -1, stackalloc IdRef[] { c1.ResultId ?? -1, c2.ResultId ?? -1, c3.ResultId ?? -1, c4.ResultId ?? -1 });
             return cons;
         }
@@ -149,61 +149,61 @@ public sealed partial class Mixer : MixerBase
         if (value is sbyte vi8)
         {
             var t_const = GetOrCreateBaseType("sbyte".AsMemory());
-            var cons = Buffer.AddOpConstant<LiteralInteger>(t_const.ResultId ?? -1, vi8);
+            var cons = Buffer.AddOpConstant<MultiBuffer, LiteralInteger>(t_const.ResultId ?? -1, vi8);
             return cons;
         }
         else if (value is short vi16)
         {
             var t_const = GetOrCreateBaseType("short".AsMemory());
-            var cons = Buffer.AddOpConstant<LiteralInteger>(t_const.ResultId ?? -1, vi16);
+            var cons = Buffer.AddOpConstant<MultiBuffer, LiteralInteger>(t_const.ResultId ?? -1, vi16);
             return cons;
         }
         else if (value is int vi32)
         {
             var t_const = GetOrCreateBaseType("int".AsMemory());
-            var cons = Buffer.AddOpConstant<LiteralInteger>(t_const.ResultId ?? -1, vi32);
+            var cons = Buffer.AddOpConstant<MultiBuffer, LiteralInteger>(t_const.ResultId ?? -1, vi32);
             return cons;
         }
         else if (value is long vi64)
         {
             var t_const = GetOrCreateBaseType("long".AsMemory());
-            var cons = Buffer.AddOpConstant<LiteralInteger>(t_const.ResultId ?? -1, vi64);
+            var cons = Buffer.AddOpConstant<MultiBuffer, LiteralInteger>(t_const.ResultId ?? -1, vi64);
             return cons;
         }
         else if (value is byte vu8)
         {
             var t_const = GetOrCreateBaseType("byte".AsMemory());
-            var cons = Buffer.AddOpConstant<LiteralInteger>(t_const.ResultId ?? -1, vu8);
+            var cons = Buffer.AddOpConstant<MultiBuffer, LiteralInteger>(t_const.ResultId ?? -1, vu8);
             return cons;
         }
         else if (value is ushort vu16)
         {
             var t_const = GetOrCreateBaseType("ushort".AsMemory());
-            var cons = Buffer.AddOpConstant<LiteralInteger>(t_const.ResultId ?? -1, vu16);
+            var cons = Buffer.AddOpConstant<MultiBuffer, LiteralInteger>(t_const.ResultId ?? -1, vu16);
             return cons;
         }
         else if (value is uint vu32)
         {
             var t_const = GetOrCreateBaseType("uint".AsMemory());
-            var cons = Buffer.AddOpConstant<LiteralInteger>(t_const.ResultId ?? -1, vu32);
+            var cons = Buffer.AddOpConstant<MultiBuffer, LiteralInteger>(t_const.ResultId ?? -1, vu32);
             return cons;
         }
         else if (value is ulong vu64)
         {
             var t_const = GetOrCreateBaseType("ulong".AsMemory());
-            var cons = Buffer.AddOpConstant<LiteralInteger>(t_const.ResultId ?? -1, vu64);
+            var cons = Buffer.AddOpConstant<MultiBuffer, LiteralInteger>(t_const.ResultId ?? -1, vu64);
             return cons;
         }
         else if (value is float vf32)
         {
             var t_const = GetOrCreateBaseType("float".AsMemory());
-            var cons = Buffer.AddOpConstant<LiteralFloat>(t_const.ResultId ?? -1, vf32);
+            var cons = Buffer.AddOpConstant<MultiBuffer, LiteralFloat>(t_const.ResultId ?? -1, vf32);
             return cons;
         }
         else if (value is double vf64)
         {
             var t_const = GetOrCreateBaseType("double".AsMemory());
-            var cons = Buffer.AddOpConstant<LiteralFloat>(t_const.ResultId ?? -1, vf64);
+            var cons = Buffer.AddOpConstant<MultiBuffer, LiteralFloat>(t_const.ResultId ?? -1, vf64);
             return cons;
         }
         else if (value is Vector2 vec2)
@@ -211,8 +211,8 @@ public sealed partial class Mixer : MixerBase
             var t_const = GetOrCreateBaseType("float".AsMemory());
             var t_const2 = GetOrCreateBaseType("float2".AsMemory());
 
-            var c1 = Buffer.AddOpConstant<LiteralFloat>(t_const.ResultId ?? -1, vec2.X);
-            var c2 = Buffer.AddOpConstant<LiteralFloat>(t_const.ResultId ?? -1, vec2.Y);
+            var c1 = Buffer.AddOpConstant<MultiBuffer, LiteralFloat>(t_const.ResultId ?? -1, vec2.X);
+            var c2 = Buffer.AddOpConstant<MultiBuffer, LiteralFloat>(t_const.ResultId ?? -1, vec2.Y);
             var cons = Buffer.AddOpConstantComposite(t_const2.ResultId ?? -1, stackalloc IdRef[] { c1.ResultId ?? -1, c2.ResultId ?? -1 });
             return cons;
         }
@@ -221,9 +221,9 @@ public sealed partial class Mixer : MixerBase
             var t_const = GetOrCreateBaseType("float".AsMemory());
             var t_const2 = GetOrCreateBaseType("float3".AsMemory());
 
-            var c1 = Buffer.AddOpConstant<LiteralFloat>(t_const.ResultId ?? -1, vec3.X);
-            var c2 = Buffer.AddOpConstant<LiteralFloat>(t_const.ResultId ?? -1, vec3.Y);
-            var c3 = Buffer.AddOpConstant<LiteralFloat>(t_const.ResultId ?? -1, vec3.Z);
+            var c1 = Buffer.AddOpConstant<MultiBuffer, LiteralFloat>(t_const.ResultId ?? -1, vec3.X);
+            var c2 = Buffer.AddOpConstant<MultiBuffer, LiteralFloat>(t_const.ResultId ?? -1, vec3.Y);
+            var c3 = Buffer.AddOpConstant<MultiBuffer, LiteralFloat>(t_const.ResultId ?? -1, vec3.Z);
             var cons = Buffer.AddOpConstantComposite(t_const2.ResultId ?? -1, stackalloc IdRef[] { c1.ResultId ?? -1, c2.ResultId ?? -1, c3.ResultId ?? -1 });
             return cons;
         }
@@ -232,10 +232,10 @@ public sealed partial class Mixer : MixerBase
             var t_const = GetOrCreateBaseType("float".AsMemory());
             var t_const2 = GetOrCreateBaseType("float4".AsMemory());
 
-            var c1 = Buffer.AddOpConstant<LiteralFloat>(t_const.ResultId ?? -1, vec4.X);
-            var c2 = Buffer.AddOpConstant<LiteralFloat>(t_const.ResultId ?? -1, vec4.Y);
-            var c3 = Buffer.AddOpConstant<LiteralFloat>(t_const.ResultId ?? -1, vec4.Z);
-            var c4 = Buffer.AddOpConstant<LiteralFloat>(t_const.ResultId ?? -1, vec4.W);
+            var c1 = Buffer.AddOpConstant<MultiBuffer, LiteralFloat>(t_const.ResultId ?? -1, vec4.X);
+            var c2 = Buffer.AddOpConstant<MultiBuffer, LiteralFloat>(t_const.ResultId ?? -1, vec4.Y);
+            var c3 = Buffer.AddOpConstant<MultiBuffer, LiteralFloat>(t_const.ResultId ?? -1, vec4.Z);
+            var c4 = Buffer.AddOpConstant<MultiBuffer, LiteralFloat>(t_const.ResultId ?? -1, vec4.W);
             var cons = Buffer.AddOpConstantComposite(t_const2.ResultId ?? -1, stackalloc IdRef[] { c1.ResultId ?? -1, c2.ResultId ?? -1, c3.ResultId ?? -1, c4.ResultId ?? -1 });
             return cons;
         }

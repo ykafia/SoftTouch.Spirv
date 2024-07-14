@@ -9,12 +9,12 @@ namespace SoftTouch.Spirv.Core;
 
 public readonly struct LiteralString : ISpirvElement, IFromSpirv<LiteralString>
 {
-    readonly static StringPool pool = new(); 
+    readonly static StringPool pool = new();
 
     public string Value { get; init; }
     public readonly int Length => Value.Length + 1;
 
-    public int WordLength => (Length / 4) + (HasRest ? 1 : 0);
+    public int WordCount => (Length / 4) + (HasRest ? 1 : 0);
     internal bool HasRest => Length % 4 > 0;
     internal int RestSize => Length % 4;
 
@@ -27,10 +27,10 @@ public readonly struct LiteralString : ISpirvElement, IFromSpirv<LiteralString>
         Span<char> chars = stackalloc char[words.Length * 4];
         for (int i = 0; i < words.Length; i++)
         {
-            chars[i * 4] = (char)(words[i] & 0xFF); 
-            chars[i * 4 + 1] = (char)(words[i] >> 8 & 0xFF); 
-            chars[i * 4 + 2] = (char)(words[i] >> 16 & 0xFF); 
-            chars[i * 4 + 3] = (char)(words[i] >> 24 & 0xFF); 
+            chars[i * 4] = (char)(words[i] & 0xFF);
+            chars[i * 4 + 1] = (char)(words[i] >> 8 & 0xFF);
+            chars[i * 4 + 2] = (char)(words[i] >> 16 & 0xFF);
+            chars[i * 4 + 3] = (char)(words[i] >> 24 & 0xFF);
         };
         var real = chars[..chars.IndexOf('\0')];
         Value = pool.GetOrAdd(real);
@@ -45,7 +45,7 @@ public readonly struct LiteralString : ISpirvElement, IFromSpirv<LiteralString>
             var pos = i / 4;
             var shift = 8 * (i % 4);
             var value = i < Value.Length ? Value[i] : '\0';
-            slice[pos] |=  value << shift;
+            slice[pos] |= value << shift;
         }
     }
 
@@ -111,4 +111,28 @@ public readonly struct LiteralString : ISpirvElement, IFromSpirv<LiteralString>
     }
 
     public static LiteralString From(string value) => value;
+
+    public SpanOwner<int> AsSpanOwner()
+    {
+        return Value.AsSpanOwner();
+    }
+}
+
+public static class SpirvStringExtensions
+{
+    public static LiteralString ToLiteralString(this string value) => value;
+    public static SpanOwner<int> AsSpanOwner(this string? value)
+    {
+        if (value == null)
+        {
+            return SpanOwner<int>.Empty;
+        }
+        else
+        {
+            var lit = new LiteralString(value);
+            var span = SpanOwner<int>.Allocate(lit.WordCount, AllocationMode.Clear);
+            lit.WriteTo(span.Span);
+            return span;
+        }
+    }
 }

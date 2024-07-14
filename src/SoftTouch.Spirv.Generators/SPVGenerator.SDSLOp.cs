@@ -35,7 +35,7 @@ namespace SoftTouch.Spirv.Generators
                 .First(x => x.Identifier.Text == "Op")
                 .DescendantNodes()
                 .OfType<EnumMemberDeclarationSyntax>()
-                .ToDictionary(x => x.Identifier.Text, x => int.Parse(x.EqualsValue.Value.GetText().ToString()));
+                .ToDictionary(x => x.Identifier.Text, x => ParseInteger(x.EqualsValue.Value.GetText().ToString()));
             var lastnum = members.Last().Value;
             foreach(var e in spirvSDSL.RootElement.GetProperty("instructions").EnumerateArray().Select(x => x.GetProperty("opname").GetString()))
                 members.Add(e, ++lastnum);
@@ -43,7 +43,7 @@ namespace SoftTouch.Spirv.Generators
             code
                 .AppendLine("namespace SoftTouch.Spirv.Core;")
                 .AppendLine("")
-                .AppendLine("public enum SDSLOp")
+                .AppendLine("public enum SDSLOp : int")
                 .AppendLine("{")
                 .Indent();
             foreach(var e in members)
@@ -54,6 +54,13 @@ namespace SoftTouch.Spirv.Generators
             
             
             context.AddSource("SDSLOp.gen.cs", code.ToString());
+        }
+        public static int ParseInteger(string text)
+        {
+            if(text.StartsWith("0x"))
+                return int.Parse(text.Substring(2), System.Globalization.NumberStyles.HexNumber);
+            else
+                return int.Parse(text);
         }
     }
 }

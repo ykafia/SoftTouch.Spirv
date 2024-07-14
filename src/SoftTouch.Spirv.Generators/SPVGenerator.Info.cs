@@ -19,6 +19,8 @@ namespace SoftTouch.Spirv.Generators
         public void CreateInfo(GeneratorExecutionContext context)
         {
 
+            GenerateKinds(context);
+
             var code = new CodeWriter();
 
             code
@@ -33,11 +35,12 @@ namespace SoftTouch.Spirv.Generators
             .AppendLine("{")
             .Indent();
 
-            foreach (var instruction in spirvCore.RootElement.GetProperty("instructions").EnumerateArray().ToList())
+
+            foreach (var instruction in spirvCore.RootElement.GetProperty("instructions").EnumerateArray())
             {
                 GenerateInfo(instruction, code);
             }
-            foreach (var instruction in spirvSDSL.RootElement.GetProperty("instructions").EnumerateArray().ToList())
+            foreach (var instruction in spirvSDSL.RootElement.GetProperty("instructions").EnumerateArray())
             {
                 GenerateInfo(instruction, code);
             }
@@ -52,11 +55,33 @@ namespace SoftTouch.Spirv.Generators
             context.AddSource("InstructionInfo.gen.cs", code.ToString());
         }
 
+        private void GenerateKinds(GeneratorExecutionContext context)
+        {
+            var code = new CodeWriter()
+            .AppendLine("using static Spv.Specification;")
+            .AppendLine("")
+            .AppendLine("namespace SoftTouch.Spirv.Core;")
+            .AppendLine("\n\n")
+            .AppendLine("public enum OperandKind")
+            .AppendLine("{")
+            .Indent()
+            .AppendLine("None = 0,");
+            var kinds = spirvCore.RootElement.GetProperty("operand_kinds").EnumerateArray().Select(x => x.GetProperty("kind").GetString());
+            foreach (var kind in kinds)
+            {
+                code.Append(kind).AppendLine(",");
+            }
+            code.Dedent().AppendLine("}");
+
+            context.AddSource("OperandKind.gen.cs", code.ToString());
+
+        }
+
         public void GenerateInfo(JsonElement op, CodeWriter code)
         {
             var opname = op.GetProperty("opname").GetString();
             var spvClass = op.GetProperty("class").GetString();
-            if(opname == "OpExtInst")
+            if (opname == "OpExtInst")
             {
                 code.AppendLine("Instance.Register(SDSLOp.OpExtInst, OperandKind.IdResultType, OperandQuantifier.One, \"resultType\", \"GLSL\");");
                 code.AppendLine("Instance.Register(SDSLOp.OpExtInst, OperandKind.IdResult, OperandQuantifier.One, \"resultId\", \"GLSL\");");
@@ -71,11 +96,11 @@ namespace SoftTouch.Spirv.Generators
                     var hasKind = operand.TryGetProperty("kind", out var kindJson);
                     var hasQuant = operand.TryGetProperty("quantifier", out var quantifierJson);
                     var hasName = operand.TryGetProperty("name", out var nameJson);
-                    
+
                     if (hasKind)
                     {
                         var kind = kindJson.GetString();
-                        if(!hasQuant)
+                        if (!hasQuant)
                         {
                             code
                                 .Append("Instance.Register(SDSLOp.")
@@ -87,7 +112,7 @@ namespace SoftTouch.Spirv.Generators
                                 .Append($", \"{spvClass}\"")
                                 .AppendLine(");");
                         }
-                        else 
+                        else
                         {
                             var quant = quantifierJson.GetString();
                             code
@@ -98,7 +123,7 @@ namespace SoftTouch.Spirv.Generators
                                 .Append(", OperandQuantifier.")
                                 .Append(ConvertQuantifier(quantifierJson.GetString()))
                                 .Append(", ")
-                                .Append(!hasName ? $"\"{ConvertNameQuantToName(kind, quant) }\"": $"\"{ConvertNameQuantToName(nameJson.GetString(), quant)}\"")
+                                .Append(!hasName ? $"\"{ConvertNameQuantToName(kind, quant)}\"" : $"\"{ConvertNameQuantToName(nameJson.GetString(), quant)}\"")
                                 .Append($", \"{spvClass}\"")
                                 .AppendLine(");");
                         }
@@ -113,7 +138,7 @@ namespace SoftTouch.Spirv.Generators
 
         public static string ConvertNameQuantToName(string name, string quant)
         {
-            return (name,quant) switch 
+            return (name, quant) switch
             {
                 (_, "*") => "values",
                 ("event", _) => "eventId",
