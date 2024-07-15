@@ -9,11 +9,18 @@ namespace SoftTouch.Spirv.Core.Parsing;
 /// </summary>
 public ref struct SpirvReader
 {
-    public static void ParseToList(byte[] byteCode, List<Instruction> instructions)
+    public static void ParseToList(byte[] byteCode, out List<Instruction> instructions)
     {
-        
+        instructions = [];
         var span = MemoryMarshal.Cast<byte, int>(byteCode.AsSpan());
         var data = new WordBuffer(span);
+        foreach (var instruction in data)
+            instructions.Add(instruction);
+    }
+    public static void ParseToList(Memory<int> words, out List<Instruction> instructions)
+    {
+        instructions = [];
+        var data = new WordBuffer(words.Span);
         foreach (var instruction in data)
             instructions.Add(instruction);
     }

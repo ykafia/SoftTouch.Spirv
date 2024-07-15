@@ -23,7 +23,7 @@ static void ParseShader()
     var shader = File.ReadAllBytes("../../shader.spv");
 
 
-    SpirvReader.ParseToList(shader, new(8));
+    SpirvReader.ParseToList(shader, out var list);
 
     var x = 0;
 }
@@ -131,7 +131,7 @@ static void CreateShader()
 
     var sorted = new SortedWordBuffer(buffer);
 
-    Console.WriteLine(Disassembler.Disassemble(sorted));
+    Console.WriteLine(SDSLDis.Disassemble(sorted.Memory));
     
     //var list = new List<Instruction>(buffer.Count);
     //foreach(var e in buffer)
