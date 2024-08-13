@@ -35,7 +35,6 @@ public partial class Mixer
             }
         }
         throw new NotImplementedException();
-        return this;
     }
 
 
