@@ -1,6 +1,7 @@
 using System.Runtime.CompilerServices;
 using SoftTouch.Spirv.Core;
 using SoftTouch.Spirv.Core.Buffers;
+using SoftTouch.Spirv.Core.Parsing;
 
 namespace SoftTouch.Spirv;
 
@@ -12,6 +13,7 @@ namespace SoftTouch.Spirv;
 /// </summary>
 public partial struct Mixin
 {
+    public SpirvVersion Version { get; } = new();
     public static readonly Mixin Empty = new("", SortedWordBuffer.Empty);
 
     public string Name { get; init; }

@@ -13,22 +13,30 @@ namespace SoftTouch.Spirv.Core.Parsing;
 public struct SpirvVersion
 {
     public int Version { get; }
+    public int Revision { get; }
 
     internal SpirvVersion(int word)
     {
         Version = word;
     }
 
-    public SpirvVersion(int major, int minor)
+    public SpirvVersion()
+    {
+        Version = (int)Spv.Specification.Version;
+        Revision = (int)Spv.Specification.Revision;
+    }
+    public SpirvVersion(int major, int minor, int revision = 1)
     {
         Version = major << 16 | minor << 8;
+        Revision = revision;
     }
-    public SpirvVersion(string version)
+    public SpirvVersion(string version, int revision = 1)
     {
         if(version.Length == 3 && char.IsDigit(version[0]) && version[1] == '.' && char.IsDigit(version[2]))
         {
             Version = version[0] - '0' << 16 | version[1] - '0' << 8;
         }
+        Revision = revision;
     }
 
     public static implicit operator int(SpirvVersion v) => v.Version;

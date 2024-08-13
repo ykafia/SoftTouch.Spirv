@@ -36,7 +36,7 @@ namespace SoftTouch.Spirv.Generators
                 .DescendantNodes()
                 .OfType<EnumMemberDeclarationSyntax>()
                 .ToDictionary(x => x.Identifier.Text, x => ParseInteger(x.EqualsValue.Value.GetText().ToString()));
-            var lastnum = members.Last().Value;
+            var lastnum = members.Where(x => x.Key != "Max").Last().Value;
             foreach(var e in spirvSDSL.RootElement.GetProperty("instructions").EnumerateArray().Select(x => x.GetProperty("opname").GetString()))
                 members.Add(e, ++lastnum);
 
